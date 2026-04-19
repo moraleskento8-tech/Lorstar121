@@ -12,6 +12,20 @@
     <script src="https://unpkg.com/@formkit/auto-animate@0.8.0/index.iife.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
 
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "ad0c2800-5d31-4ef7-9219-23e214add771",
+      safari_web_id: "web.onesignal.auto.5d035d80-811e-4f05-a17d-f7e13950e2b6",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
