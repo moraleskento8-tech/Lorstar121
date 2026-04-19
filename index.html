@@ -11,9 +11,6 @@
     <script src="https://unpkg.com/localforage@1.10.0/dist/localforage.min.js"></script>
     <script src="https://unpkg.com/@formkit/auto-animate@0.8.0/index.iife.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
-
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <script>
@@ -157,8 +154,8 @@
         body { background-color: var(--color-bg) !important; }
         #app { background: transparent !important; }
         .glass-panel {
-            background: rgba(230, 240, 255, 0.12) !important;
-            backdrop-filter: blur(16px) saturate(150%) !important;
+            background: rgba(230, 240, 255, 0.19) !important;
+            backdrop-filter: blur(0.65px) saturate(150%) !important;
             -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
             border: 1px solid rgba(200, 215, 255, 0.25) !important;
             box-shadow: 0 20px 40px -12px rgba(110, 130, 210, 0.15), inset 0 0 0 1px rgba(255,255,255,0.3) !important;
@@ -183,13 +180,13 @@
             -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
         }
         .msg-bubble {
-            backdrop-filter: blur(12px) saturate(130%) !important;
+            backdrop-filter: blur(6px) saturate(130%) !important;
             -webkit-backdrop-filter: blur(10px) saturate(130%) !important;
             box-shadow: 0 6px 18px rgba(131, 157, 235, 0.12), 0 1px 3px rgba(0,0,0,0.05) !important;
             border: 0.5px solid rgba(255, 255, 255, 0.8) !important;
         }
-        .bg-bubbleSend { background: rgba(190, 210, 250, 0.78) !important; border-color: rgba(255, 255, 255, 0.75) !important; }
-        .bg-bubbleReceive { background: rgba(255, 255, 255, 0.78) !important; border-color: rgba(255, 255, 255, 0.7) !important; }
+        .bg-bubbleSend { background: rgba(190, 210, 250, 0.6) !important; border-color: rgba(255, 255, 255, 0.7) !important; }
+        .bg-bubbleReceive { background: rgba(255, 255, 255, 0.5) !important; border-color: rgba(255, 255, 255, 0.6) !important; }
         .dark .bg-bubbleSend { background: rgba(108, 116, 161, 0.6) !important; }
         .dark .bg-bubbleReceive { background: rgba(45, 50, 70, 0.65) !important; }
         .quote-block { background: rgba(230, 240, 255, 0.75) !important; backdrop-filter: blur(12px) !important; border-left-color: rgba(131, 157, 235, 0.5) !important; }
@@ -289,9 +286,9 @@
         }
         .call-overlay-blur {
             position: absolute; inset: 0;
-            backdrop-filter: blur(2px) brightness(0.78);
-            -webkit-backdrop-filter: blur(2px) brightness(0.78);
-            background: rgba(0,0,0,0.18);
+            backdrop-filter: blur(0.8px) brightness(0.8);
+            -webkit-backdrop-filter: blur(1px) brightness(0.78);
+            background: rgba(0,0,0,0.1);
         }
         .call-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%; }
         
@@ -1708,12 +1705,12 @@ createApp({
             if (!settings.pushNotify) return;
             if (!('Notification' in window)) return;
             if (Notification.permission !== 'granted') return;
-            if (!document.hidden) return; // 只在切走页面时推送
-            try {
+                        try {
                 const n = new Notification(title, {
                     body: body.substring(0, 80),
                     icon: profiles.them.avatar || '',
-                    tag: 'chat-msg-' + Date.now(),
+                    tag: 'chat-msg' ,
+                    renotify: true,
                     requireInteraction: false,
                 });
                 n.onclick = () => { window.focus(); n.close(); };
