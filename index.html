@@ -13,19 +13,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
 
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "ad0c2800-5d31-4ef7-9219-23e214add771",
-      safari_web_id: "web.onesignal.auto.5d035d80-811e-4f05-a17d-f7e13950e2b6",
-      notifyButton: {
-        enable: true,
-      },
-    });
-  });
-</script>
 
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "ad0c2800-5d31-4ef7-9219-23e214add771",
+          safari_web_id: "web.onesignal.auto.5d035d80-811e-4f05-a17d-f7e13950e2b6",
+          // 关键配置：由于网站部署在子目录，必须指定 Service Worker 的路径
+          path: "/Lorstar121/",
+          serviceWorkerParam: { scope: "/Lorstar121/" },
+          serviceWorkerPath: "OneSignalSDKWorker.js",
+          notifyButton: {
+            enable: true,
+          },
+        });
+        // 确保用户已订阅
+        if (!OneSignal.User.PushSubscription.optedIn) {
+          OneSignal.User.PushSubscription.optIn();
+        }
+        console.log("OneSignal 初始化完成，当前订阅状态:", OneSignal.User.PushSubscription.optedIn);
+      });
+    </script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -1979,42 +1988,52 @@ createApp({
         };
 
         // ===== 发送消息 =====
-        const sendMsg = async (sender, type, content=null, quoteOverride=null) => {
-            let txt = content;
-            if(type==='text' && sender==='me') { if(!inputText.value.trim()) return; txt = inputText.value.trim(); inputText.value = ''; }
-            if(!txt) return;
-            let finalQuote = quoteOverride;
-            if (sender === 'me' && quotingMsg.value) { finalQuote = { ...quotingMsg.value }; quotingMsg.value = null; }
-            const msg = {
-                id: Date.now() + Math.random(),
-                sender, type, content: txt,
-                timestamp: Date.now(),
-                status: 'sent',
-                quote: finalQuote
-            };
-            messages.value.push(msg);
-            playSound(sender === 'me' ? 'send' : 'receive');
-                        // 模仿微信：当页面在后台（用户在看别的）时，发送系统消息栏通知
-            if (who === 'them' && document.hidden) {
-                if (Notification.permission === "granted") {
-                    new Notification(profile.name, {
-                        body: type === 'text' ? text : '[图片/表情]',
-                        icon: profile.avatar || 'https://api.iconify.design/solar:user-circle-bold-duotone.svg'
-                    });
-                }
-            }
-                        // 后台通知弹窗
-            if (sender === 'them') {
-                const notifyBody = type === 'text' ? txt : '[图片消息]';
-                showNotification(profiles.them.name, notifyBody);
-            }
-            scrollToBottom();
-            if(sender==='me') {
-                safeSetTimeout(()=>{ const m = messages.value.find(x=>x.id===msg.id); if(m) m.status='read'; }, 2000);
-                triggerAutoReply();
-            }
+        const sendMsg = async (sender, type, content = null, quoteOverride = null) => {
+        let txt = content;
+        if (type === 'text' && sender === 'me') {
+            if (!inputText.value.trim()) return;
+            txt = inputText.value.trim();
+            inputText.value = '';
+        }
+        if (!txt) return;
+
+        let finalQuote = quoteOverride;
+        if (sender === 'me' && quotingMsg.value) {
+            finalQuote = { ...quotingMsg.value };
+            quotingMsg.value = null;
+        }
+
+        const msg = {
+            id: Date.now() + Math.random(),
+            sender,
+            type,
+            content: txt,
+            timestamp: Date.now(),
+            status: 'sent',
+            quote: finalQuote
         };
 
+        messages.value.push(msg);
+        playSound(sender === 'me' ? 'send' : 'receive');
+
+        // ✅ 正确的后台通知（使用已有的 showNotification）
+        if (sender === 'them') {
+             const notifyBody = type === 'text' ? txt : '[图片消息]';
+             showNotification(profiles.them.name, notifyBody);
+    }
+
+         scrollToBottom();
+
+        if (sender === 'me') {
+             // ✅ 更新已读状态
+             safeSetTimeout(() => {
+                 const m = messages.value.find(x => x.id === msg.id);
+                if (m) m.status = 'read';
+             }, 2000);
+            // ✅ 触发自动回复
+             triggerAutoReply();
+        }
+    };
         const quoteMsg = (msg) => { quotingMsg.value = msg; };
         const forceBotReply = () => { triggerAutoReply(true); };
 
