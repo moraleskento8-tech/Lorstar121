@@ -14,25 +14,18 @@
 
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "ad0c2800-5d31-4ef7-9219-23e214add771",
           safari_web_id: "web.onesignal.auto.5d035d80-811e-4f05-a17d-f7e13950e2b6",
-          // 关键配置：由于网站部署在子目录，必须指定 Service Worker 的路径
-          path: "/Lorstar121/",
-          serviceWorkerParam: { scope: "/Lorstar121/" },
-          serviceWorkerPath: "OneSignalSDKWorker.js",
           notifyButton: {
-            enable: true,
+        enable: false,
           },
         });
-        // 确保用户已订阅
-        if (!OneSignal.User.PushSubscription.optedIn) {
-          OneSignal.User.PushSubscription.optIn();
-        }
-        console.log("OneSignal 初始化完成，当前订阅状态:", OneSignal.User.PushSubscription.optedIn);
       });
     </script>
     <script>
