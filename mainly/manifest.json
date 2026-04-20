@@ -1,0 +1,29 @@
+{
+  "name": "静语·星降",
+  "short_name": "静语",
+  "description": "你的专属聊天伙伴，静谧的宇宙角落",
+  "start_url": "/Lorstar121/",
+  "scope": "/Lorstar121/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#eef3fc",
+  "theme_color": "#839deb",
+  "lang": "zh-CN",
+  "categories": ["lifestyle", "social"],
+  "icons": [
+    {
+      "src": "/Lorstar121/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Lorstar121/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": []
+}
