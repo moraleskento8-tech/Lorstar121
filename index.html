@@ -11,7 +11,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/localforage@1.10.0/dist/localforage.min.js"></script>
     <script src="https://unpkg.com/@formkit/auto-animate@0.8.0/index.iife.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Noto+Serif+SC:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <script>
@@ -52,14 +52,14 @@
 
     <style>
         :root {
-            --color-bg: #eef3fc;
-            --color-surface: rgba(255, 255, 255, 0.85);
-            --color-text: #374259;
-            --color-muted: #8292b4;
-            --color-border: rgba(180, 200, 245, 0.6);
-            --color-bubble-send: #dbe4fa;
-            --color-bubble-receive: rgba(255, 255, 255, 0.98);
-            --color-accent: #839deb;
+            --color-bg: #f0f4fb;
+            --color-surface: rgba(255, 255, 255, 0.82);
+            --color-text: #7a8ba8;
+            --color-muted: #a8b6cc;
+            --color-border: rgba(200, 215, 245, 0.5);
+            --color-bubble-send: #dce6f8;
+            --color-bubble-receive: rgba(255, 255, 255, 0.95);
+            --color-accent: #8fa7e8;
             --font-family-base: 'Quicksand', 'Noto Serif SC', sans-serif;
             --font-size-base: 15px;
             font-family: var(--font-family-base);
@@ -168,7 +168,15 @@
             border-color: rgba(100, 130, 200, 0.2) !important;
             box-shadow: 0 20px 40px -12px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05) !important;
         }
-        #chat-container { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        #chat-container {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            will-change: scroll-position;
+            transform: translateZ(0);
+        }
         header, footer {
             background: rgba(235, 245, 255, 0.22) !important;
             backdrop-filter: blur(16px) saturate(160%) !important;
@@ -181,13 +189,13 @@
             -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
         }
         .msg-bubble {
-            backdrop-filter: blur(6px) saturate(130%) !important;
-            -webkit-backdrop-filter: blur(10px) saturate(130%) !important;
-            box-shadow: 0 6px 18px rgba(131, 157, 235, 0.12), 0 1px 3px rgba(0,0,0,0.05) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: 0 4px 12px rgba(131, 157, 235, 0.10), 0 1px 3px rgba(0,0,0,0.04) !important;
             border: 0.5px solid rgba(255, 255, 255, 0.8) !important;
         }
-        .bg-bubbleSend { background: rgba(190, 210, 250, 0.6) !important; border-color: rgba(255, 255, 255, 0.7) !important; }
-        .bg-bubbleReceive { background: rgba(255, 255, 255, 0.5) !important; border-color: rgba(255, 255, 255, 0.6) !important; }
+        .bg-bubbleSend { background: rgba(185, 205, 248, 0.55) !important; border-color: rgba(255, 255, 255, 0.65) !important; }
+        .bg-bubbleReceive { background: rgba(255, 255, 255, 0.48) !important; border-color: rgba(255, 255, 255, 0.55) !important; }
         .dark .bg-bubbleSend { background: rgba(108, 116, 161, 0.6) !important; }
         .dark .bg-bubbleReceive { background: rgba(45, 50, 70, 0.65) !important; }
         .quote-block { background: rgba(230, 240, 255, 0.75) !important; backdrop-filter: blur(12px) !important; border-left-color: rgba(131, 157, 235, 0.5) !important; }
@@ -226,8 +234,6 @@
 
         .fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(8px); }
-        .splash-enter-active, .splash-leave-active { transition: opacity 1.2s ease; }
-        .splash-enter-from, .splash-leave-to { opacity: 0; }
 
         .jelly-btn {
             transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
@@ -240,7 +246,41 @@
         .dark .jelly-btn { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
         .dark .jelly-btn:hover { background: rgba(255,255,255,0.12); }
 
-        .sticker-img { max-width: 80px; max-height: 80px; border-radius: 12px; }
+        /* ===== 顶栏名字不换行 & 输入状态优化 ===== */
+        .header-name {
+            font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 120px; color: #374259; line-height: 1.2;
+        }
+        .dark .header-name { color: #e2e8f4; }
+        .header-status {
+            font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 140px; display: flex; align-items: center; gap: 4px;
+        }
+        .header-typing-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            background: rgba(131,157,235,0.12); border-radius: 20px;
+            padding: 2px 8px; color: #839deb; font-style: italic;
+            white-space: nowrap; font-size: 10px;
+        }
+        /* ===== 音量滑块样式 ===== */
+        .volume-slider {
+            -webkit-appearance: none; appearance: none;
+            height: 4px; border-radius: 2px; outline: none;
+            background: linear-gradient(to right, #839deb var(--pct,50%), rgba(180,200,245,0.4) var(--pct,50%));
+            cursor: pointer;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 16px; height: 16px; border-radius: 50%;
+            background: #839deb; border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(131,157,235,0.4); cursor: pointer;
+        }
+            max-width: 80px; max-height: 80px; border-radius: 12px;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: high-quality;
+            -ms-interpolation-mode: bicubic;
+        }
         .reply-checkbox { accent-color: #839deb; width: 18px; height: 18px; }
 
         /* ===== 语料库分组 Chip 样式 ===== */
@@ -617,6 +657,116 @@
         .poke-picker-enter-from { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.95); }
         .poke-picker-leave-to   { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.95); }
 
+        /* ===== 通话记录气泡 - 精致独立版 ===== */
+        .call-record-card {
+            display: inline-flex; flex-direction: column;
+            min-width: 180px; max-width: 220px;
+            border-radius: 20px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 6px 20px rgba(131,157,235,0.12);
+        }
+        .call-record-card-me { background: rgba(185,205,248,0.55); border-bottom-right-radius: 5px; }
+        .call-record-card-them { background: rgba(255,255,255,0.58); border-bottom-left-radius: 5px; }
+        .dark .call-record-card-me { background: rgba(100,112,158,0.55); }
+        .dark .call-record-card-them { background: rgba(42,47,70,0.60); }
+        .call-record-header {
+            display: flex; align-items: center; gap: 9px;
+            padding: 10px 14px 7px; border-bottom: 1px solid rgba(255,255,255,0.4);
+        }
+        .call-record-icon {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .call-record-icon.ok { background: rgba(74,222,128,0.18); color: #4ade80; }
+        .call-record-icon.miss { background: rgba(248,113,113,0.16); color: #f87171; }
+        .call-record-title { font-size: 13px; font-weight: 600; color: #6a7fa0; line-height: 1.2; }
+        .dark .call-record-title { color: #b8c8e8; }
+        .call-record-sub { font-size: 10px; color: var(--color-muted); margin-top: 1px; }
+        .call-record-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 14px 8px;
+        }
+        .call-record-dur { font-size: 10.5px; color: var(--color-muted); }
+        .call-record-rebtn {
+            font-size: 10px; font-weight: 700; color: #8fa7e8;
+            background: rgba(131,157,235,0.13); border: 1px solid rgba(131,157,235,0.22);
+            border-radius: 20px; padding: 3px 12px; cursor: pointer; transition: all 0.15s;
+        }
+        .call-record-rebtn:hover { background: rgba(131,157,235,0.26); }
+
+        /* ===== 开屏动画 ===== */
+        .splash-enter-active { transition: opacity 1.4s ease; }
+        .splash-leave-active { transition: opacity 1.0s cubic-bezier(0.4,0,1,1); }
+        .splash-enter-from, .splash-leave-to { opacity: 0; }
+
+        /* SVG 星图 & 流星 */
+        @keyframes star-twinkle {
+            0%,100%{opacity:0.15;transform:scale(0.8);} 50%{opacity:1;transform:scale(1.3);}
+        }
+        @keyframes star-drift {
+            0%{opacity:0;transform:translateX(0) translateY(0) scale(0);}
+            10%{opacity:1;transform:scale(1);}
+            90%{opacity:0.8;}
+            100%{opacity:0;transform:translateX(260px) translateY(80px) scale(0.3);}
+        }
+        @keyframes snowfall {
+            0%{transform:translateY(-18px) rotate(0deg);opacity:0;}
+            10%{opacity:0.8;}
+            90%{opacity:0.5;}
+            100%{transform:translateY(110vh) rotate(360deg);opacity:0;}
+        }
+        @keyframes float-up {
+            0%{transform:translateY(0px) rotate(-1deg);opacity:0;}
+            15%{opacity:1;}
+            100%{transform:translateY(-18px) rotate(1deg);opacity:0.8;}
+        }
+        @keyframes line-draw {
+            from{stroke-dashoffset:200;} to{stroke-dashoffset:0;}
+        }
+        @keyframes crown-drop {
+            0%{opacity:0;transform:translateY(-30px) scale(0.7);}
+            60%{transform:translateY(4px) scale(1.05);}
+            100%{opacity:1;transform:translateY(0) scale(1);}
+        }
+        @keyframes text-rise {
+            0%{opacity:0;transform:translateY(22px) letterSpacing:0.8em;}
+            100%{opacity:1;transform:translateY(0);}
+        }
+        @keyframes subtitle-fade {
+            0%{opacity:0;transform:translateY(14px);letter-spacing:0.6em;}
+            100%{opacity:1;transform:translateY(0);letter-spacing:0.35em;}
+        }
+        @keyframes divider-expand {
+            from{width:0;opacity:0;} to{width:80px;opacity:1;}
+        }
+        @keyframes circle-breathe {
+            0%,100%{transform:scale(1);opacity:0.25;} 50%{transform:scale(1.12);opacity:0.45;}
+        }
+        @keyframes dot-pulse {
+            0%,100%{transform:scale(0.6);opacity:0.3;} 50%{transform:scale(1.4);opacity:1;}
+        }
+        @keyframes daisy-bloom {
+            0%{opacity:0;transform:scale(0.2) rotate(-45deg);}
+            70%{transform:scale(1.1) rotate(5deg);}
+            100%{opacity:1;transform:scale(1) rotate(0deg);}
+        }
+        @keyframes orbit-slow {
+            from{transform:rotate(0deg) translateX(90px) rotate(0deg);}
+            to{transform:rotate(360deg) translateX(90px) rotate(-360deg);}
+        }
+
+        .splash-star { animation: star-twinkle var(--dur,2.4s) ease-in-out infinite; animation-delay: var(--delay,0s); }
+        .splash-snowflake { animation: snowfall var(--dur,7s) linear infinite; animation-delay: var(--delay,0s); position:absolute; top:-20px; pointer-events:none; color: rgba(180,200,240,0.7); font-size:var(--sz,12px); }
+        .splash-meteor { animation: star-drift var(--dur,3.5s) linear infinite; animation-delay: var(--delay,0s); position:absolute; }
+        .splash-crown { animation: crown-drop 1s cubic-bezier(0.34,1.56,0.64,1) 0.3s both; }
+        .splash-title { animation: text-rise 1.1s cubic-bezier(0.22,1,0.36,1) 0.7s both; }
+        .splash-sub { animation: subtitle-fade 1s ease 1.3s both; }
+        .splash-divider { animation: divider-expand 0.9s ease 1.0s both; }
+        .splash-badge { animation: subtitle-fade 1s ease 1.6s both; }
+        .splash-circle { animation: circle-breathe 4s ease-in-out infinite; }
+        .splash-daisy { animation: daisy-bloom 0.9s cubic-bezier(0.34,1.56,0.64,1) var(--delay,1.2s) both; }
+        .splash-dot { animation: dot-pulse var(--dur,1.6s) ease-in-out infinite; animation-delay: var(--delay,0s); }
+
         /* 中屏通话窗口额外样式 */
         .call-window-medium { touch-action: none; user-select: none; }
     </style>
@@ -627,176 +777,209 @@
 <body>
 <div id="app" class="h-[100dvh] w-full flex justify-center items-center selection:bg-accent/30 relative" style="background: transparent !important;">
 
-    <!-- ===== 启动画面 ===== -->
+    <!-- ===== 开屏动画 ===== -->
     <transition name="splash">
-        <div v-if="showSplash" class="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden" style="background:linear-gradient(160deg,#e8eeff 0%,#f0e8fa 40%,#e4f0fb 100%);">
+        <div v-if="showSplash" class="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none"
+             style="background: linear-gradient(160deg, #f5f7ff 0%, #eef2fc 40%, #e8eef8 70%, #edf0f8 100%);">
 
-            <!-- 装饰 SVG 背景层 -->
-            <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <style>
-                        .splash-fade-in { animation: splashFadeIn 1.1s ease forwards; }
-                        .splash-float   { animation: splashFloat 4s ease-in-out infinite; }
-                        .splash-float-r { animation: splashFloat 4.8s ease-in-out infinite reverse; }
-                        .splash-twinkle { animation: splashTwinkle 2.4s ease-in-out infinite; }
-                        @keyframes splashFadeIn  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-                        @keyframes splashFloat   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
-                        @keyframes splashTwinkle { 0%,100%{opacity:.35;transform:scale(.85)} 50%{opacity:1;transform:scale(1.15)} }
-                    </style>
-                </defs>
+            <!-- 背景磨砂大圆 -->
+            <div class="splash-circle absolute" style="width:420px;height:420px;border-radius:50%;background:rgba(180,200,248,0.13);top:-80px;left:-100px;"></div>
+            <div class="splash-circle absolute" style="width:300px;height:300px;border-radius:50%;background:rgba(200,215,252,0.10);bottom:-60px;right:-70px;animation-delay:2s;"></div>
+            <div class="splash-circle absolute" style="width:180px;height:180px;border-radius:50%;background:rgba(220,230,255,0.08);top:40%;left:70%;animation-delay:1s;"></div>
 
-                <!-- ── 角落勿忘我 (左上) ── -->
-                <g opacity=".55" style="animation:splashFadeIn 1.2s .1s ease both">
-                    <!-- 细茎 -->
-                    <path d="M22 180 Q30 155 44 140" stroke="#b8cff0" stroke-width="1.2" fill="none"/>
-                    <path d="M28 175 Q40 160 52 148" stroke="#b8cff0" stroke-width="1.2" fill="none"/>
-                    <path d="M18 185 Q24 165 36 152" stroke="#b8cff0" stroke-width="1.2" fill="none"/>
-                    <!-- 勿忘我小花 -->
-                    <g transform="translate(44,138)"><circle r="2.5" fill="#7faee8"/><circle r="1.2" fill="#fff" cx="0" cy="-5"><animate attributeName="r" values="1.2;1.5;1.2" dur="3s" repeatCount="indefinite"/></circle><circle r="1.2" fill="#fff" cx="4.7" cy="-1.5"/><circle r="1.2" fill="#fff" cx="2.9" cy="4.1"/><circle r="1.2" fill="#fff" cx="-2.9" cy="4.1"/><circle r="1.2" fill="#fff" cx="-4.7" cy="-1.5"/></g>
-                    <g transform="translate(52,146)"><circle r="2.2" fill="#9bbde8"/><circle r="1" fill="#fff" cx="0" cy="-4.5"/><circle r="1" fill="#fff" cx="4.3" cy="-1.4"/><circle r="1" fill="#fff" cx="2.6" cy="3.7"/><circle r="1" fill="#fff" cx="-2.6" cy="3.7"/><circle r="1" fill="#fff" cx="-4.3" cy="-1.4"/></g>
-                    <g transform="translate(36,150)"><circle r="2" fill="#aac8f0"/><circle r=".9" fill="#fff" cx="0" cy="-4"/><circle r=".9" fill="#fff" cx="3.8" cy="-1.2"/><circle r=".9" fill="#fff" cx="2.3" cy="3.3"/><circle r=".9" fill="#fff" cx="-2.3" cy="3.3"/><circle r=".9" fill="#fff" cx="-3.8" cy="-1.2"/></g>
-                </g>
+            <!-- 雪花粒子 -->
+            <template v-for="i in 18">
+                <div class="splash-snowflake" :style="`left:${(i*5.3+2)%98}%;--dur:${6+((i*7)%5)}s;--delay:${((i*0.37))%4}s;--sz:${9+(i%7)}px;opacity:${0.4+((i%4)*0.15)};`">
+                    <svg :width="9+(i%7)" :height="9+(i%7)" viewBox="0 0 24 24" fill="none">
+                        <line x1="12" y1="2" x2="12" y2="22" stroke="rgba(150,180,240,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="2" y1="12" x2="22" y2="12" stroke="rgba(150,180,240,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="5" y1="5" x2="19" y2="19" stroke="rgba(150,180,240,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="19" y1="5" x2="5" y2="19" stroke="rgba(150,180,240,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+                        <circle cx="12" cy="6" r="1.2" fill="rgba(170,195,245,0.8)"/>
+                        <circle cx="12" cy="18" r="1.2" fill="rgba(170,195,245,0.8)"/>
+                        <circle cx="6" cy="12" r="1.2" fill="rgba(170,195,245,0.8)"/>
+                        <circle cx="18" cy="12" r="1.2" fill="rgba(170,195,245,0.8)"/>
+                    </svg>
+                </div>
+            </template>
 
-                <!-- ── 角落雏菊 (右上) ── -->
-                <g opacity=".5" style="animation:splashFadeIn 1.3s .2s ease both">
-                    <path d="M348 60 Q358 80 362 102" stroke="#c8d8b0" stroke-width="1.2" fill="none"/>
-                    <path d="M355 58 Q368 78 370 100" stroke="#c8d8b0" stroke-width="1.2" fill="none"/>
-                    <!-- 雏菊 -->
-                    <g transform="translate(362,104)">
-                        <g><ellipse rx="5" ry="2" fill="#f0f0f0" transform="rotate(0)"  /><ellipse rx="5" ry="2" fill="#f0f0f0" transform="rotate(36)" /><ellipse rx="5" ry="2" fill="#f0f0f0" transform="rotate(72)" /><ellipse rx="5" ry="2" fill="#f0f0f0" transform="rotate(108)"/><ellipse rx="5" ry="2" fill="#f0f0f0" transform="rotate(144)"/></g>
-                        <circle r="4" fill="#f9e08a"/>
-                    </g>
-                    <g transform="translate(371,102)">
-                        <g><ellipse rx="4" ry="1.7" fill="#f5f5f5" transform="rotate(20)" /><ellipse rx="4" ry="1.7" fill="#f5f5f5" transform="rotate(56)" /><ellipse rx="4" ry="1.7" fill="#f5f5f5" transform="rotate(92)" /><ellipse rx="4" ry="1.7" fill="#f5f5f5" transform="rotate(128)"/><ellipse rx="4" ry="1.7" fill="#f5f5f5" transform="rotate(164)"/></g>
-                        <circle r="3.2" fill="#fcd86a"/>
-                    </g>
+            <!-- 星图 SVG (固定背景层) -->
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 375 812" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.9;">
+                <!-- 星象连线 -->
+                <g stroke="rgba(160,185,235,0.22)" stroke-width="0.7" stroke-dasharray="200" style="animation:line-draw 2.5s ease 0.5s both;">
+                    <line x1="60" y1="120" x2="130" y2="80"/>
+                    <line x1="130" y1="80" x2="210" y2="140"/>
+                    <line x1="210" y1="140" x2="270" y2="100"/>
+                    <line x1="270" y1="100" x2="315" y2="160"/>
+                    <line x1="60" y1="120" x2="90" y2="200"/>
+                    <line x1="90" y1="200" x2="160" y2="220"/>
+                    <line x1="160" y1="220" x2="210" y2="140"/>
+                    <line x1="245" y1="300" x2="290" y2="260"/>
+                    <line x1="290" y1="260" x2="340" y2="310"/>
+                    <line x1="50" y1="350" x2="110" y2="320"/>
+                    <line x1="110" y1="320" x2="150" y2="370"/>
+                    <line x1="30" y1="680" x2="80" y2="650"/>
+                    <line x1="80" y1="650" x2="140" y2="690"/>
+                    <line x1="240" y1="720" x2="300" y2="700"/>
+                    <line x1="300" y1="700" x2="350" y2="740"/>
                 </g>
-
-                <!-- ── 左下勿忘我簇 ── -->
-                <g opacity=".45" style="animation:splashFadeIn 1.1s .4s ease both">
-                    <path d="M15 680 Q22 660 34 645" stroke="#b8cff0" stroke-width="1.1" fill="none"/>
-                    <path d="M22 690 Q32 668 48 655" stroke="#b8cff0" stroke-width="1.1" fill="none"/>
-                    <g transform="translate(34,643)"><circle r="2.5" fill="#8ab4e8"/><circle r="1.1" fill="#fff" cx="0" cy="-4.8"/><circle r="1.1" fill="#fff" cx="4.5" cy="-1.5"/><circle r="1.1" fill="#fff" cx="2.8" cy="3.9"/><circle r="1.1" fill="#fff" cx="-2.8" cy="3.9"/><circle r="1.1" fill="#fff" cx="-4.5" cy="-1.5"/></g>
-                    <g transform="translate(48,653)"><circle r="2.2" fill="#aac4e8"/><circle r="1" fill="#fff" cx="0" cy="-4.2"/><circle r="1" fill="#fff" cx="4" cy="-1.3"/><circle r="1" fill="#fff" cx="2.5" cy="3.5"/><circle r="1" fill="#fff" cx="-2.5" cy="3.5"/><circle r="1" fill="#fff" cx="-4" cy="-1.3"/></g>
+                <!-- 星点 -->
+                <g fill="rgba(160,185,240,0.9)">
+                    <circle class="splash-star" cx="60" cy="120" r="2.2" style="--dur:2.1s;--delay:0s;"/>
+                    <circle class="splash-star" cx="130" cy="80" r="3" style="--dur:1.8s;--delay:0.3s;"/>
+                    <circle class="splash-star" cx="210" cy="140" r="1.8" style="--dur:2.6s;--delay:0.6s;"/>
+                    <circle class="splash-star" cx="270" cy="100" r="2.5" style="--dur:2s;--delay:0.1s;"/>
+                    <circle class="splash-star" cx="315" cy="160" r="1.5" style="--dur:3s;--delay:0.8s;"/>
+                    <circle class="splash-star" cx="90" cy="200" r="2" style="--dur:2.3s;--delay:0.4s;"/>
+                    <circle class="splash-star" cx="160" cy="220" r="1.6" style="--dur:1.9s;--delay:1.1s;"/>
+                    <circle class="splash-star" cx="245" cy="300" r="2.8" style="--dur:2.5s;--delay:0.2s;"/>
+                    <circle class="splash-star" cx="290" cy="260" r="1.4" style="--dur:1.7s;--delay:0.9s;"/>
+                    <circle class="splash-star" cx="340" cy="310" r="2.1" style="--dur:2.4s;--delay:0.5s;"/>
+                    <circle class="splash-star" cx="50" cy="350" r="1.9" style="--dur:2.2s;--delay:1.3s;"/>
+                    <circle class="splash-star" cx="110" cy="320" r="2.4" style="--dur:1.6s;--delay:0.7s;"/>
+                    <circle class="splash-star" cx="150" cy="370" r="1.7" style="--dur:2.8s;--delay:0.3s;"/>
+                    <circle class="splash-star" cx="30" cy="680" r="2" style="--dur:2.1s;--delay:1.2s;"/>
+                    <circle class="splash-star" cx="80" cy="650" r="2.6" style="--dur:1.9s;--delay:0.6s;"/>
+                    <circle class="splash-star" cx="140" cy="690" r="1.5" style="--dur:2.7s;--delay:0.1s;"/>
+                    <circle class="splash-star" cx="240" cy="720" r="2.2" style="--dur:2.3s;--delay:1.0s;"/>
+                    <circle class="splash-star" cx="300" cy="700" r="1.8" style="--dur:1.8s;--delay:0.4s;"/>
+                    <circle class="splash-star" cx="350" cy="740" r="2.5" style="--dur:2.5s;--delay:0.8s;"/>
+                    <!-- 散点 -->
+                    <circle class="splash-star" cx="180" cy="55" r="1.4" style="--dur:2s;--delay:1.5s;"/>
+                    <circle class="splash-star" cx="330" cy="420" r="1.2" style="--dur:2.9s;--delay:0.2s;"/>
+                    <circle class="splash-star" cx="20" cy="500" r="1.6" style="--dur:2.4s;--delay:0.6s;"/>
+                    <circle class="splash-star" cx="360" cy="580" r="1.3" style="--dur:1.8s;--delay:1.1s;"/>
                 </g>
-
-                <!-- ── 右下雏菊 ── -->
-                <g opacity=".45" style="animation:splashFadeIn 1.2s .35s ease both">
-                    <path d="M350 740 Q360 720 368 700" stroke="#c8d8b0" stroke-width="1.2" fill="none"/>
-                    <g transform="translate(368,698)">
-                        <g><ellipse rx="5.5" ry="2.2" fill="#f2f2f2" transform="rotate(0)"  /><ellipse rx="5.5" ry="2.2" fill="#f2f2f2" transform="rotate(36)" /><ellipse rx="5.5" ry="2.2" fill="#f2f2f2" transform="rotate(72)" /><ellipse rx="5.5" ry="2.2" fill="#f2f2f2" transform="rotate(108)"/><ellipse rx="5.5" ry="2.2" fill="#f2f2f2" transform="rotate(144)"/></g>
-                        <circle r="4.5" fill="#f9e08a"/>
-                    </g>
+                <!-- 流星 1 -->
+                <g class="splash-meteor" style="--dur:5s;--delay:1.2s;left:0;top:60px;">
+                    <line x1="0" y1="0" x2="80" y2="24" stroke="rgba(200,220,255,0.8)" stroke-width="1.2" stroke-linecap="round"/>
+                    <circle cx="0" cy="0" r="2" fill="rgba(220,235,255,0.9)"/>
                 </g>
-
-                <!-- ── 飘落雪花 ── -->
-                <g class="splash-twinkle" style="animation-delay:.3s" opacity=".5" transform="translate(60,240)">
-                    <line x1="-8" y1="0" x2="8" y2="0" stroke="#c8d8f0" stroke-width="1.3"/><line x1="0" y1="-8" x2="0" y2="8" stroke="#c8d8f0" stroke-width="1.3"/><line x1="-5.7" y1="-5.7" x2="5.7" y2="5.7" stroke="#c8d8f0" stroke-width="1.3"/><line x1="5.7" y1="-5.7" x2="-5.7" y2="5.7" stroke="#c8d8f0" stroke-width="1.3"/>
-                    <circle cx="-8" cy="0" r="1.4" fill="#c8d8f0"/><circle cx="8" cy="0" r="1.4" fill="#c8d8f0"/><circle cx="0" cy="-8" r="1.4" fill="#c8d8f0"/><circle cx="0" cy="8" r="1.4" fill="#c8d8f0"/>
-                </g>
-                <g class="splash-twinkle" style="animation-delay:.8s" opacity=".4" transform="translate(340,280)">
-                    <line x1="-6" y1="0" x2="6" y2="0" stroke="#d0c8f0" stroke-width="1.2"/><line x1="0" y1="-6" x2="0" y2="6" stroke="#d0c8f0" stroke-width="1.2"/><line x1="-4.2" y1="-4.2" x2="4.2" y2="4.2" stroke="#d0c8f0" stroke-width="1.2"/><line x1="4.2" y1="-4.2" x2="-4.2" y2="4.2" stroke="#d0c8f0" stroke-width="1.2"/>
-                    <circle cx="-6" cy="0" r="1.2" fill="#d0c8f0"/><circle cx="6" cy="0" r="1.2" fill="#d0c8f0"/><circle cx="0" cy="-6" r="1.2" fill="#d0c8f0"/><circle cx="0" cy="6" r="1.2" fill="#d0c8f0"/>
-                </g>
-                <g class="splash-twinkle" style="animation-delay:1.4s" opacity=".35" transform="translate(190,700)">
-                    <line x1="-5" y1="0" x2="5" y2="0" stroke="#c0d0f0" stroke-width="1"/><line x1="0" y1="-5" x2="0" y2="5" stroke="#c0d0f0" stroke-width="1"/><line x1="-3.5" y1="-3.5" x2="3.5" y2="3.5" stroke="#c0d0f0" stroke-width="1"/><line x1="3.5" y1="-3.5" x2="-3.5" y2="3.5" stroke="#c0d0f0" stroke-width="1"/>
-                </g>
-
-                <!-- ── 星星 ── -->
-                <g class="splash-twinkle" style="animation-delay:0s" transform="translate(80,90)">
-                    <path d="M0,-8 L1.9,-2.4 L7.6,-2.4 L3.1,0.9 L4.7,6.9 L0,3.5 L-4.7,6.9 L-3.1,0.9 L-7.6,-2.4 L-1.9,-2.4 Z" fill="#c8b8f0" opacity=".7"/>
-                </g>
-                <g class="splash-twinkle" style="animation-delay:.6s" transform="translate(320,150)">
-                    <path d="M0,-6 L1.4,-1.8 L5.7,-1.8 L2.3,0.7 L3.5,5.2 L0,2.6 L-3.5,5.2 L-2.3,0.7 L-5.7,-1.8 L-1.4,-1.8 Z" fill="#a8c0e8" opacity=".65"/>
-                </g>
-                <g class="splash-twinkle" style="animation-delay:1.0s" transform="translate(50,550)">
-                    <path d="M0,-5 L1.2,-1.5 L4.8,-1.5 L1.9,0.6 L2.9,4.3 L0,2.2 L-2.9,4.3 L-1.9,0.6 L-4.8,-1.5 L-1.2,-1.5 Z" fill="#c8b8f0" opacity=".55"/>
-                </g>
-                <g class="splash-twinkle" style="animation-delay:1.6s" transform="translate(345,590)">
-                    <path d="M0,-7 L1.7,-2.1 L6.7,-2.1 L2.7,0.8 L4.2,6.1 L0,3.1 L-4.2,6.1 L-2.7,0.8 L-6.7,-2.1 L-1.7,-2.1 Z" fill="#b8d0e8" opacity=".6"/>
-                </g>
-                <!-- 小圆点星 -->
-                <circle cx="155" cy="68" r="2.5" fill="#c8b8f0" opacity=".5"><animate attributeName="opacity" values=".5;1;.5" dur="2.5s" repeatCount="indefinite"/></circle>
-                <circle cx="262" cy="95" r="2" fill="#a8c8e8" opacity=".45"><animate attributeName="opacity" values=".45;.9;.45" dur="3.2s" repeatCount="indefinite"/></circle>
-                <circle cx="310" cy="710" r="2.2" fill="#c0b8f0" opacity=".4"><animate attributeName="opacity" values=".4;.85;.4" dur="2.8s" repeatCount="indefinite"/></circle>
-                <circle cx="78" cy="760" r="1.8" fill="#a8c0f0" opacity=".4"><animate attributeName="opacity" values=".4;.9;.4" dur="3.5s" repeatCount="indefinite"/></circle>
-
-                <!-- ── 月亮 (右上角) ── -->
-                <g transform="translate(348,78)" opacity=".6" style="animation:splashFadeIn 1.4s .1s ease both">
-                    <path d="M12,-14 Q0,-18 -10,-8 Q-18,4 -8,14 Q2,22 14,16 Q4,12 2,2 Q0,-10 12,-14 Z" fill="#e8daf5" stroke="#d0b8f0" stroke-width="0.8"/>
-                    <!-- 小星在月亮旁 -->
-                    <circle cx="18" cy="-6" r="1.5" fill="#c8b8f0" opacity=".8"><animate attributeName="opacity" values=".8;0.3;.8" dur="2s" repeatCount="indefinite"/></circle>
+                <!-- 流星 2 -->
+                <g class="splash-meteor" style="--dur:6.5s;--delay:3.5s;left:100px;top:200px;">
+                    <line x1="0" y1="0" x2="60" y2="18" stroke="rgba(200,220,255,0.6)" stroke-width="0.9" stroke-linecap="round"/>
+                    <circle cx="0" cy="0" r="1.5" fill="rgba(210,230,255,0.8)"/>
                 </g>
             </svg>
 
-            <!-- ── 中央内容区 ── -->
-            <div class="relative flex flex-col items-center" style="animation:splashFadeIn 0.9s 0.2s ease both;opacity:0;">
+            <!-- 装饰点线圆 -->
+            <div class="absolute" style="top:18%;left:8%;opacity:0.5;">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                    <circle cx="30" cy="30" r="28" stroke="rgba(160,185,240,0.3)" stroke-width="0.8"/>
+                    <circle cx="30" cy="30" r="18" stroke="rgba(160,185,240,0.2)" stroke-width="0.5" stroke-dasharray="3 4"/>
+                    <circle cx="30" cy="30" r="2.5" fill="rgba(160,185,240,0.6)"/>
+                    <circle cx="30" cy="2" r="1.5" fill="rgba(160,185,240,0.5)"/>
+                    <circle cx="58" cy="30" r="1.5" fill="rgba(160,185,240,0.5)"/>
+                    <circle cx="30" cy="58" r="1.5" fill="rgba(160,185,240,0.5)"/>
+                    <circle cx="2" cy="30" r="1.5" fill="rgba(160,185,240,0.5)"/>
+                </svg>
+            </div>
+            <div class="absolute" style="bottom:22%;right:7%;opacity:0.45;transform:rotate(30deg);">
+                <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
+                    <circle cx="25" cy="25" r="23" stroke="rgba(160,185,240,0.25)" stroke-width="0.8"/>
+                    <line x1="25" y1="2" x2="25" y2="48" stroke="rgba(160,185,240,0.2)" stroke-width="0.6"/>
+                    <line x1="2" y1="25" x2="48" y2="25" stroke="rgba(160,185,240,0.2)" stroke-width="0.6"/>
+                </svg>
+            </div>
 
-                <!-- 兔子 SVG 插画 -->
-                <div style="animation:splashFloat 3.8s ease-in-out infinite;margin-bottom:8px;">
-                    <svg width="130" height="130" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
-                        <!-- 身体 -->
-                        <ellipse cx="65" cy="88" rx="28" ry="24" fill="#f5f0ff" stroke="#d8c8f0" stroke-width="1.2"/>
-                        <!-- 头 -->
-                        <ellipse cx="65" cy="60" rx="22" ry="20" fill="#f5f0ff" stroke="#d8c8f0" stroke-width="1.2"/>
-                        <!-- 左耳 -->
-                        <ellipse cx="50" cy="34" rx="7" ry="16" fill="#f5f0ff" stroke="#d8c8f0" stroke-width="1.2"/>
-                        <ellipse cx="50" cy="34" rx="4" ry="12" fill="#f0d8e8"/>
-                        <!-- 右耳 -->
-                        <ellipse cx="80" cy="34" rx="7" ry="16" fill="#f5f0ff" stroke="#d8c8f0" stroke-width="1.2"/>
-                        <ellipse cx="80" cy="34" rx="4" ry="12" fill="#f0d8e8"/>
-                        <!-- 眼睛 -->
-                        <ellipse cx="57" cy="57" rx="3.5" ry="4" fill="#2d2060"/>
-                        <ellipse cx="73" cy="57" rx="3.5" ry="4" fill="#2d2060"/>
-                        <circle cx="58.5" cy="55.5" r="1.2" fill="white"/>
-                        <circle cx="74.5" cy="55.5" r="1.2" fill="white"/>
-                        <!-- 鼻子 -->
-                        <ellipse cx="65" cy="63.5" rx="2.8" ry="2" fill="#f0b0c0"/>
-                        <!-- 嘴 -->
-                        <path d="M61,66 Q65,70 69,66" stroke="#c8a0b8" stroke-width="1" fill="none" stroke-linecap="round"/>
-                        <!-- 腮红 -->
-                        <ellipse cx="53" cy="65" rx="5.5" ry="3.5" fill="#f8c8d8" opacity=".45"/>
-                        <ellipse cx="77" cy="65" rx="5.5" ry="3.5" fill="#f8c8d8" opacity=".45"/>
-                        <!-- 手 -->
-                        <ellipse cx="42" cy="88" rx="9" ry="7" fill="#f5f0ff" stroke="#d8c8f0" stroke-width="1.1"/>
-                        <ellipse cx="88" cy="88" rx="9" ry="7" fill="#f5f0ff" stroke="#d8c8f0" stroke-width="1.1"/>
-                        <!-- 脚 -->
-                        <ellipse cx="52" cy="108" rx="11" ry="7" fill="#f5f0ff" stroke="#d8c8f0" stroke-width="1.1"/>
-                        <ellipse cx="78" cy="108" rx="11" ry="7" fill="#f5f0ff" stroke="#d8c8f0" stroke-width="1.1"/>
-                        <!-- 领结蝴蝶结 -->
-                        <path d="M60,80 Q65,77 70,80 Q65,83 60,80 Z" fill="#c8b0e8"/>
-                        <path d="M55,80 Q60,75 60,80 Q60,85 55,80 Z" fill="#d0b8f0"/>
-                        <path d="M75,80 Q70,75 70,80 Q70,85 75,80 Z" fill="#d0b8f0"/>
-                        <circle cx="65" cy="80" r="2.5" fill="#b898d8"/>
-                        <!-- 小雪花点缀 -->
-                        <g opacity=".5" transform="translate(32,72)">
-                            <line x1="-4" y1="0" x2="4" y2="0" stroke="#c0d0f0" stroke-width="0.8"/><line x1="0" y1="-4" x2="0" y2="4" stroke="#c0d0f0" stroke-width="0.8"/>
-                        </g>
-                        <g opacity=".45" transform="translate(98,74)">
-                            <line x1="-3.5" y1="0" x2="3.5" y2="0" stroke="#c0d0f0" stroke-width="0.8"/><line x1="0" y1="-3.5" x2="0" y2="3.5" stroke="#c0d0f0" stroke-width="0.8"/>
-                        </g>
-                        <!-- 小星星 -->
-                        <path d="M25,58 L26.1,61.3 L29.6,61.3 L26.9,63.4 L27.9,66.8 L25,64.6 L22.1,66.8 L23.1,63.4 L20.4,61.3 L23.9,61.3 Z" fill="#c8b8f0" opacity=".6"/>
-                        <path d="M105,50 L106,53 L109,53 L106.5,54.8 L107.5,57.8 L105,56 L102.5,57.8 L103.5,54.8 L101,53 L104,53 Z" fill="#a8c8e8" opacity=".55"/>
-                    </svg>
-                </div>
+            <!-- 雏菊 左下 -->
+            <div class="splash-daisy absolute" style="bottom:18%;left:5%;--delay:1.1s;">
+                <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+                    <g transform="translate(26,26)">
+                        <ellipse rx="4" ry="12" fill="rgba(230,235,255,0.75)" transform="rotate(0) translateY(-14)"/>
+                        <ellipse rx="4" ry="12" fill="rgba(230,235,255,0.7)" transform="rotate(45) translate(0,-14)"/>
+                        <ellipse rx="4" ry="12" fill="rgba(230,235,255,0.7)" transform="rotate(90) translate(0,-14)"/>
+                        <ellipse rx="4" ry="12" fill="rgba(230,235,255,0.7)" transform="rotate(135) translate(0,-14)"/>
+                        <ellipse rx="4" ry="12" fill="rgba(230,235,255,0.7)" transform="rotate(180) translate(0,-14)"/>
+                        <ellipse rx="4" ry="12" fill="rgba(230,235,255,0.7)" transform="rotate(225) translate(0,-14)"/>
+                        <ellipse rx="4" ry="12" fill="rgba(230,235,255,0.75)" transform="rotate(270) translate(0,-14)"/>
+                        <ellipse rx="4" ry="12" fill="rgba(230,235,255,0.7)" transform="rotate(315) translate(0,-14)"/>
+                        <circle r="6" fill="rgba(250,250,220,0.85)"/>
+                    </g>
+                </svg>
+            </div>
 
-                <!-- 花体英文标题 -->
-                <div style="font-family:'Palatino Linotype','Book Antiqua',Palatino,'Times New Roman',Georgia,serif;font-size:28px;color:#9880c8;letter-spacing:.08em;font-style:italic;font-weight:400;margin-bottom:6px;text-shadow:0 1px 8px rgba(180,160,240,.3);">
-                    Whisper &amp; Starlight
-                </div>
+            <!-- 勿忘我 右上 -->
+            <div class="splash-daisy absolute" style="top:14%;right:8%;--delay:1.4s;">
+                <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+                    <g transform="translate(22,22)">
+                        <ellipse rx="3" ry="9" fill="rgba(185,205,250,0.7)" transform="rotate(0) translate(0,-11)"/>
+                        <ellipse rx="3" ry="9" fill="rgba(195,210,255,0.65)" transform="rotate(72) translate(0,-11)"/>
+                        <ellipse rx="3" ry="9" fill="rgba(185,205,250,0.7)" transform="rotate(144) translate(0,-11)"/>
+                        <ellipse rx="3" ry="9" fill="rgba(195,210,255,0.65)" transform="rotate(216) translate(0,-11)"/>
+                        <ellipse rx="3" ry="9" fill="rgba(185,205,250,0.7)" transform="rotate(288) translate(0,-11)"/>
+                        <circle r="5" fill="rgba(255,255,230,0.8)"/>
+                        <circle r="2.5" fill="rgba(255,240,180,0.9)"/>
+                    </g>
+                </svg>
+            </div>
 
-                <!-- 中文标题 -->
-                <div style="font-family:'Noto Serif SC','PingFang SC',serif;font-size:18px;color:#7060a0;letter-spacing:.55em;font-weight:300;margin-bottom:4px;">
-                    静语·星降
-                </div>
+            <!-- 皇冠 -->
+            <div class="splash-crown mb-5 mt-2">
+                <svg width="52" height="38" viewBox="0 0 52 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 32 L4 14 L16 24 L26 4 L36 24 L48 14 L48 32 Z" stroke="rgba(160,185,235,0.7)" stroke-width="1.5" stroke-linejoin="round" fill="rgba(200,218,255,0.18)"/>
+                    <rect x="2" y="32" width="48" height="5" rx="2.5" fill="rgba(185,205,248,0.35)" stroke="rgba(160,185,235,0.5)" stroke-width="1"/>
+                    <circle cx="26" cy="4" r="2.5" fill="rgba(200,220,255,0.9)"/>
+                    <circle cx="4" cy="14" r="2" fill="rgba(200,220,255,0.8)"/>
+                    <circle cx="48" cy="14" r="2" fill="rgba(200,220,255,0.8)"/>
+                    <circle cx="26" cy="24" r="3" fill="rgba(220,230,255,0.7)"/>
+                    <circle cx="16" cy="24" r="1.5" fill="rgba(200,218,255,0.8)"/>
+                    <circle cx="36" cy="24" r="1.5" fill="rgba(200,218,255,0.8)"/>
+                </svg>
+            </div>
 
-                <!-- 装饰线 + 小星点 -->
-                <div style="display:flex;align-items:center;gap:10px;margin-top:10px;opacity:.6">
-                    <div style="width:36px;height:1px;background:linear-gradient(to right,transparent,#c0b0e0);"></div>
-                    <svg width="8" height="8" viewBox="0 0 10 10"><path d="M5,0 L5.9,3.1 L9,3.1 L6.6,5.1 L7.5,8.1 L5,6.1 L2.5,8.1 L3.4,5.1 L1,3.1 L4.1,3.1Z" fill="#c0b0e0"/></svg>
-                    <div style="width:36px;height:1px;background:linear-gradient(to left,transparent,#c0b0e0);"></div>
-                </div>
+            <!-- 中心内容 -->
+            <div class="flex flex-col items-center" style="gap:0;">
+                <!-- 主标题 中文 花体感 -->
+                <h1 class="splash-title" style="
+                    font-family: 'Noto Serif SC', serif;
+                    font-weight: 300;
+                    font-size: 28px;
+                    letter-spacing: 0.55em;
+                    color: rgba(120,145,195,0.82);
+                    text-indent: 0.55em;
+                    line-height: 1;
+                    margin-bottom: 10px;
+                ">星降长桉林</h1>
+
+                <!-- 分隔线 -->
+                <div class="splash-divider" style="
+                    height: 1px;
+                    background: linear-gradient(90deg, transparent, rgba(160,185,235,0.6), transparent);
+                    margin: 0 auto 10px;
+                    display:block;
+                    width:80px;
+                "></div>
+
+                <!-- 英文副标题 花体 -->
+                <p class="splash-sub" style="
+                    font-family: 'Cormorant Garamond', 'IM Fell English', serif;
+                    font-style: italic;
+                    font-weight: 300;
+                    font-size: 16px;
+                    letter-spacing: 0.18em;
+                    color: rgba(145,165,210,0.75);
+                    margin-bottom: 24px;
+                ">Loreille &amp; Savit</p>
+            </div>
+
+            <!-- 底部徽章 -->
+            <div class="splash-badge" style="
+                position:absolute; bottom:48px; left:50%; transform:translateX(-50%);
+                display:flex; align-items:center; gap:12px;
+                white-space:nowrap;
+            ">
+                <div class="splash-dot" style="width:4px;height:4px;border-radius:50%;background:rgba(160,185,235,0.5);--dur:1.4s;--delay:0s;"></div>
+                <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:10.5px;letter-spacing:0.28em;color:rgba(165,185,225,0.65);">whisper · starlight</span>
+                <div class="splash-dot" style="width:4px;height:4px;border-radius:50%;background:rgba(160,185,235,0.5);--dur:1.4s;--delay:0.7s;"></div>
+            </div>
+
+            <!-- 轨道小点 装饰 -->
+            <div style="position:absolute;top:50%;left:50%;width:0;height:0;animation:orbit-slow 18s linear infinite;pointer-events:none;">
+                <div style="width:6px;height:6px;border-radius:50%;background:rgba(180,200,245,0.35);margin-top:-3px;"></div>
+            </div>
+            <div style="position:absolute;top:50%;left:50%;width:0;height:0;animation:orbit-slow 25s linear infinite reverse;pointer-events:none;margin-top:20px;">
+                <div style="width:4px;height:4px;border-radius:50%;background:rgba(180,200,245,0.25);"></div>
             </div>
         </div>
     </transition>
@@ -804,32 +987,36 @@
     <div v-show="!showSplash" class="w-full md:max-w-md h-full flex flex-col glass-panel md:shadow-2xl transition-all relative overflow-hidden rounded-none md:rounded-[2.5rem]">
 
         <!-- ===== 顶栏 Header ===== -->
-        <header class="h-16 flex items-center justify-between px-5 shrink-0 border-b border-white/60 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl z-30 rounded-t-[2.5rem]">
-            <div class="flex items-center gap-3">
-                <div class="relative cursor-pointer group" @click="editProfile('them')">
+        <header class="h-16 flex items-center justify-between px-4 shrink-0 border-b border-white/60 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl z-30 rounded-t-[2.5rem]">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div class="relative cursor-pointer group shrink-0" @click="editProfile('them')">
                     <div class="w-9 h-9 rounded-2xl overflow-hidden border-2 border-white shadow-md transition-transform group-active:scale-95" :style="{ borderRadius: settings.avatarRadius + '%' }">
                         <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
                         <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold">{{ profiles.them.name.charAt(0) }}</div>
                     </div>
                     <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></div>
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-base font-bold tracking-tight text-slate-700 dark:text-white">{{ profiles.them.name }}</h2>
-                        <button @click="refreshStatus('them')" class="text-muted/60 hover:text-accent transition-transform active:rotate-180"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5">
+                        <h2 class="header-name">{{ profiles.them.name }}</h2>
+                        <button @click="refreshStatus('them')" class="text-muted/60 hover:text-accent transition-transform active:rotate-180 shrink-0"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button>
                     </div>
-                    <p class="text-[10px] text-muted leading-tight overflow-hidden" style="white-space:nowrap;max-width:140px;text-overflow:ellipsis;">
-                        <span v-if="isTyping" class="text-accent/80 italic inline-flex items-center gap-0.5" style="white-space:nowrap;">
-                            <span class="typing-dot" style="width:3px;height:3px;margin:0 1px;flex-shrink:0;"></span>
-                            <span class="typing-dot" style="width:3px;height:3px;margin:0 1px;animation-delay:0.2s;flex-shrink:0;"></span>
-                            <span class="typing-dot" style="width:3px;height:3px;margin:0 1px;animation-delay:0.4s;flex-shrink:0;"></span>
-                            <span style="font-size:10px;letter-spacing:0.02em;">正在输入</span>
-                        </span>
-                        <span v-else class="truncate block">{{ profiles.them.status || '✨ 星光漫游' }}</span>
-                    </p>
+                    <div class="header-status text-muted">
+                        <template v-if="isTyping">
+                            <span class="header-typing-badge">
+                                <span class="typing-dot" style="width:4px;height:4px;margin:0 1px;"></span>
+                                <span class="typing-dot" style="width:4px;height:4px;margin:0 1px;animation-delay:0.2s;"></span>
+                                <span class="typing-dot" style="width:4px;height:4px;margin:0 1px;animation-delay:0.4s;"></span>
+                                正在输入
+                            </span>
+                        </template>
+                        <template v-else>
+                            <span class="truncate">{{ profiles.them.status || '✨ 星光漫游' }}</span>
+                        </template>
+                    </div>
                 </div>
             </div>
-            <div class="flex gap-2.5 text-accent">
+            <div class="flex gap-2 text-accent shrink-0 ml-2">
                 <!-- 视频通话按钮 -->
                 <button @click="initiateCall('me')" v-if="callState.status === 'idle'" class="jelly-btn text-green-500" title="视频通话">
                     <i data-lucide="video" class="w-4 h-4"></i>
@@ -850,7 +1037,7 @@
             
 
         <!-- ===== 聊天主体 ===== -->
-        <main id="chat-container" class="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-4 scroll-smooth pb-20">
+        <main id="chat-container" class="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-4 pb-20">
             <div v-if="messages.length === 0" class="flex-1 flex flex-col items-center justify-center text-muted/40 space-y-3 opacity-60">
                 <i data-lucide="message-square-dashed" class="w-12 h-12 stroke-[1]"></i>
                 <span class="text-[11px] tracking-[0.4em]">还没有新对话</span>
@@ -900,14 +1087,26 @@
                                     <i data-lucide="reply" style="width:11px;height:11px;"></i>
                                 </button>
                             </div>
-                        <!-- 通话记录气泡 (简约可爱版) -->
-                            <div v-else-if="msg.type === 'call'" class="call-record-bubble" :class="msg.sender === 'me' ? 'call-record-me' : 'call-record-them'">
-                                <div class="call-record-icon-sm" :class="msg.callAccepted ? 'accepted' : 'missed'">
-                                    <svg v-if="msg.callAccepted" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.845v6.31a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"></path></svg>
-                                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" style="transform-origin:center;transform:rotate(135deg)"></path></svg>
+                            <!-- 通话记录气泡 - 精致卡片版 -->
+                            <div v-else-if="msg.type === 'call'" class="call-record-card" :class="msg.sender === 'me' ? 'call-record-card-me' : 'call-record-card-them'">
+                                <div class="call-record-header">
+                                    <div class="call-record-icon" :class="msg.callAccepted ? 'ok' : 'miss'">
+                                        <svg v-if="msg.callAccepted" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.845v6.31a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/></svg>
+                                        <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(135deg)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="call-record-title">
+                                            {{ msg.callAccepted ? '视频通话' : (msg.content.includes('未接') ? '未接来电' : '已拒绝通话') }}
+                                        </div>
+                                        <div class="call-record-sub">
+                                            {{ msg.sender === 'me' ? profiles.me.name : profiles.them.name }} · {{ formatTime(msg.timestamp) }}
+                                        </div>
+                                    </div>
                                 </div>
-                                <span class="call-record-label">{{ msg.callAccepted ? (msg.content.replace('📹 视频通话已结束 · ','') || '视频通话') : (msg.content.includes('未接') ? '未接来电' : '已拒绝') }}</span>
-                                <button v-if="msg.callAccepted || msg.sender==='them'" @click.stop="initiateCall('me')" class="call-record-btn">再拨</button>
+                                <div class="call-record-footer">
+                                    <span class="call-record-dur">{{ msg.callAccepted ? (msg.content.replace('📹 视频通话已结束 · ','') || '已结束') : (msg.callAccepted === false ? '未接通' : '') }}</span>
+                                    <button v-if="msg.callAccepted || msg.sender==='them'" @click.stop="initiateCall('me')" class="call-record-rebtn">再次拨打</button>
+                                </div>
                             </div>
                             <!-- 拍一拍消息 (居中系统消息风格) -->
                             <div v-else-if="msg.type === 'poke'" class="poke-system-msg">
@@ -1013,175 +1212,247 @@
         <!-- ===== 偏好设置 Modal ===== -->
         <transition name="fade">
             <div v-if="modals.settings" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.settings = false">
-                <div class="bg-white/90 dark:bg-slate-800/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[88vh] backdrop-blur-xl border border-white/70">
-                    <div class="p-6 border-b border-white/50 flex justify-between items-center">
-                        <h3 class="font-bold text-lg text-slate-700 dark:text-white">🫐 偏好实验室</h3>
-                        <button @click="modals.settings = false" class="text-muted hover:text-slate-700 bg-white/60 p-1.5 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="bg-white/92 dark:bg-slate-800/92 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh] backdrop-blur-xl border border-white/80">
+                    <!-- 标题栏 -->
+                    <div class="px-6 py-5 border-b border-white/50 flex justify-between items-center bg-gradient-to-r from-blue-50/60 to-purple-50/40 dark:from-slate-800/60 dark:to-slate-700/40 shrink-0">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-700 dark:text-white flex items-center gap-2">🫐 偏好实验室</h3>
+                            <p class="text-[10px] text-muted mt-0.5">在这里定制你的专属体验</p>
+                        </div>
+                        <button @click="modals.settings = false" class="text-muted hover:text-slate-700 bg-white/70 p-2 rounded-full shadow-sm transition"><i data-lucide="x" class="w-4 h-4"></i></button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+                    <div class="flex-1 overflow-y-auto p-5 space-y-4">
+
                         <!-- 我的身份 -->
-                        <section class="space-y-3">
-                            <label class="text-[10px] font-bold text-accent uppercase tracking-wider">我的身份</label>
-                            <div class="flex items-center gap-4 bg-white/60 p-4 rounded-3xl border border-white/60 shadow-sm">
-                                <div @click="editProfile('me')" class="cursor-pointer relative group">
-                                    <img v-if="profiles.me.avatar" :src="profiles.me.avatar" class="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm">
-                                    <div v-else class="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center text-accent font-bold text-xl border-2 border-white shadow-sm">{{ profiles.me.name.charAt(0) }}</div>
-                                    <div class="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i data-lucide="camera" class="w-5 h-5 text-white"></i></div>
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">👤</span>
+                                <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">我的身份</label>
+                            </div>
+                            <div class="flex items-center gap-4 bg-white/70 dark:bg-slate-700/60 p-3 rounded-2xl border border-white/60">
+                                <div @click="editProfile('me')" class="cursor-pointer relative group shrink-0">
+                                    <img v-if="profiles.me.avatar" :src="profiles.me.avatar" class="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm">
+                                    <div v-else class="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center text-accent font-bold text-xl border-2 border-white shadow-sm">{{ profiles.me.name.charAt(0) }}</div>
+                                    <div class="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i data-lucide="camera" class="w-4 h-4 text-white"></i></div>
                                 </div>
                                 <div class="flex-1">
-                                    <input v-model="profiles.me.name" class="w-full bg-transparent text-sm font-bold border-b border-white/60 focus:border-accent outline-none pb-1">
+                                    <p class="text-[10px] text-muted mb-1">显示名称</p>
+                                    <input v-model="profiles.me.name" class="w-full bg-transparent text-sm font-bold border-b border-white/60 focus:border-accent outline-none pb-1 dark:text-white">
                                 </div>
                             </div>
                         </section>
+
                         <!-- 对方设置 -->
-                        <section class="space-y-3">
-                            <label class="text-[10px] font-bold text-accent uppercase tracking-wider">对方设置</label>
-                            <div class="flex items-center gap-4 bg-white/60 p-4 rounded-3xl border border-white/60 shadow-sm">
-                                <div @click="editProfile('them')" class="cursor-pointer relative group">
-                                    <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm">
-                                    <div v-else class="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center text-accent font-bold text-xl border-2 border-white shadow-sm">{{ profiles.them.name.charAt(0) }}</div>
-                                    <div class="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i data-lucide="camera" class="w-5 h-5 text-white"></i></div>
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-pink-50/70 to-rose-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">💌</span>
+                                <label class="text-[11px] font-bold text-rose-400 dark:text-rose-300 uppercase tracking-wider">对方设置</label>
+                            </div>
+                            <div class="flex items-center gap-4 bg-white/70 dark:bg-slate-700/60 p-3 rounded-2xl border border-white/60">
+                                <div @click="editProfile('them')" class="cursor-pointer relative group shrink-0">
+                                    <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm">
+                                    <div v-else class="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center text-accent font-bold text-xl border-2 border-white shadow-sm">{{ profiles.them.name.charAt(0) }}</div>
+                                    <div class="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i data-lucide="camera" class="w-4 h-4 text-white"></i></div>
                                 </div>
                                 <div class="flex-1">
-                                    <input v-model="profiles.them.name" class="w-full bg-transparent text-sm font-bold border-b border-white/60 outline-none pb-1">
+                                    <p class="text-[10px] text-muted mb-1">显示名称</p>
+                                    <input v-model="profiles.them.name" class="w-full bg-transparent text-sm font-bold border-b border-white/60 outline-none pb-1 dark:text-white">
                                 </div>
                             </div>
-                            <div>
-                                <span class="text-[10px] text-muted ml-2">随机状态预设 (逗号分隔)</span>
-                                <input v-model="profiles.them.statusPresets" class="w-full bg-white/70 border border-white/70 rounded-xl p-2.5 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                            </div>
-                            <div>
-                                <span class="text-[10px] text-muted ml-2">拍一拍预设 (逗号分隔)</span>
-                                <input v-model="settings.pokePresets" placeholder="拍了拍你,戳一戳,敲了敲你" class="w-full bg-white/70 border border-white/70 rounded-xl p-2.5 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                            <div class="bg-white/60 dark:bg-slate-700/40 p-3 rounded-2xl border border-white/50 space-y-2">
+                                <div>
+                                    <span class="text-[10px] text-muted">💬 随机状态预设 <span class="opacity-60">(逗号分隔)</span></span>
+                                    <input v-model="profiles.them.statusPresets" class="w-full bg-white/90 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-muted">👆 拍一拍预设 <span class="opacity-60">(逗号分隔)</span></span>
+                                    <input v-model="settings.pokePresets" placeholder="拍了拍你,戳一戳,敲了敲你" class="w-full bg-white/90 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                </div>
                             </div>
                         </section>
+
                         <!-- 字体定制 -->
-                        <section class="space-y-3">
-                            <label class="text-[10px] font-bold text-accent uppercase tracking-wider">🔤 字体定制</label>
-                            <div><span class="text-[10px] text-muted ml-2">字体链接</span><input v-model="settings.customFontUrl" placeholder="Google Fonts URL" class="w-full bg-white/70 border border-white/70 rounded-xl p-2.5 text-xs shadow-inner outline-none mt-1"></div>
-                            <div><span class="text-[10px] text-muted ml-2">字体族</span><input v-model="settings.fontFamily" class="w-full bg-white/70 border border-white/70 rounded-xl p-2.5 text-xs shadow-inner outline-none mt-1"></div>
-                            <div class="flex justify-between items-center bg-white/50 p-3 rounded-xl border border-white/60"><span class="text-sm font-medium">字号 {{settings.fontSize}}px</span><input type="range" v-model.number="settings.fontSize" min="12" max="20" class="w-1/2 accent-accent"></div>
-                            <button @click="applyFontSettings" class="w-full text-sm font-medium bg-accent/10 border border-accent/20 text-accent py-2.5 rounded-xl hover:bg-accent/20 transition">应用字体更改</button>
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-violet-50/70 to-purple-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">🔤</span>
+                                <label class="text-[11px] font-bold text-violet-500 dark:text-violet-300 uppercase tracking-wider">字体定制</label>
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <span class="text-[10px] text-muted ml-1">字体链接 (Google Fonts URL)</span>
+                                    <input v-model="settings.customFontUrl" placeholder="https://fonts.googleapis.com/..." class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs shadow-inner outline-none mt-1">
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-muted ml-1">字体族</span>
+                                    <input v-model="settings.fontFamily" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs shadow-inner outline-none mt-1">
+                                </div>
+                                <div class="flex justify-between items-center bg-white/60 dark:bg-slate-700/40 p-3 rounded-xl border border-white/60">
+                                    <span class="text-sm font-medium">字号 <span class="text-accent font-bold">{{settings.fontSize}}px</span></span>
+                                    <input type="range" v-model.number="settings.fontSize" min="12" max="20" class="w-1/2 accent-accent">
+                                </div>
+                            </div>
+                            <button @click="applyFontSettings" class="w-full text-sm font-semibold bg-violet-100/80 border border-violet-200/60 text-violet-600 py-2.5 rounded-xl hover:bg-violet-200/60 transition flex items-center justify-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4"></i> 应用字体更改
+                            </button>
                         </section>
-                        <!-- 通知与显示开关 -->
-                        <section class="space-y-2 bg-white/50 p-4 rounded-3xl border border-white/60 shadow-sm">
-                            <label class="text-[10px] font-bold text-accent uppercase tracking-wider block mb-3">显示与行为</label>
-                            <div class="flex justify-between items-center py-1"><span class="text-sm">显示头像</span><input type="checkbox" v-model="settings.showAvatar" class="reply-checkbox"></div>
-                            <div class="flex justify-between items-center py-1"><span class="text-sm">显示昵称</span><input type="checkbox" v-model="settings.showNickname" class="reply-checkbox"></div>
-                            <div class="flex justify-between items-center py-1"><span class="text-sm">提示音效</span><input type="checkbox" v-model="settings.sound" class="reply-checkbox"></div>
-                            <div class="flex justify-between items-center py-1 pt-3 border-t border-white/60">
-                                <div>
-                                    <span class="text-sm block">后台消息推送</span>
-                                    <span class="text-[10px] text-muted">切换标签页时收到通知</span>
-                                </div>
-                                <input type="checkbox" v-model="settings.pushNotify" class="reply-checkbox" @change="initNotification">
+
+                        <!-- 显示与行为 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-sky-50/70 to-cyan-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-1">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-base">✨</span>
+                                <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">显示与行为</label>
                             </div>
-                            <div class="flex justify-between items-center py-1">
-                                <div>
-                                    <span class="text-sm block">后台保活</span>
-                                    <span class="text-[10px] text-muted">页面隐藏时定时器持续运行</span>
+                            <!-- Toggle rows -->
+                            <div class="space-y-0.5">
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">🖼️ 显示头像</span>
+                                    <input type="checkbox" v-model="settings.showAvatar" class="reply-checkbox">
                                 </div>
-                                <input type="checkbox" v-model="settings.bgKeepAlive" class="reply-checkbox">
-                            </div>
-                            <div class="flex justify-between items-center py-1 pt-3 border-t border-white/60"><span class="text-sm">主动消息</span><input type="checkbox" v-model="settings.activeMsg" class="reply-checkbox"></div>
-                            <div class="flex justify-between items-center py-1"><span class="text-sm">主动间隔(秒)</span><input type="number" v-model.number="settings.activeInterval" min="10" class="w-20 bg-white/80 border border-white/70 rounded-lg p-1 text-center text-sm outline-none shadow-inner"></div>
-                            <div class="flex justify-between items-center py-1"><span class="text-sm">回复延迟(秒)</span><div class="flex items-center gap-1"><input type="number" v-model.number="settings.delayMin" class="w-12 bg-white/80 border border-white/70 rounded-lg p-1 text-center text-sm outline-none shadow-inner">-<input type="number" v-model.number="settings.delayMax" class="w-12 bg-white/80 border border-white/70 rounded-lg p-1 text-center text-sm outline-none shadow-inner"></div></div>
-                        </section>
-                        <!-- 提示音链接 -->
-                        <section class="space-y-3">
-                            <label class="text-[10px] font-bold text-accent uppercase tracking-wider">🔔 提示音设置</label>
-                            <!-- 音量滑块 -->
-                            <div class="bg-white/60 p-4 rounded-3xl border border-white/60 shadow-sm space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-medium text-slate-600 dark:text-slate-300">提示音音量</span>
-                                    <span class="text-xs font-bold text-accent w-9 text-right">{{ Math.round((settings.soundVolume ?? 0.5) * 100) }}%</span>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">🏷️ 显示昵称</span>
+                                    <input type="checkbox" v-model="settings.showNickname" class="reply-checkbox">
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-3.5 h-3.5 text-muted flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg>
-                                    <input type="range" min="0" max="1" step="0.05" v-model.number="settings.soundVolume"
-                                        class="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
-                                        style="accent-color:#839deb;">
-                                    <svg class="w-3.5 h-3.5 text-muted flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">🔔 提示音效</span>
+                                    <input type="checkbox" v-model="settings.sound" class="reply-checkbox">
                                 </div>
-                            </div>
-                            <div>
-                                <span class="text-[10px] text-muted ml-2">接收消息音效链接 (留空用内置)</span>
-                                <input v-model="settings.soundUrl" placeholder="https://example.com/notify.mp3" class="w-full bg-white/70 border border-white/70 rounded-xl p-2.5 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                            </div>
-                            <div>
-                                <span class="text-[10px] text-muted ml-2">发送消息音效链接 (留空用内置)</span>
-                                <input v-model="settings.sendSoundUrl" placeholder="https://example.com/send.mp3" class="w-full bg-white/70 border border-white/70 rounded-xl p-2.5 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                            </div>
-                            <button @click="testSound" class="w-full text-xs font-medium bg-accent/10 border border-accent/20 text-accent py-2 rounded-xl hover:bg-accent/20 transition">🔊 测试音效</button>
-                        </section>
-                        <!-- 聊天背景图 -->
-                        <section class="space-y-3">
-                            <label class="text-[10px] font-bold text-accent uppercase tracking-wider">🖼️ 聊天背景图</label>
-                            <div class="bg-white/60 p-4 rounded-3xl border border-white/60 shadow-sm space-y-3">
-                                <div>
-                                    <span class="text-[10px] text-muted ml-1 block mb-1.5">上传本地图片</span>
-                                    <label class="flex items-center gap-2 cursor-pointer bg-accent/8 border border-accent/20 rounded-2xl px-4 py-2.5 hover:bg-accent/15 transition text-sm font-medium text-accent">
-                                        <i data-lucide="image-plus" class="w-4 h-4"></i>
-                                        <span>选择本地图片</span>
-                                        <input type="file" accept="image/*" class="hidden" @change="uploadBg">
-                                    </label>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
+                                    <div>
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">📲 后台消息推送</span>
+                                        <span class="text-[10px] text-muted">切换标签页时收到通知</span>
+                                    </div>
+                                    <input type="checkbox" v-model="settings.pushNotify" class="reply-checkbox" @change="initNotification">
                                 </div>
-                                <div>
-                                    <span class="text-[10px] text-muted ml-1 block mb-1.5">或输入图片 URL</span>
-                                    <div class="flex gap-2">
-                                        <input v-model="settings.bgImageUrl" placeholder="https://example.com/bg.jpg" class="flex-1 bg-white/80 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                                        <button @click="applyBgUrl" class="bg-accent text-white px-4 rounded-xl text-xs font-medium shadow-md hover:bg-opacity-90 transition shrink-0">应用</button>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <div>
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">⚙️ 后台保活</span>
+                                        <span class="text-[10px] text-muted">页面隐藏时定时器持续运行</span>
+                                    </div>
+                                    <input type="checkbox" v-model="settings.bgKeepAlive" class="reply-checkbox">
+                                </div>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">🤖 主动消息</span>
+                                    <input type="checkbox" v-model="settings.activeMsg" class="reply-checkbox">
+                                </div>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">⏱️ 主动间隔(秒)</span>
+                                    <input type="number" v-model.number="settings.activeInterval" min="10" class="w-20 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
+                                </div>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">🕐 回复延迟(秒)</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="number" v-model.number="settings.delayMin" class="w-12 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
+                                        <span class="text-muted text-xs">~</span>
+                                        <input type="number" v-model.number="settings.delayMax" class="w-12 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
                                     </div>
                                 </div>
-                                <div v-if="settings.bgImage" class="flex items-center gap-3">
-                                    <img :src="settings.bgImage" class="w-14 h-10 object-cover rounded-xl border border-white/60 shadow-sm">
+                            </div>
+                        </section>
+
+                        <!-- 提示音 & 音量 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-amber-50/70 to-yellow-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">🔊</span>
+                                <label class="text-[11px] font-bold text-amber-500 dark:text-amber-300 uppercase tracking-wider">提示音与音量</label>
+                            </div>
+                            <!-- 音量滑块 -->
+                            <div class="bg-white/70 dark:bg-slate-700/50 p-3 rounded-2xl border border-white/60 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">音量</span>
+                                    <span class="text-sm font-bold text-accent">{{ settings.soundVolume || 100 }}%</span>
+                                </div>
+                                <input type="range" v-model.number="settings.soundVolume" min="0" max="200" step="5"
+                                    class="volume-slider w-full"
+                                    :style="`--pct: ${(settings.soundVolume||100)/2}%`">
+                                <div class="flex justify-between text-[9px] text-muted px-0.5">
+                                    <span>0%</span><span>50%</span><span>100%</span><span>150%</span><span>200%</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <span class="text-[10px] text-muted ml-1">接收音效链接 (留空用内置)</span>
+                                    <input v-model="settings.soundUrl" placeholder="https://example.com/notify.mp3" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-muted ml-1">发送音效链接 (留空用内置)</span>
+                                    <input v-model="settings.sendSoundUrl" placeholder="https://example.com/send.mp3" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                </div>
+                            </div>
+                            <button @click="testSound" class="w-full text-xs font-semibold bg-amber-100/80 border border-amber-200/60 text-amber-600 py-2.5 rounded-xl hover:bg-amber-200/60 transition flex items-center justify-center gap-2">
+                                <i data-lucide="volume-2" class="w-3.5 h-3.5"></i> 测试音效
+                            </button>
+                        </section>
+
+                        <!-- 聊天背景图 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-emerald-50/70 to-green-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">🖼️</span>
+                                <label class="text-[11px] font-bold text-emerald-500 dark:text-emerald-300 uppercase tracking-wider">聊天背景图</label>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 cursor-pointer bg-white/70 dark:bg-slate-700/50 border border-accent/20 rounded-2xl px-4 py-2.5 hover:bg-white/90 transition text-sm font-medium text-accent">
+                                    <i data-lucide="image-plus" class="w-4 h-4"></i>
+                                    <span>选择本地图片</span>
+                                    <input type="file" accept="image/*" class="hidden" @change="uploadBg">
+                                </label>
+                                <div class="flex gap-2">
+                                    <input v-model="settings.bgImageUrl" placeholder="或输入图片 URL..." class="flex-1 bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                    <button @click="applyBgUrl" class="bg-accent text-white px-4 rounded-xl text-xs font-medium shadow-md hover:bg-opacity-90 transition shrink-0">应用</button>
+                                </div>
+                                <div v-if="settings.bgImage" class="flex items-center gap-3 bg-white/60 p-2 rounded-xl">
+                                    <img :src="settings.bgImage" class="w-12 h-9 object-cover rounded-lg border border-white/60 shadow-sm">
                                     <div class="flex-1">
                                         <p class="text-[10px] text-muted">当前背景已设置</p>
                                         <button @click="settings.bgImage = ''; settings.bgImageUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">✕ 清除背景</button>
                                     </div>
                                 </div>
-                                <div v-else class="text-[10px] text-muted/60 text-center py-1">暂无背景图</div>
                             </div>
                         </section>
-                        <!-- 📞 通话背景设置 -->
-                        <section class="space-y-3">
-                            <label class="text-[10px] font-bold text-accent uppercase tracking-wider">📞 通话界面背景</label>
-                            <div class="bg-white/60 p-4 rounded-3xl border border-white/60 shadow-sm space-y-3">
-                                <div>
-                                    <span class="text-[10px] text-muted ml-1 block mb-1.5">上传通话背景图</span>
-                                    <label class="flex items-center gap-2 cursor-pointer border border-accent/20 rounded-2xl px-4 py-2.5 hover:bg-accent/10 transition text-sm font-medium text-accent">
-                                        <i data-lucide="phone" class="w-4 h-4"></i>
-                                        <span>选择通话背景</span>
-                                        <input type="file" accept="image/*" class="hidden" @change="uploadCallBg">
-                                    </label>
+
+                        <!-- 通话背景 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-slate-50/70 to-gray-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">📞</span>
+                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">通话界面背景</label>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 cursor-pointer bg-white/70 dark:bg-slate-700/50 border border-slate-200/60 rounded-2xl px-4 py-2.5 hover:bg-white/90 transition text-sm font-medium text-slate-500">
+                                    <i data-lucide="phone" class="w-4 h-4"></i>
+                                    <span>选择通话背景</span>
+                                    <input type="file" accept="image/*" class="hidden" @change="uploadCallBg">
+                                </label>
+                                <div class="flex gap-2">
+                                    <input v-model="settings.callBgUrl" placeholder="或输入图片 URL..." class="flex-1 bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                    <button @click="applyCallBgUrl" class="bg-accent text-white px-4 rounded-xl text-xs font-medium shadow-md hover:bg-opacity-90 transition shrink-0">应用</button>
                                 </div>
-                                <div>
-                                    <span class="text-[10px] text-muted ml-1 block mb-1.5">或输入图片 URL</span>
-                                    <div class="flex gap-2">
-                                        <input v-model="settings.callBgUrl" placeholder="https://example.com/call.jpg" class="flex-1 bg-white/80 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                                        <button @click="applyCallBgUrl" class="bg-accent text-white px-4 rounded-xl text-xs font-medium shadow-md hover:bg-opacity-90 transition shrink-0">应用</button>
-                                    </div>
-                                </div>
-                                <div v-if="settings.callBgImage" class="flex items-center gap-3">
-                                    <img :src="settings.callBgImage" class="w-14 h-10 object-cover rounded-xl border border-white/60 shadow-sm">
+                                <div v-if="settings.callBgImage" class="flex items-center gap-3 bg-white/60 p-2 rounded-xl">
+                                    <img :src="settings.callBgImage" class="w-12 h-9 object-cover rounded-lg border border-white/60 shadow-sm">
                                     <div class="flex-1">
                                         <p class="text-[10px] text-muted">通话背景已设置</p>
                                         <button @click="settings.callBgImage = ''; settings.callBgUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">✕ 清除</button>
                                     </div>
                                 </div>
-                                <div v-else class="text-[10px] text-muted/60 text-center py-1">未设置，使用默认渐变背景</div>
                             </div>
                         </section>
+
                         <!-- 自定义CSS -->
-                        <div class="pt-2">
-                            <span class="tracking-widest text-xs block mb-2">自定义气泡 CSS</span>
-                            <textarea v-model="settings.customCSS" rows="2" class="w-full bg-bg border border-border px-3 py-2 text-[10px] font-mono resize-none" placeholder=".bubble-custom-class { }"></textarea>
-                            <button @click="applyCSS" class="text-[10px] tracking-widest text-text border border-border px-3 py-1 mt-2 hover:bg-border">应用</button>
-                        </div>
-                        <!-- 全局导出/导入 -->
-                        <section class="space-y-2 pt-2">
-                            <label class="text-[10px] font-bold text-accent uppercase tracking-wider">💾 全局备份与恢复</label>
-                            <p class="text-[10px] text-muted ml-1">导出/导入包含聊天记录、语料库、表情包、设置等全部数据的备份文件（.json）</p>
+                        <section class="rounded-[1.5rem] bg-white/50 dark:bg-slate-700/30 border border-white/60 p-4 shadow-sm space-y-2">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">🎨</span>
+                                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">自定义气泡 CSS</label>
+                            </div>
+                            <textarea v-model="settings.customCSS" rows="2" class="w-full bg-white/80 dark:bg-slate-700/50 border border-white/70 dark:border-slate-600 rounded-xl px-3 py-2 text-[10px] font-mono resize-none outline-none focus:ring-1 focus:ring-accent" placeholder=".bubble-custom-class { }"></textarea>
+                            <button @click="applyCSS" class="text-xs font-medium text-accent border border-accent/30 px-4 py-1.5 rounded-xl hover:bg-accent/10 transition">应用 CSS</button>
+                        </section>
+
+                        <!-- 全局备份 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-blue-50/60 to-indigo-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">💾</span>
+                                <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">全局备份与恢复</label>
+                            </div>
+                            <p class="text-[10px] text-muted">导出/导入包含聊天记录、语料库、表情包、设置等全部数据的备份文件（.json）</p>
                             <div class="flex gap-2">
                                 <button @click="globalExport" class="flex-1 py-2.5 bg-accent/10 border border-accent/20 text-accent rounded-2xl font-medium text-xs hover:bg-accent/20 transition flex items-center justify-center gap-1.5">
                                     <i data-lucide="download" class="w-3.5 h-3.5"></i>全局导出
@@ -1192,10 +1463,13 @@
                                 </label>
                             </div>
                         </section>
-                        <div class="flex gap-3 pt-2">
-                            <button @click="exportChat" class="flex-1 py-3 bg-white/80 border border-white/70 rounded-2xl font-medium shadow-sm hover:bg-white transition text-sm">导出记录</button>
-                            <button @click="clearChat" class="flex-1 py-3 bg-red-50/80 text-red-500 border border-red-100 rounded-2xl font-medium shadow-sm hover:bg-red-100 transition text-sm">清空对话</button>
+
+                        <!-- 操作按钮 -->
+                        <div class="flex gap-3 pb-2">
+                            <button @click="exportChat" class="flex-1 py-3 bg-white/80 border border-white/70 rounded-2xl font-medium shadow-sm hover:bg-white transition text-sm text-slate-600">📋 导出记录</button>
+                            <button @click="clearChat" class="flex-1 py-3 bg-red-50/80 text-red-500 border border-red-100 rounded-2xl font-medium shadow-sm hover:bg-red-100 transition text-sm">🗑️ 清空对话</button>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -1372,63 +1646,74 @@
         <!-- ===== 记忆日历 Modal ===== -->
         <transition name="fade">
             <div v-if="modals.notebook" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.notebook = false">
-                <div class="bg-white/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[85vh] backdrop-blur-xl border border-white/70">
-                    <div class="p-5 border-b border-white/60 flex justify-between items-center">
-                        <h3 class="font-bold text-lg flex items-center gap-2 text-slate-700"><i data-lucide="calendar-heart" class="text-accent"></i>记忆日历</h3>
-                        <button @click="modals.notebook = false" class="bg-white/60 p-1.5 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="bg-white/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[90vh] backdrop-blur-xl border border-white/70">
+                    <!-- 标题 -->
+                    <div class="px-5 py-4 border-b border-white/60 flex justify-between items-center shrink-0 bg-gradient-to-r from-blue-50/60 to-purple-50/40">
+                        <h3 class="font-bold text-lg flex items-center gap-2 text-slate-700"><i data-lucide="calendar-heart" class="text-accent w-5 h-5"></i>记忆日历</h3>
+                        <button @click="modals.notebook = false" class="bg-white/70 p-1.5 rounded-full shadow-sm"><i data-lucide="x" class="w-4 h-4 text-slate-500"></i></button>
                     </div>
-                    <div class="p-3 bg-white/50 border-b border-white/60 flex items-center justify-between px-6">
-                        <button @click="prevMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <!-- 月份导航 (紧凑) -->
+                    <div class="py-2 px-6 bg-white/50 border-b border-white/60 flex items-center justify-between shrink-0">
+                        <button @click="prevMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
                         <span class="font-bold text-sm text-slate-600">{{ currentMonthYearText }}</span>
-                        <button @click="nextMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                        <button @click="nextMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     </div>
-                    <div class="p-4 bg-white/40 border-b border-white/60">
-                        <div class="calendar-grid mb-2 text-[10px] text-muted font-bold">
+                    <!-- 日历格 (紧凑版) -->
+                    <div class="px-3 pt-2 pb-2 bg-white/40 border-b border-white/60 shrink-0">
+                        <div class="calendar-grid mb-1 text-[9px] text-muted font-bold">
                             <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
                         </div>
-                        <div class="calendar-grid">
-                            <div v-for="(day, idx) in calendarDays" :key="idx" @click="day && selectDate(day.date)" class="calendar-cell" :class="{'invisible': !day, 'active': day && isSelectedDate(day.date), 'has-note': day && day.hasNote}">
+                        <div class="calendar-grid" style="gap:2px;">
+                            <div v-for="(day, idx) in calendarDays" :key="idx" @click="day && selectDate(day.date)"
+                                class="calendar-cell" style="font-size:11px; width:100%; aspect-ratio:1;"
+                                :class="{'invisible': !day, 'active': day && isSelectedDate(day.date), 'has-note': day && day.hasNote}">
                                 <span v-if="day">{{ day.number }}</span>
                                 <div v-if="day && day.hasNote" class="note-dot"></div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 mt-3 justify-center">
-                            <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2.5 h-2.5 rounded-full bg-accent/20 border border-accent/30"></div><span>有记录</span></div>
-                            <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2.5 h-2.5 rounded-full bg-accent"></div><span>选中日期</span></div>
+                        <div class="flex items-center gap-3 mt-1.5 justify-center">
+                            <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full bg-accent/20 border border-accent/30"></div><span>有记录</span></div>
+                            <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full bg-accent"></div><span>选中</span></div>
                         </div>
                     </div>
-                    <div class="p-4 bg-white/50 border-b border-white/60 shadow-inner">
+                    <!-- 记录输入区 -->
+                    <div class="px-4 py-3 bg-white/50 border-b border-white/60 shadow-inner shrink-0">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-accent">{{ selectedDateText }} 的记录</span>
+                            <span class="text-xs font-bold text-accent">📝 {{ selectedDateText }} 的记录</span>
                             <button @click="notebookInputExpanded = !notebookInputExpanded" class="text-[10px] flex items-center gap-1 text-muted hover:text-accent transition bg-white/60 px-2 py-1 rounded-full border border-white/60">
                                 <i :data-lucide="notebookInputExpanded ? 'chevron-up' : 'expand'" style="width:10px;height:10px;"></i>
-                                {{ notebookInputExpanded ? '收起' : '展开输入' }}
+                                {{ notebookInputExpanded ? '收起' : '展开' }}
                             </button>
                         </div>
                         <div v-if="!notebookInputExpanded" class="flex gap-2">
                             <input v-model="newNoteText" @keydown.enter="addNote" @focus="notebookInputExpanded = true" :placeholder="`为 ${selectedDateText} 添加记录...`" class="flex-1 bg-white/90 border border-white/70 rounded-full px-4 py-2 text-sm outline-none focus:border-accent shadow-sm">
-                            <button @click="addNote" class="bg-accent text-white px-5 rounded-full text-sm font-medium shadow-md hover:bg-opacity-90 shrink-0">记录</button>
+                            <button @click="addNote" class="bg-accent text-white px-4 rounded-full text-sm font-medium shadow-md hover:bg-opacity-90 shrink-0">记录</button>
                         </div>
                         <div v-if="notebookInputExpanded" class="flex flex-col gap-2">
-                            <textarea v-model="newNoteText" rows="4" :placeholder="`为 ${selectedDateText} 详细记录心情、事件...`" class="w-full bg-white/90 border border-white/70 rounded-2xl px-4 py-3 text-sm outline-none focus:border-accent shadow-sm resize-none leading-relaxed"></textarea>
+                            <textarea v-model="newNoteText" rows="3" :placeholder="`为 ${selectedDateText} 详细记录心情、事件...`" class="w-full bg-white/90 border border-white/70 rounded-2xl px-4 py-3 text-sm outline-none focus:border-accent shadow-sm resize-none leading-relaxed"></textarea>
                             <div class="flex gap-2 justify-end">
                                 <button @click="notebookInputExpanded = false; newNoteText=''" class="text-xs px-4 py-1.5 rounded-full bg-white/70 border border-white/60 text-muted hover:bg-white transition">取消</button>
                                 <button @click="addNote" class="text-xs px-5 py-1.5 rounded-full bg-accent text-white shadow-md hover:bg-opacity-90 transition font-medium">确认记录</button>
                             </div>
                         </div>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-white/30">
-                        <div v-if="filteredNotes.length === 0" class="text-center text-xs text-muted mt-6 opacity-70">这一天还没有记录哦~</div>
-                        <div v-for="(note, idx) in filteredNotes" :key="note.id" class="bg-white/80 border border-white/70 p-5 rounded-[1.5rem] flex flex-col gap-2 shadow-sm relative group">
+                    <!-- 记录列表 (占更大比例) -->
+                    <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-white/30">
+                        <div v-if="filteredNotes.length === 0" class="text-center text-xs text-muted mt-8 opacity-70">
+                            <div class="text-3xl mb-3">📭</div>
+                            这一天还没有记录哦~
+                        </div>
+                        <div v-for="(note, idx) in filteredNotes" :key="note.id" class="bg-white/85 border border-white/70 p-4 rounded-[1.4rem] flex flex-col gap-2 shadow-sm relative group">
                             <div class="flex justify-between items-start">
-                                <span class="text-sm text-slate-700 leading-relaxed pr-6 whitespace-pre-wrap break-words">{{note.text}}</span>
-                                <button @click="deleteNote(note.id)" class="absolute top-4 right-4 text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition bg-white rounded-full p-1 shadow-sm"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <span class="text-sm text-slate-700 leading-relaxed pr-6 whitespace-pre-wrap break-words flex-1">{{note.text}}</span>
+                                <button @click="deleteNote(note.id)" class="absolute top-3 right-3 text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition bg-white rounded-full p-1 shadow-sm"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                             </div>
                             <span class="text-[10px] text-muted font-mono">{{ formatTime(note.timestamp) }}</span>
                         </div>
                     </div>
-                    <div class="p-3 text-[10px] text-accent/90 font-medium border-t border-white/60 bg-white/50 text-center">
-                        💡 记录生活后，角色会在 3~5 小时后随机留言 2~5 条回复
+                    <!-- 底部提示 -->
+                    <div class="px-4 py-2.5 text-[10px] text-accent/80 font-medium border-t border-white/60 bg-white/50 text-center shrink-0">
+                        💡 记录生活后，角色会在 3~5 小时后随机留言回复
                     </div>
                 </div>
             </div>
@@ -1862,12 +2147,34 @@ createApp({
             pokeToast.show = true;
             if (pokeToastTimer) clearTimeout(pokeToastTimer);
             pokeToastTimer = setTimeout(() => { pokeToast.show = false; }, 2100);
-            // 对方回应：从语料库随机选取
+
+            // 对方以30%概率回拍（随机延迟1.5~4秒）
+            const willPokeBack = Math.random() < 0.3;
+            const replyDelay = (Math.random() * 2.5 + 1.5) * 1000;
             safeSetTimeout(() => {
-                const pool = replyGroups.value.flatMap(g => g.replies);
-                const r = pool.length ? pool[Math.floor(Math.random() * pool.length)].text : '嗯？';
-                sendMsg('them', 'text', r);
-            }, (Math.random() * 2 + 1) * 1000);
+                if (willPokeBack) {
+                    const opts = (settings.pokePresets || '拍了拍你,戳了戳你,敲了敲你,轻拍一下,戳一戳').split(/[,，]/).map(s=>s.trim()).filter(s=>s);
+                    const theirPoke = opts[Math.floor(Math.random() * opts.length)];
+                    const theirMsg = `${profiles.them.name}${theirPoke} 你`;
+                    messages.value.push({
+                        id: Date.now() + Math.random(),
+                        sender: 'them', type: 'poke',
+                        content: theirMsg,
+                        timestamp: Date.now(), status: 'read', quote: null,
+                    });
+                    playSound('receive');
+                    scrollToBottom();
+                    pokeToast.text = theirMsg;
+                    pokeToast.show = true;
+                    if (pokeToastTimer) clearTimeout(pokeToastTimer);
+                    pokeToastTimer = setTimeout(() => { pokeToast.show = false; }, 2100);
+                } else {
+                    // 对方用文字回应
+                    const pool = replyGroups.value.flatMap(g => g.replies);
+                    const r = pool.length ? pool[Math.floor(Math.random() * pool.length)].text : '嗯？';
+                    sendMsg('them', 'text', r);
+                }
+            }, replyDelay);
         };
         const confirmPoke = () => {
             if (!pokePickerSelected.value) return;
@@ -1893,12 +2200,11 @@ createApp({
             delayMin: 1, delayMax: 3, activeMsg: false, activeInterval: 30,
             avatarRadius: 40, bgImage: '', bgImageUrl: '', customCSS: '',
             customFontUrl: '', fontFamily: "'Quicksand', 'Noto Serif SC', sans-serif", fontSize: 15,
-            soundUrl: '', sendSoundUrl: '',
-            soundVolume: 0.5,   // 提示音音量 0~1
+            soundUrl: '', sendSoundUrl: '', soundVolume: 100,
             callBgImage: '', callBgUrl: '',
             pokePresets: '拍了拍你,戳了戳你,敲了敲你,轻拍一下,戳一戳',
-            pushNotify: true,   // 后台消息推送
-            bgKeepAlive: true,  // 后台保活（Web Worker 定时器）
+            pushNotify: true,
+            bgKeepAlive: true,
         });
 
         const modals = reactive({
@@ -2019,13 +2325,28 @@ createApp({
         // ===== 音效播放 =====
         const playSound = (type) => {
             if(!settings.sound) return;
-            const vol = Math.max(0, Math.min(1, settings.soundVolume ?? 0.5));
+            const volumeRatio = (settings.soundVolume != null ? settings.soundVolume : 100) / 100;
             const url = type === 'send' ? settings.sendSoundUrl : settings.soundUrl;
             if(url && url.trim()) {
                 try {
-                    const audio = new Audio(url.trim());
-                    audio.volume = vol;
-                    audio.play().catch(()=>{});
+                    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+                    const gainNode = audioCtx.createGain();
+                    gainNode.gain.value = volumeRatio;
+                    gainNode.connect(audioCtx.destination);
+                    fetch(url.trim())
+                        .then(r => r.arrayBuffer())
+                        .then(buf => audioCtx.decodeAudioData(buf))
+                        .then(decoded => {
+                            const src = audioCtx.createBufferSource();
+                            src.buffer = decoded;
+                            src.connect(gainNode);
+                            src.start();
+                        })
+                        .catch(() => {
+                            const audio = new Audio(url.trim());
+                            audio.volume = Math.min(1, volumeRatio);
+                            audio.play().catch(()=>{});
+                        });
                     return;
                 } catch(e) {}
             }
@@ -2036,8 +2357,9 @@ createApp({
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.frequency.value = type === 'send' ? 880 : 660;
                 osc.type = 'sine';
-                gain.gain.setValueAtTime(vol * 0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.1);
+                const vol = Math.max(0.001, 0.15 * volumeRatio);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.1);
                 osc.start(); osc.stop(audioCtx.currentTime+0.1);
             } catch(e) {}
         };
