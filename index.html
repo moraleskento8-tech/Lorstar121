@@ -276,10 +276,18 @@
             background: #839deb; border: 2px solid white;
             box-shadow: 0 2px 6px rgba(131,157,235,0.4); cursor: pointer;
         }
+        .sticker-img {
             max-width: 80px; max-height: 80px; border-radius: 12px;
             image-rendering: -webkit-optimize-contrast;
-            image-rendering: high-quality;
+            image-rendering: crisp-edges;
             -ms-interpolation-mode: bicubic;
+            filter: contrast(1.04) saturate(1.06);
+        }
+        .bubble-img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: auto;
+            -ms-interpolation-mode: bicubic;
+            filter: contrast(1.02) saturate(1.04);
         }
         .reply-checkbox { accent-color: #839deb; width: 18px; height: 18px; }
 
@@ -708,86 +716,117 @@
         }
         .call-record-rebtn:hover { background: rgba(170,155,225,0.26); }
 
-        /* ===== 开屏动画 · 韩系星降 ===== */
-        .splash-enter-active { transition: opacity 1.8s ease; }
-        .splash-leave-active { transition: opacity 1.2s cubic-bezier(0.4,0,0.6,1); }
+        /* ===== 开屏动画 · 英伦星降 ===== */
+        .splash-enter-active { transition: opacity 2s cubic-bezier(0.22,1,0.36,1); }
+        .splash-leave-active { transition: opacity 1.4s cubic-bezier(0.4,0,0.2,1); }
         .splash-enter-from, .splash-leave-to { opacity: 0; }
 
         @keyframes sp-star-twinkle {
-            0%,100%{opacity:0.08;r:0.6;} 45%{opacity:0.9;r:var(--r,2);} 55%{opacity:1;r:calc(var(--r,2)*1.25);}
+            0%,100%{opacity:0.06;} 42%{opacity:0.85;} 58%{opacity:1;}
+        }
+        @keyframes sp-star-pulse {
+            0%,100%{opacity:0.12;transform:scale(0.7);} 50%{opacity:0.7;transform:scale(1.15);}
         }
         @keyframes sp-meteor {
-            0%{opacity:0;transform:translate(0,0);}
-            5%{opacity:1;}
-            85%{opacity:0.6;}
-            100%{opacity:0;transform:translate(var(--mx,200px),var(--my,60px));}
+            0%{opacity:0;transform:translate(0,0) scaleX(1);}
+            4%{opacity:0.9;}
+            88%{opacity:0.4;}
+            100%{opacity:0;transform:translate(var(--mx,220px),var(--my,66px)) scaleX(0.7);}
         }
         @keyframes sp-snow {
-            0%{transform:translateY(-24px) translateX(0) rotate(0deg);opacity:0;}
-            8%{opacity:var(--op,0.55);}
-            92%{opacity:calc(var(--op,0.55)*0.6);}
-            100%{transform:translateY(105vh) translateX(var(--sx,12px)) rotate(480deg);opacity:0;}
+            0%{transform:translateY(-28px) translateX(0) rotate(0deg);opacity:0;}
+            9%{opacity:var(--op,0.45);}
+            91%{opacity:calc(var(--op,0.45)*0.5);}
+            100%{transform:translateY(106vh) translateX(var(--sx,10px)) rotate(520deg);opacity:0;}
         }
-        @keyframes sp-clock-hand {
-            from{transform-origin:center bottom;transform:rotate(-90deg);}
-            to{transform-origin:center bottom;transform:rotate(270deg);}
-        }
-        @keyframes sp-clock-appear {
-            0%{opacity:0;transform:scale(0.4) rotate(-30deg);}
-            60%{opacity:1;transform:scale(1.06) rotate(3deg);}
-            100%{opacity:1;transform:scale(1) rotate(0deg);}
-        }
-        @keyframes sp-ring-expand {
-            0%{r:0;opacity:0.8;} 100%{r:140;opacity:0;}
-        }
+        /* 星盘描边生长 */
         @keyframes sp-line-draw {
             from{stroke-dashoffset:var(--len,300);opacity:0;}
-            10%{opacity:1;}
+            8%{opacity:1;}
             100%{stroke-dashoffset:0;opacity:1;}
+        }
+        @keyframes sp-arc-draw {
+            from{stroke-dashoffset:var(--len,500);opacity:0;}
+            12%{opacity:0.9;}
+            100%{stroke-dashoffset:0;opacity:0.85;}
+        }
+        @keyframes sp-ring-expand {
+            0%{r:0;opacity:0.6;stroke-width:0.9;} 100%{r:148;opacity:0;}
+        }
+        @keyframes sp-astrolabe-spin {
+            from{transform:rotate(0deg);} to{transform:rotate(360deg);}
+        }
+        @keyframes sp-astrolabe-spin-rev {
+            from{transform:rotate(0deg);} to{transform:rotate(-360deg);}
+        }
+        /* 皇冠 */
+        @keyframes sp-crown {
+            0%{opacity:0;transform:translateY(-32px) scale(0.55);}
+            52%{transform:translateY(5px) scale(1.06);}
+            100%{opacity:1;transform:translateY(0) scale(1);}
+        }
+        /* 文字非对称展开 */
+        @keyframes sp-title-zh {
+            0%{opacity:0;transform:translateX(-18px);letter-spacing:0.7em;}
+            100%{opacity:1;transform:translateX(0);letter-spacing:0.42em;}
+        }
+        @keyframes sp-title-en {
+            0%{opacity:0;transform:translateX(22px) skewX(-3deg);}
+            100%{opacity:0.72;transform:translateX(0) skewX(0deg);}
+        }
+        @keyframes sp-sub-vertical {
+            0%{opacity:0;transform:translateY(10px) scaleY(0.8);}
+            100%{opacity:0.55;transform:translateY(0) scaleY(1);}
+        }
+        @keyframes sp-divider {
+            from{width:0;opacity:0;} to{width:88px;opacity:1;}
+        }
+        @keyframes sp-divider-dot {
+            0%{opacity:0;transform:scale(0) rotate(-45deg);}
+            70%{transform:scale(1.3) rotate(10deg);}
+            100%{opacity:1;transform:scale(1) rotate(0deg);}
+        }
+        @keyframes sp-breathe {
+            0%,100%{opacity:var(--opa,0.10);transform:scale(1);}
+            50%{opacity:calc(var(--opa,0.10)*2.2);transform:scale(1.10);}
+        }
+        /* 进度条 */
+        @keyframes sp-progress {
+            0%{width:0%;} 25%{width:18%;} 52%{width:55%;} 78%{width:80%;} 100%{width:100%;}
+        }
+        @keyframes sp-progress-glow {
+            0%,100%{opacity:0.5;box-shadow:0 0 4px 1px rgba(180,160,230,0.3);}
+            50%{opacity:1;box-shadow:0 0 10px 3px rgba(190,170,240,0.6);}
+        }
+        /* 花卉 */
+        @keyframes sp-bloom {
+            0%{opacity:0;transform:scale(0.08) rotate(-55deg);}
+            62%{transform:scale(1.10) rotate(5deg);}
+            100%{opacity:1;transform:scale(1) rotate(0deg);}
+        }
+        @keyframes sp-petal-breathe {
+            0%,100%{transform:scale(1) rotate(0deg);opacity:0.72;}
+            50%{transform:scale(1.07) rotate(4deg);opacity:0.90;}
+        }
+        /* 轨道 */
+        @keyframes sp-orbit {
+            from{transform:rotate(0deg) translateX(var(--r2,80px)) rotate(0deg);}
+            to{transform:rotate(360deg) translateX(var(--r2,80px)) rotate(-360deg);}
+        }
+        @keyframes sp-pulse-dot {
+            0%,100%{transform:scale(0.4);opacity:0.2;} 50%{transform:scale(1.6);opacity:1;}
+        }
+        @keyframes sp-badge-in {
+            0%{opacity:0;letter-spacing:0.55em;} 100%{opacity:0.55;letter-spacing:0.26em;}
+        }
+        @keyframes sp-float {
+            0%,100%{transform:translateY(0px);} 50%{transform:translateY(-7px);}
+        }
+        @keyframes sp-appear {
+            0%{opacity:0;} 100%{opacity:1;}
         }
         @keyframes sp-dot-appear {
             0%{opacity:0;transform:scale(0);} 70%{transform:scale(1.3);} 100%{opacity:1;transform:scale(1);}
-        }
-        @keyframes sp-crown {
-            0%{opacity:0;transform:translateY(-40px) scale(0.5);}
-            55%{transform:translateY(6px) scale(1.08);}
-            100%{opacity:1;transform:translateY(0) scale(1);}
-        }
-        @keyframes sp-title {
-            0%{opacity:0;transform:translateY(28px);letter-spacing:0.9em;}
-            100%{opacity:1;transform:translateY(0);letter-spacing:0.55em;}
-        }
-        @keyframes sp-sub {
-            0%{opacity:0;transform:translateY(16px) scaleX(0.85);}
-            100%{opacity:1;transform:translateY(0) scaleX(1);}
-        }
-        @keyframes sp-divider {
-            from{width:0;opacity:0;} to{width:100px;opacity:1;}
-        }
-        @keyframes sp-breathe {
-            0%,100%{opacity:var(--opa,0.18);transform:scale(1);}
-            50%{opacity:calc(var(--opa,0.18)*1.8);transform:scale(1.08);}
-        }
-        @keyframes sp-progress {
-            0%{width:0%;}  30%{width:28%;} 60%{width:62%;} 82%{width:84%;} 100%{width:100%;}
-        }
-        @keyframes sp-bloom {
-            0%{opacity:0;transform:scale(0.1) rotate(-60deg);}
-            65%{transform:scale(1.12) rotate(6deg);}
-            100%{opacity:1;transform:scale(1) rotate(0deg);}
-        }
-        @keyframes sp-orbit {
-            from{transform:rotate(0deg) translateX(var(--r2,76px)) rotate(0deg);}
-            to{transform:rotate(360deg) translateX(var(--r2,76px)) rotate(-360deg);}
-        }
-        @keyframes sp-pulse-dot {
-            0%,100%{transform:scale(0.5);opacity:0.25;} 50%{transform:scale(1.5);opacity:0.9;}
-        }
-        @keyframes sp-badge-in {
-            0%{opacity:0;letter-spacing:0.6em;} 100%{opacity:1;letter-spacing:0.28em;}
-        }
-        @keyframes sp-float {
-            0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);}
         }
 
         /* 中屏通话窗口额外样式 */
@@ -800,263 +839,385 @@
 <body>
 <div id="app" class="h-[100dvh] w-full flex justify-center items-center selection:bg-accent/30 relative" style="background: transparent !important;">
 
-    <!-- ===== 开屏动画 · 韩系星降 ===== -->
+    <!-- ===== 开屏动画 · 英伦星降 ===== -->
     <transition name="splash">
-      <div v-if="showSplash" class="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none"
-           style="background:linear-gradient(155deg,#f7f5fb 0%,#eeeaf6 25%,#e8eaf3 55%,#ebe8f0 80%,#f0edf5 100%);">
+      <div v-if="showSplash" class="fixed inset-0 z-[100] overflow-hidden select-none"
+           style="background:linear-gradient(168deg,#0d0d14 0%,#111220 28%,#151625 55%,#12131e 78%,#0e0e18 100%);">
 
-        <!-- ══ 层1：背景磨砂气泡圆 ══ -->
-        <div style="position:absolute;width:380px;height:380px;border-radius:50%;background:rgba(200,190,230,0.10);top:-90px;left:-110px;animation:sp-breathe 7s ease-in-out infinite;--opa:0.10;"></div>
-        <div style="position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(210,200,235,0.08);bottom:-55px;right:-60px;animation:sp-breathe 9s ease-in-out 2s infinite;--opa:0.08;"></div>
-        <div style="position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(220,210,240,0.07);top:38%;left:72%;animation:sp-breathe 6s ease-in-out 1s infinite;--opa:0.07;"></div>
+        <!-- ══ 噪点纹理叠层 ══ -->
+        <div style="position:absolute;inset:0;opacity:0.032;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/></filter><rect width=%22200%22 height=%22200%22 filter=%22url(%23n)%22 opacity=%221%22/></svg>');pointer-events:none;"></div>
 
-        <!-- ══ 层2：全幅 SVG 星图 + 流星雨 ══ -->
+        <!-- ══ 层1：深空渐变光晕 ══ -->
+        <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(110,90,180,0.09) 0%,transparent 70%);top:-140px;left:-120px;animation:sp-breathe 9s ease-in-out infinite;--opa:0.09;pointer-events:none;"></div>
+        <div style="position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(80,120,200,0.07) 0%,transparent 70%);bottom:-80px;right:-80px;animation:sp-breathe 12s ease-in-out 3s infinite;--opa:0.07;pointer-events:none;"></div>
+        <div style="position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(140,100,210,0.06) 0%,transparent 70%);top:40%;left:68%;animation:sp-breathe 7s ease-in-out 1.5s infinite;--opa:0.06;pointer-events:none;"></div>
+
+        <!-- ══ 层2：全幅星图 + 流星 SVG ══ -->
         <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <radialGradient id="mg1" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="rgba(220,210,250,0.9)"/>
-              <stop offset="100%" stop-color="rgba(190,180,230,0.1)"/>
-            </radialGradient>
+            <filter id="glow-star" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="1.2" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow-meteor" x="-50%" y="-50%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="1.8" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="meteor-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(220,210,255,0)" />
+              <stop offset="60%" stop-color="rgba(220,210,255,0.7)" />
+              <stop offset="100%" stop-color="rgba(240,230,255,0.95)" />
+            </linearGradient>
+            <linearGradient id="meteor-grad-2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(180,195,255,0)" />
+              <stop offset="55%" stop-color="rgba(180,195,255,0.6)" />
+              <stop offset="100%" stop-color="rgba(210,220,255,0.9)" />
+            </linearGradient>
           </defs>
 
-          <!-- 星图连线 A（北斗弧线风） -->
-          <g stroke="rgba(185,175,225,0.25)" stroke-width="0.65" fill="none">
-            <path d="M55,130 L120,88 L195,138 L258,95 L310,155" stroke-dasharray="320" style="animation:sp-line-draw 3.5s ease 0.4s both;--len:320;"/>
-            <path d="M55,130 L85,212 L155,228 L195,138" stroke-dasharray="280" style="animation:sp-line-draw 3.5s ease 0.9s both;--len:280;"/>
-            <path d="M240,310 L285,268 L335,318" stroke-dasharray="200" style="animation:sp-line-draw 3s ease 1.4s both;--len:200;"/>
-            <path d="M42,360 L105,328 L148,378 L200,350" stroke-dasharray="240" style="animation:sp-line-draw 3s ease 1.8s both;--len:240;"/>
-            <path d="M28,672 L78,644 L136,682 L188,660" stroke-dasharray="220" style="animation:sp-line-draw 2.8s ease 2.2s both;--len:220;"/>
-            <path d="M238,714 L295,696 L346,738" stroke-dasharray="180" style="animation:sp-line-draw 2.5s ease 2.5s both;--len:180;"/>
+          <!-- 星座连线（三组，不同透明度层次） -->
+          <g fill="none">
+            <!-- 北方星群 -->
+            <path d="M38,78 L92,52 L168,94 L228,61 L298,112" stroke="rgba(160,148,210,0.18)" stroke-width="0.55" stroke-dasharray="350" style="animation:sp-line-draw 4.2s ease 0.3s both;--len:350;"/>
+            <path d="M38,78 L68,182 L138,202 L168,94" stroke="rgba(155,145,205,0.14)" stroke-width="0.5" stroke-dasharray="300" style="animation:sp-line-draw 4s ease 0.8s both;--len:300;"/>
+            <!-- 中部星群 -->
+            <path d="M26,330 L88,298 L138,344 L192,318 L248,362" stroke="rgba(148,140,200,0.14)" stroke-width="0.5" stroke-dasharray="310" style="animation:sp-line-draw 3.8s ease 1.5s both;--len:310;"/>
+            <path d="M218,278 L268,248 L322,290" stroke="rgba(152,142,204,0.16)" stroke-width="0.5" stroke-dasharray="190" style="animation:sp-line-draw 3.4s ease 1.9s both;--len:190;"/>
+            <!-- 南方星群 -->
+            <path d="M22,650 L72,624 L130,660 L182,638 L240,672" stroke="rgba(145,138,198,0.13)" stroke-width="0.45" stroke-dasharray="290" style="animation:sp-line-draw 3.5s ease 2.3s both;--len:290;"/>
+            <path d="M230,695 L286,675 L340,712" stroke="rgba(148,140,200,0.13)" stroke-width="0.45" stroke-dasharray="175" style="animation:sp-line-draw 3s ease 2.6s both;--len:175;"/>
           </g>
 
-          <!-- 星点（大小+呼吸各异） -->
-          <g>
-            <circle cx="55" cy="130" r="2.4" fill="rgba(195,185,235,0.95)" style="animation:sp-star-twinkle 2.2s ease-in-out 0s infinite;--r:2.4;"/>
-            <circle cx="120" cy="88" r="3.2" fill="rgba(210,195,245,0.95)" style="animation:sp-star-twinkle 1.9s ease-in-out 0.4s infinite;--r:3.2;"/>
-            <circle cx="195" cy="138" r="2.0" fill="rgba(195,185,235,0.9)" style="animation:sp-star-twinkle 2.7s ease-in-out 0.8s infinite;--r:2.0;"/>
-            <circle cx="258" cy="95" r="2.7" fill="rgba(215,200,248,0.9)" style="animation:sp-star-twinkle 2.1s ease-in-out 0.2s infinite;--r:2.7;"/>
-            <circle cx="310" cy="155" r="1.6" fill="rgba(195,185,235,0.85)" style="animation:sp-star-twinkle 3.1s ease-in-out 1.0s infinite;--r:1.6;"/>
-            <circle cx="85" cy="212" r="2.1" fill="rgba(200,190,240,0.9)" style="animation:sp-star-twinkle 2.4s ease-in-out 0.5s infinite;--r:2.1;"/>
-            <circle cx="155" cy="228" r="1.7" fill="rgba(195,185,235,0.85)" style="animation:sp-star-twinkle 1.8s ease-in-out 1.2s infinite;--r:1.7;"/>
-            <circle cx="240" cy="310" r="2.9" fill="rgba(215,200,248,0.95)" style="animation:sp-star-twinkle 2.5s ease-in-out 0.3s infinite;--r:2.9;"/>
-            <circle cx="285" cy="268" r="1.4" fill="rgba(195,185,235,0.8)" style="animation:sp-star-twinkle 1.7s ease-in-out 0.9s infinite;--r:1.4;"/>
-            <circle cx="335" cy="318" r="2.2" fill="rgba(205,195,242,0.9)" style="animation:sp-star-twinkle 2.4s ease-in-out 0.6s infinite;--r:2.2;"/>
-            <circle cx="42" cy="360" r="2.0" fill="rgba(200,190,240,0.9)" style="animation:sp-star-twinkle 2.3s ease-in-out 1.4s infinite;--r:2.0;"/>
-            <circle cx="105" cy="328" r="2.5" fill="rgba(210,195,245,0.9)" style="animation:sp-star-twinkle 1.7s ease-in-out 0.7s infinite;--r:2.5;"/>
-            <circle cx="148" cy="378" r="1.8" fill="rgba(195,185,235,0.85)" style="animation:sp-star-twinkle 2.9s ease-in-out 0.3s infinite;--r:1.8;"/>
-            <circle cx="28" cy="672" r="2.1" fill="rgba(200,190,240,0.9)" style="animation:sp-star-twinkle 2.2s ease-in-out 1.3s infinite;--r:2.1;"/>
-            <circle cx="78" cy="644" r="2.7" fill="rgba(215,200,248,0.9)" style="animation:sp-star-twinkle 2.0s ease-in-out 0.5s infinite;--r:2.7;"/>
-            <circle cx="136" cy="682" r="1.5" fill="rgba(195,185,235,0.8)" style="animation:sp-star-twinkle 2.8s ease-in-out 0.1s infinite;--r:1.5;"/>
-            <circle cx="238" cy="714" r="2.3" fill="rgba(210,195,245,0.9)" style="animation:sp-star-twinkle 2.3s ease-in-out 1.1s infinite;--r:2.3;"/>
-            <circle cx="295" cy="696" r="1.9" fill="rgba(200,190,240,0.85)" style="animation:sp-star-twinkle 1.9s ease-in-out 0.4s infinite;--r:1.9;"/>
-            <circle cx="346" cy="738" r="2.6" fill="rgba(215,200,248,0.9)" style="animation:sp-star-twinkle 2.6s ease-in-out 0.8s infinite;--r:2.6;"/>
-            <!-- 散点 -->
-            <circle cx="178" cy="52" r="1.4" fill="rgba(200,190,240,0.8)" style="animation:sp-star-twinkle 2.1s ease-in-out 1.6s infinite;--r:1.4;"/>
-            <circle cx="328" cy="428" r="1.2" fill="rgba(195,185,235,0.75)" style="animation:sp-star-twinkle 2.9s ease-in-out 0.2s infinite;--r:1.2;"/>
-            <circle cx="18" cy="510" r="1.6" fill="rgba(210,195,245,0.8)" style="animation:sp-star-twinkle 2.4s ease-in-out 0.6s infinite;--r:1.6;"/>
-            <circle cx="358" cy="582" r="1.3" fill="rgba(195,185,235,0.75)" style="animation:sp-star-twinkle 1.8s ease-in-out 1.1s infinite;--r:1.3;"/>
-            <circle cx="200" cy="350" r="1.5" fill="rgba(210,195,245,0.82)" style="animation:sp-star-twinkle 2.2s ease-in-out 0.8s infinite;--r:1.5;"/>
-            <circle cx="52" cy="470" r="1.8" fill="rgba(200,190,240,0.78)" style="animation:sp-star-twinkle 2.6s ease-in-out 1.4s infinite;--r:1.8;"/>
+          <!-- 节点星点（带发光滤镜，大小各异） -->
+          <g filter="url(#glow-star)">
+            <circle cx="38" cy="78" r="2.2" fill="rgba(200,188,248,0.9)" style="animation:sp-star-twinkle 2.4s ease-in-out 0s infinite;"/>
+            <circle cx="92" cy="52" r="3.0" fill="rgba(215,202,255,0.92)" style="animation:sp-star-twinkle 1.8s ease-in-out 0.5s infinite;"/>
+            <circle cx="168" cy="94" r="1.8" fill="rgba(195,185,242,0.88)" style="animation:sp-star-twinkle 2.9s ease-in-out 0.3s infinite;"/>
+            <circle cx="228" cy="61" r="2.5" fill="rgba(210,198,252,0.90)" style="animation:sp-star-twinkle 2.1s ease-in-out 0.9s infinite;"/>
+            <circle cx="298" cy="112" r="1.6" fill="rgba(195,185,242,0.85)" style="animation:sp-star-twinkle 3.2s ease-in-out 1.2s infinite;"/>
+            <circle cx="68" cy="182" r="1.9" fill="rgba(200,190,248,0.88)" style="animation:sp-star-twinkle 2.6s ease-in-out 0.6s infinite;"/>
+            <circle cx="138" cy="202" r="1.5" fill="rgba(195,185,242,0.82)" style="animation:sp-star-twinkle 1.9s ease-in-out 1.4s infinite;"/>
+            <circle cx="218" cy="278" r="2.7" fill="rgba(215,202,255,0.92)" style="animation:sp-star-twinkle 2.3s ease-in-out 0.2s infinite;"/>
+            <circle cx="268" cy="248" r="1.4" fill="rgba(195,185,242,0.80)" style="animation:sp-star-twinkle 1.7s ease-in-out 0.8s infinite;"/>
+            <circle cx="322" cy="290" r="2.1" fill="rgba(205,195,250,0.88)" style="animation:sp-star-twinkle 2.5s ease-in-out 0.4s infinite;"/>
+            <circle cx="26" cy="330" r="1.9" fill="rgba(200,190,248,0.88)" style="animation:sp-star-twinkle 2.2s ease-in-out 1.6s infinite;"/>
+            <circle cx="88" cy="298" r="2.4" fill="rgba(210,198,252,0.90)" style="animation:sp-star-twinkle 1.8s ease-in-out 0.7s infinite;"/>
+            <circle cx="138" cy="344" r="1.7" fill="rgba(195,185,242,0.84)" style="animation:sp-star-twinkle 2.8s ease-in-out 0.1s infinite;"/>
+            <circle cx="22" cy="650" r="2.0" fill="rgba(200,190,248,0.88)" style="animation:sp-star-twinkle 2.3s ease-in-out 1.1s infinite;"/>
+            <circle cx="72" cy="624" r="2.6" fill="rgba(215,202,255,0.90)" style="animation:sp-star-twinkle 2.0s ease-in-out 0.4s infinite;"/>
+            <circle cx="130" cy="660" r="1.4" fill="rgba(195,185,242,0.80)" style="animation:sp-star-twinkle 2.7s ease-in-out 0.9s infinite;"/>
+            <circle cx="230" cy="695" r="2.2" fill="rgba(210,198,252,0.88)" style="animation:sp-star-twinkle 2.2s ease-in-out 1.3s infinite;"/>
+            <circle cx="286" cy="675" r="1.8" fill="rgba(200,190,248,0.84)" style="animation:sp-star-twinkle 1.9s ease-in-out 0.3s infinite;"/>
+            <circle cx="340" cy="712" r="2.4" fill="rgba(215,202,255,0.90)" style="animation:sp-star-twinkle 2.5s ease-in-out 0.7s infinite;"/>
+            <!-- 散落背景星 -->
+            <circle cx="172" cy="42" r="1.1" fill="rgba(195,185,242,0.75)" style="animation:sp-star-twinkle 3.0s ease-in-out 2.0s infinite;"/>
+            <circle cx="320" cy="415" r="1.0" fill="rgba(190,182,238,0.70)" style="animation:sp-star-twinkle 2.8s ease-in-out 0.3s infinite;"/>
+            <circle cx="14" cy="498" r="1.5" fill="rgba(200,192,248,0.75)" style="animation:sp-star-twinkle 2.4s ease-in-out 1.7s infinite;"/>
+            <circle cx="352" cy="565" r="1.2" fill="rgba(192,182,238,0.72)" style="animation:sp-star-twinkle 1.8s ease-in-out 0.5s infinite;"/>
+            <circle cx="195" cy="345" r="1.3" fill="rgba(198,188,248,0.78)" style="animation:sp-star-twinkle 2.2s ease-in-out 1.1s infinite;"/>
+            <circle cx="48" cy="462" r="1.7" fill="rgba(198,188,245,0.75)" style="animation:sp-star-twinkle 2.6s ease-in-out 0.8s infinite;"/>
+            <circle cx="358" cy="190" r="0.9" fill="rgba(188,178,235,0.68)" style="animation:sp-star-twinkle 3.1s ease-in-out 1.5s infinite;"/>
+            <circle cx="8"   cy="155" r="1.2" fill="rgba(196,186,242,0.72)" style="animation:sp-star-twinkle 2.0s ease-in-out 0.6s infinite;"/>
           </g>
 
-          <!-- 流星雨（8条，不同角度与速度） -->
-          <line class="sp-meteor-line" x1="20" y1="30" x2="110" y2="60" stroke="rgba(215,200,250,0.7)" stroke-width="1.0" stroke-linecap="round" style="animation:sp-meteor 5.5s linear 1.0s infinite;--mx:220px;--my:66px;"/>
-          <circle cx="20" cy="30" r="2.0" fill="rgba(225,215,255,0.85)" style="animation:sp-meteor 5.5s linear 1.0s infinite;--mx:220px;--my:66px;"/>
+          <!-- 流星雨（8条，带渐变尾迹，发光滤镜） -->
+          <g filter="url(#glow-meteor)">
+            <line x1="14" y1="22" x2="112" y2="54" stroke="url(#meteor-grad-1)" stroke-width="0.9" stroke-linecap="round" style="animation:sp-meteor 5.8s linear 0.8s infinite;--mx:228px;--my:68px;"/>
+            <circle cx="112" cy="54" r="1.8" fill="rgba(235,225,255,0.92)" style="animation:sp-meteor 5.8s linear 0.8s infinite;--mx:228px;--my:68px;"/>
 
-          <line x1="280" y1="20" x2="340" y2="38" stroke="rgba(210,195,245,0.6)" stroke-width="0.8" stroke-linecap="round" style="animation:sp-meteor 7s linear 2.8s infinite;--mx:180px;--my:54px;"/>
-          <circle cx="280" cy="20" r="1.6" fill="rgba(220,210,255,0.8)" style="animation:sp-meteor 7s linear 2.8s infinite;--mx:180px;--my:54px;"/>
+            <line x1="275" y1="18" x2="345" y2="40" stroke="url(#meteor-grad-2)" stroke-width="0.75" stroke-linecap="round" style="animation:sp-meteor 7.2s linear 2.6s infinite;--mx:182px;--my:55px;"/>
+            <circle cx="345" cy="40" r="1.5" fill="rgba(225,215,255,0.88)" style="animation:sp-meteor 7.2s linear 2.6s infinite;--mx:182px;--my:55px;"/>
 
-          <line x1="50" y1="200" x2="120" y2="221" stroke="rgba(205,190,240,0.5)" stroke-width="0.7" stroke-linecap="round" style="animation:sp-meteor 8.5s linear 0.5s infinite;--mx:200px;--my:60px;"/>
-          <circle cx="50" cy="200" r="1.4" fill="rgba(215,205,250,0.75)" style="animation:sp-meteor 8.5s linear 0.5s infinite;--mx:200px;--my:60px;"/>
+            <line x1="45" y1="195" x2="122" y2="219" stroke="url(#meteor-grad-1)" stroke-width="0.7" stroke-linecap="round" style="animation:sp-meteor 9s linear 0.3s infinite;--mx:205px;--my:62px;"/>
+            <circle cx="122" cy="219" r="1.3" fill="rgba(230,220,255,0.85)" style="animation:sp-meteor 9s linear 0.3s infinite;--mx:205px;--my:62px;"/>
 
-          <line x1="300" y1="300" x2="350" y2="315" stroke="rgba(210,200,245,0.55)" stroke-width="0.85" stroke-linecap="round" style="animation:sp-meteor 6s linear 4.2s infinite;--mx:170px;--my:51px;"/>
-          <circle cx="300" cy="300" r="1.8" fill="rgba(220,210,255,0.78)" style="animation:sp-meteor 6s linear 4.2s infinite;--mx:170px;--my:51px;"/>
+            <line x1="295" y1="295" x2="352" y2="313" stroke="url(#meteor-grad-2)" stroke-width="0.8" stroke-linecap="round" style="animation:sp-meteor 6.5s linear 4.0s infinite;--mx:168px;--my:50px;"/>
+            <circle cx="352" cy="313" r="1.7" fill="rgba(228,218,255,0.86)" style="animation:sp-meteor 6.5s linear 4.0s infinite;--mx:168px;--my:50px;"/>
 
-          <line x1="10" y1="450" x2="80" y2="471" stroke="rgba(205,190,238,0.5)" stroke-width="0.75" stroke-linecap="round" style="animation:sp-meteor 9s linear 1.8s infinite;--mx:240px;--my:72px;"/>
-          <circle cx="10" cy="450" r="1.5" fill="rgba(215,205,248,0.72)" style="animation:sp-meteor 9s linear 1.8s infinite;--mx:240px;--my:72px;"/>
+            <line x1="8" y1="445" x2="82" y2="468" stroke="url(#meteor-grad-1)" stroke-width="0.65" stroke-linecap="round" style="animation:sp-meteor 9.5s linear 1.6s infinite;--mx:242px;--my:73px;"/>
+            <circle cx="82" cy="468" r="1.4" fill="rgba(225,215,252,0.82)" style="animation:sp-meteor 9.5s linear 1.6s infinite;--mx:242px;--my:73px;"/>
 
-          <line x1="150" y1="600" x2="220" y2="621" stroke="rgba(208,195,242,0.45)" stroke-width="0.7" stroke-linecap="round" style="animation:sp-meteor 7.5s linear 5.5s infinite;--mx:190px;--my:57px;"/>
-          <circle cx="150" cy="600" r="1.3" fill="rgba(218,208,252,0.7)" style="animation:sp-meteor 7.5s linear 5.5s infinite;--mx:190px;--my:57px;"/>
+            <line x1="148" y1="594" x2="222" y2="617" stroke="url(#meteor-grad-2)" stroke-width="0.62" stroke-linecap="round" style="animation:sp-meteor 8s linear 5.2s infinite;--mx:195px;--my:58px;"/>
+            <circle cx="222" cy="617" r="1.2" fill="rgba(222,212,252,0.80)" style="animation:sp-meteor 8s linear 5.2s infinite;--mx:195px;--my:58px;"/>
 
-          <line x1="330" y1="500" x2="375" y2="513" stroke="rgba(210,198,240,0.48)" stroke-width="0.65" stroke-linecap="round" style="animation:sp-meteor 10s linear 3.3s infinite;--mx:160px;--my:48px;"/>
-          <circle cx="330" cy="500" r="1.2" fill="rgba(220,210,250,0.7)" style="animation:sp-meteor 10s linear 3.3s infinite;--mx:160px;--my:48px;"/>
+            <line x1="328" y1="492" x2="372" y2="506" stroke="url(#meteor-grad-1)" stroke-width="0.6" stroke-linecap="round" style="animation:sp-meteor 10.5s linear 3.1s infinite;--mx:158px;--my:47px;"/>
+            <circle cx="372" cy="506" r="1.1" fill="rgba(220,210,252,0.78)" style="animation:sp-meteor 10.5s linear 3.1s infinite;--mx:158px;--my:47px;"/>
 
-          <line x1="80" y1="720" x2="148" y2="740" stroke="rgba(205,192,238,0.42)" stroke-width="0.6" stroke-linecap="round" style="animation:sp-meteor 11s linear 6.8s infinite;--mx:210px;--my:63px;"/>
-          <circle cx="80" cy="720" r="1.1" fill="rgba(215,205,248,0.68)" style="animation:sp-meteor 11s linear 6.8s infinite;--mx:210px;--my:63px;"/>
+            <line x1="75" y1="718" x2="148" y2="740" stroke="url(#meteor-grad-2)" stroke-width="0.55" stroke-linecap="round" style="animation:sp-meteor 11.5s linear 6.5s infinite;--mx:212px;--my:64px;"/>
+            <circle cx="148" cy="740" r="1.0" fill="rgba(218,208,250,0.75)" style="animation:sp-meteor 11.5s linear 6.5s infinite;--mx:212px;--my:64px;"/>
+          </g>
 
-          <!-- 扩散环（时钟感） -->
-          <circle cx="187" cy="406" r="0" stroke="rgba(195,185,230,0.22)" stroke-width="0.8" fill="none" style="animation:sp-ring-expand 5s ease-out 1s infinite;"/>
-          <circle cx="187" cy="406" r="0" stroke="rgba(195,185,230,0.14)" stroke-width="0.6" fill="none" style="animation:sp-ring-expand 5s ease-out 3s infinite;"/>
+          <!-- 扩散环 -->
+          <circle cx="187" cy="406" r="0" stroke="rgba(170,155,228,0.18)" stroke-width="0.7" fill="none" style="animation:sp-ring-expand 6s ease-out 1.2s infinite;"/>
+          <circle cx="187" cy="406" r="0" stroke="rgba(165,150,222,0.11)" stroke-width="0.5" fill="none" style="animation:sp-ring-expand 6s ease-out 3.5s infinite;"/>
         </svg>
 
-        <!-- ══ 层3：SVG 时钟（展开感） ══ -->
-        <div style="position:absolute;top:12%;left:50%;transform:translateX(-50%);animation:sp-clock-appear 1.4s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;">
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <!-- 表盘 -->
-            <circle cx="32" cy="32" r="30" stroke="rgba(185,175,225,0.35)" stroke-width="1" fill="rgba(230,225,245,0.08)"/>
-            <circle cx="32" cy="32" r="28" stroke="rgba(185,175,225,0.15)" stroke-width="0.5" stroke-dasharray="3 5"/>
-            <!-- 刻度 -->
-            <g stroke="rgba(185,175,225,0.5)" stroke-width="1" stroke-linecap="round">
-              <line x1="32" y1="4" x2="32" y2="9"/>
-              <line x1="32" y1="55" x2="32" y2="60"/>
-              <line x1="4" y1="32" x2="9" y2="32"/>
-              <line x1="55" y1="32" x2="60" y2="32"/>
+        <!-- ══ 层3：星盘 Astrolabe（中心 SVG，描边展开动画）══ -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;">
+          <svg width="260" height="260" viewBox="-130 -130 260 260" fill="none" style="animation:sp-appear 0.8s ease 0.2s both;overflow:visible;">
+            <defs>
+              <filter id="glow-ring" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="1.5" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <!-- 最外旋转环（慢速，顺时针） -->
+            <g style="animation:sp-astrolabe-spin 80s linear infinite;transform-origin:0 0;">
+              <circle r="118" stroke="rgba(160,148,215,0.14)" stroke-width="0.6" fill="none" stroke-dasharray="3.5 8"/>
+              <!-- 外环刻度 -->
+              <g stroke="rgba(155,145,208,0.28)" stroke-width="0.7" stroke-linecap="round">
+                <line x1="0" y1="-118" x2="0" y2="-112"/>
+                <line x1="0" y1="112" x2="0" y2="118"/>
+                <line x1="-118" y1="0" x2="-112" y2="0"/>
+                <line x1="112" y1="0" x2="118" y2="0"/>
+                <line x1="-83.4" y1="-83.4" x2="-79.2" y2="-79.2"/>
+                <line x1="79.2" y1="-79.2" x2="83.4" y2="-83.4"/>
+                <line x1="-83.4" y1="83.4" x2="-79.2" y2="79.2"/>
+                <line x1="79.2" y1="79.2" x2="83.4" y2="83.4"/>
+              </g>
+              <!-- 细刻度 -->
+              <g stroke="rgba(150,140,202,0.18)" stroke-width="0.5" stroke-linecap="round">
+                <line x1="57.4" y1="-102.3" x2="54.6" y2="-97.3"/>
+                <line x1="-57.4" y1="-102.3" x2="-54.6" y2="-97.3"/>
+                <line x1="102.3" y1="-57.4" x2="97.3" y2="-54.6"/>
+                <line x1="102.3" y1="57.4" x2="97.3" y2="54.6"/>
+                <line x1="-102.3" y1="-57.4" x2="-97.3" y2="-54.6"/>
+                <line x1="-102.3" y1="57.4" x2="-97.3" y2="54.6"/>
+                <line x1="57.4" y1="102.3" x2="54.6" y2="97.3"/>
+                <line x1="-57.4" y1="102.3" x2="-54.6" y2="97.3"/>
+              </g>
             </g>
-            <g stroke="rgba(185,175,225,0.25)" stroke-width="0.6" stroke-linecap="round">
-              <line x1="49.1" y1="7.8" x2="47" y2="11.6"/>
-              <line x1="56.2" y1="14.9" x2="52.4" y2="17"/>
-              <line x1="56.2" y1="49.1" x2="52.4" y2="47"/>
-              <line x1="49.1" y1="56.2" x2="47" y2="52.4"/>
-              <line x1="14.9" y1="56.2" x2="17" y2="52.4"/>
-              <line x1="7.8" y1="49.1" x2="11.6" y2="47"/>
-              <line x1="7.8" y1="14.9" x2="11.6" y2="17"/>
-              <line x1="14.9" y1="7.8" x2="17" y2="11.6"/>
+            <!-- 第二环（反向旋转） -->
+            <g style="animation:sp-astrolabe-spin-rev 55s linear infinite;transform-origin:0 0;">
+              <circle r="96" stroke="rgba(155,145,210,0.18)" stroke-width="0.6" fill="none" stroke-dasharray="2 6"/>
+              <g stroke="rgba(152,142,205,0.30)" stroke-width="0.6" stroke-linecap="round">
+                <line x1="0" y1="-96" x2="0" y2="-91"/>
+                <line x1="0" y1="91" x2="0" y2="96"/>
+                <line x1="-96" y1="0" x2="-91" y2="0"/>
+                <line x1="91" y1="0" x2="96" y2="0"/>
+              </g>
+              <!-- 黄道十二宫弧线分割（12段，描边生长） -->
+              <path d="M0,-96 A96,96 0 0,1 48,-83.1" stroke="rgba(158,148,215,0.32)" stroke-width="0.7" fill="none" stroke-dasharray="52" style="animation:sp-arc-draw 3s ease 0.6s both;--len:52;"/>
+              <path d="M48,-83.1 A96,96 0 0,1 83.1,-48" stroke="rgba(155,145,212,0.28)" stroke-width="0.7" fill="none" stroke-dasharray="52" style="animation:sp-arc-draw 3s ease 0.85s both;--len:52;"/>
+              <path d="M83.1,-48 A96,96 0 0,1 96,0" stroke="rgba(158,148,215,0.32)" stroke-width="0.7" fill="none" stroke-dasharray="52" style="animation:sp-arc-draw 3s ease 1.1s both;--len:52;"/>
+              <path d="M96,0 A96,96 0 0,1 83.1,48" stroke="rgba(155,145,212,0.28)" stroke-width="0.7" fill="none" stroke-dasharray="52" style="animation:sp-arc-draw 3s ease 1.35s both;--len:52;"/>
+              <path d="M83.1,48 A96,96 0 0,1 48,83.1" stroke="rgba(158,148,215,0.32)" stroke-width="0.7" fill="none" stroke-dasharray="52" style="animation:sp-arc-draw 3s ease 1.6s both;--len:52;"/>
+              <path d="M48,83.1 A96,96 0 0,1 0,96" stroke="rgba(155,145,212,0.28)" stroke-width="0.7" fill="none" stroke-dasharray="52" style="animation:sp-arc-draw 3s ease 1.85s both;--len:52;"/>
             </g>
-            <!-- 时针 -->
-            <line x1="32" y1="32" x2="32" y2="16" stroke="rgba(190,180,230,0.7)" stroke-width="1.5" stroke-linecap="round"
-              style="transform-origin:32px 32px;animation:sp-clock-hand 8s linear 0.2s infinite;"/>
-            <!-- 分针 -->
-            <line x1="32" y1="32" x2="32" y2="10" stroke="rgba(195,185,240,0.55)" stroke-width="1" stroke-linecap="round"
-              style="transform-origin:32px 32px;animation:sp-clock-hand 4s linear 0.2s infinite;"/>
-            <!-- 秒针 -->
-            <line x1="32" y1="32" x2="32" y2="8" stroke="rgba(210,195,255,0.5)" stroke-width="0.6" stroke-linecap="round"
-              style="transform-origin:32px 32px;animation:sp-clock-hand 1.8s linear 0.2s infinite;"/>
-            <circle cx="32" cy="32" r="2" fill="rgba(200,188,235,0.8)"/>
+            <!-- 三角格结构（静态描边生长） -->
+            <g stroke="rgba(152,142,208,0.22)" stroke-width="0.55" fill="none">
+              <line x1="-68" y1="-68" x2="68" y2="-68" stroke-dasharray="136" style="animation:sp-line-draw 3.2s ease 0.9s both;--len:136;"/>
+              <line x1="68" y1="-68" x2="0" y2="68" stroke-dasharray="148" style="animation:sp-line-draw 3.2s ease 1.2s both;--len:148;"/>
+              <line x1="0" y1="68" x2="-68" y2="-68" stroke-dasharray="148" style="animation:sp-line-draw 3.2s ease 1.5s both;--len:148;"/>
+              <!-- 内圆 -->
+              <circle r="62" stroke-dasharray="390" style="animation:sp-arc-draw 3.8s ease 1.0s both;--len:390;"/>
+              <circle r="42" stroke-dasharray="265" style="animation:sp-arc-draw 3.5s ease 1.4s both;--len:265;opacity:0.7;" stroke="rgba(148,138,204,0.19)"/>
+            </g>
+            <!-- 中心点群 -->
+            <circle r="5.5" fill="rgba(185,172,238,0.22)" filter="url(#glow-ring)" style="animation:sp-dot-appear 1s ease 1.8s both;"/>
+            <circle r="3" fill="rgba(200,188,250,0.55)" style="animation:sp-dot-appear 1s ease 1.8s both;"/>
+            <circle r="1.2" fill="rgba(220,210,255,0.9)" style="animation:sp-dot-appear 0.8s ease 2s both;"/>
+            <!-- 轨道行星点 -->
+            <g style="animation:sp-orbit 18s linear 2s infinite;transform-origin:0 0;--r2:62px;">
+              <circle cx="62" cy="0" r="2.2" fill="rgba(210,198,255,0.72)" filter="url(#glow-ring)"/>
+            </g>
+            <g style="animation:sp-orbit 28s linear infinite reverse;transform-origin:0 0;--r2:96px;">
+              <circle cx="96" cy="0" r="1.5" fill="rgba(200,188,248,0.55)" filter="url(#glow-ring)"/>
+            </g>
           </svg>
         </div>
 
         <!-- ══ 层4：雪花粒子 ══ -->
         <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
-          <div v-for="i in 20" :key="'sf'+i" style="position:absolute;top:-24px;"
-               :style="`left:${(i*4.8+1.2)%97}%;animation:sp-snow ${7+((i*11)%6)}s linear ${((i*0.41)%4.5)}s infinite;--op:${0.35+((i%4)*0.12)};--sx:${(i%2===0?1:-1)*(4+(i%8))}px;`">
-            <svg :width="8+(i%6)" :height="8+(i%6)" viewBox="0 0 20 20" fill="none">
-              <line x1="10" y1="1" x2="10" y2="19" stroke="rgba(185,175,225,0.7)" stroke-width="1.2" stroke-linecap="round"/>
-              <line x1="1" y1="10" x2="19" y2="10" stroke="rgba(185,175,225,0.7)" stroke-width="1.2" stroke-linecap="round"/>
-              <line x1="3.5" y1="3.5" x2="16.5" y2="16.5" stroke="rgba(185,175,225,0.5)" stroke-width="1" stroke-linecap="round"/>
-              <line x1="16.5" y1="3.5" x2="3.5" y2="16.5" stroke="rgba(185,175,225,0.5)" stroke-width="1" stroke-linecap="round"/>
-              <circle cx="10" cy="4.5" r="1" fill="rgba(195,185,235,0.8)"/>
-              <circle cx="10" cy="15.5" r="1" fill="rgba(195,185,235,0.8)"/>
-              <circle cx="4.5" cy="10" r="1" fill="rgba(195,185,235,0.8)"/>
-              <circle cx="15.5" cy="10" r="1" fill="rgba(195,185,235,0.8)"/>
+          <div v-for="i in 22" :key="'sf'+i" style="position:absolute;top:-28px;"
+               :style="`left:${(i*4.5+1.5)%96}%;animation:sp-snow ${8+((i*13)%7)}s linear ${((i*0.38)%5)}s infinite;--op:${0.22+((i%5)*0.08)};--sx:${(i%2===0?1:-1)*(3+(i%7))}px;`">
+            <svg :width="6+(i%5)" :height="6+(i%5)" viewBox="0 0 20 20" fill="none">
+              <line x1="10" y1="2" x2="10" y2="18" stroke="rgba(175,165,222,0.65)" stroke-width="1.1" stroke-linecap="round"/>
+              <line x1="2" y1="10" x2="18" y2="10" stroke="rgba(175,165,222,0.65)" stroke-width="1.1" stroke-linecap="round"/>
+              <line x1="4" y1="4" x2="16" y2="16" stroke="rgba(175,165,222,0.42)" stroke-width="0.9" stroke-linecap="round"/>
+              <line x1="16" y1="4" x2="4" y2="16" stroke="rgba(175,165,222,0.42)" stroke-width="0.9" stroke-linecap="round"/>
+              <circle cx="10" cy="5" r="0.9" fill="rgba(190,180,238,0.75)"/>
+              <circle cx="10" cy="15" r="0.9" fill="rgba(190,180,238,0.75)"/>
+              <circle cx="5" cy="10" r="0.9" fill="rgba(190,180,238,0.75)"/>
+              <circle cx="15" cy="10" r="0.9" fill="rgba(190,180,238,0.75)"/>
             </svg>
           </div>
         </div>
 
-        <!-- ══ 层5：轨道点装饰 ══ -->
-        <div style="position:absolute;top:50%;left:50%;width:0;height:0;pointer-events:none;animation:sp-orbit 22s linear infinite;--r2:84px;">
-          <div style="width:5px;height:5px;border-radius:50%;background:rgba(195,185,235,0.28);margin-top:-2.5px;"></div>
-        </div>
-        <div style="position:absolute;top:50%;left:50%;width:0;height:0;pointer-events:none;animation:sp-orbit 35s linear infinite reverse;--r2:110px;margin-top:16px;">
-          <div style="width:3.5px;height:3.5px;border-radius:50%;background:rgba(195,185,235,0.18);"></div>
-        </div>
-
-        <!-- ══ 层6：精美花卉装饰 ══ -->
-        <!-- 雏菊 左下 -->
-        <div style="position:absolute;bottom:17%;left:4%;animation:sp-bloom 1.2s cubic-bezier(0.34,1.56,0.64,1) 1.2s both;">
-          <svg width="54" height="54" viewBox="0 0 54 54" fill="none">
-            <g transform="translate(27,27)">
-              <ellipse rx="3.5" ry="11" fill="rgba(215,208,238,0.65)" transform="rotate(0) translate(0,-13)"/>
-              <ellipse rx="3.5" ry="11" fill="rgba(210,202,234,0.60)" transform="rotate(40) translate(0,-13)"/>
-              <ellipse rx="3.5" ry="11" fill="rgba(215,208,238,0.65)" transform="rotate(80) translate(0,-13)"/>
-              <ellipse rx="3.5" ry="11" fill="rgba(210,202,234,0.60)" transform="rotate(120) translate(0,-13)"/>
-              <ellipse rx="3.5" ry="11" fill="rgba(215,208,238,0.65)" transform="rotate(160) translate(0,-13)"/>
-              <ellipse rx="3.5" ry="11" fill="rgba(210,202,234,0.60)" transform="rotate(200) translate(0,-13)"/>
-              <ellipse rx="3.5" ry="11" fill="rgba(215,208,238,0.65)" transform="rotate(240) translate(0,-13)"/>
-              <ellipse rx="3.5" ry="11" fill="rgba(210,202,234,0.60)" transform="rotate(280) translate(0,-13)"/>
-              <ellipse rx="3.5" ry="11" fill="rgba(215,208,238,0.65)" transform="rotate(320) translate(0,-13)"/>
-              <circle r="6.5" fill="rgba(245,240,220,0.75)"/>
-              <circle r="3.5" fill="rgba(250,245,210,0.85)"/>
+        <!-- ══ 层5：花卉装饰 ══ -->
+        <!-- 雏菊 左下（线条简笔风，微透白/银） -->
+        <div style="position:absolute;bottom:19%;left:5%;animation:sp-bloom 1.2s cubic-bezier(0.34,1.56,0.64,1) 1.1s both;">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="animation:sp-petal-breathe 5s ease-in-out 2s infinite;">
+            <g transform="translate(26,26)">
+              <!-- 花瓣（线条描边风） -->
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(185,175,228,0.55)" stroke-width="1.2" transform="rotate(0) translate(0,-12)"/>
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(178,168,222,0.50)" stroke-width="1.2" transform="rotate(40) translate(0,-12)"/>
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(185,175,228,0.55)" stroke-width="1.2" transform="rotate(80) translate(0,-12)"/>
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(178,168,222,0.50)" stroke-width="1.2" transform="rotate(120) translate(0,-12)"/>
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(185,175,228,0.55)" stroke-width="1.2" transform="rotate(160) translate(0,-12)"/>
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(178,168,222,0.50)" stroke-width="1.2" transform="rotate(200) translate(0,-12)"/>
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(185,175,228,0.55)" stroke-width="1.2" transform="rotate(240) translate(0,-12)"/>
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(178,168,222,0.50)" stroke-width="1.2" transform="rotate(280) translate(0,-12)"/>
+              <ellipse rx="3.2" ry="10.5" fill="none" stroke="rgba(185,175,228,0.55)" stroke-width="1.2" transform="rotate(320) translate(0,-12)"/>
+              <!-- 花蕊 -->
+              <circle r="6" fill="none" stroke="rgba(195,185,240,0.40)" stroke-width="0.8"/>
+              <circle r="3.8" fill="rgba(235,228,255,0.18)"/>
+              <circle r="2" fill="rgba(240,235,255,0.35)"/>
             </g>
           </svg>
         </div>
         <!-- 勿忘我 右上 -->
-        <div style="position:absolute;top:13%;right:7%;animation:sp-bloom 1.1s cubic-bezier(0.34,1.56,0.64,1) 1.5s both;">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <g transform="translate(24,24)">
-              <ellipse rx="2.8" ry="8.5" fill="rgba(185,178,228,0.65)" transform="rotate(0) translate(0,-10.5)"/>
-              <ellipse rx="2.8" ry="8.5" fill="rgba(192,184,232,0.60)" transform="rotate(72) translate(0,-10.5)"/>
-              <ellipse rx="2.8" ry="8.5" fill="rgba(185,178,228,0.65)" transform="rotate(144) translate(0,-10.5)"/>
-              <ellipse rx="2.8" ry="8.5" fill="rgba(192,184,232,0.60)" transform="rotate(216) translate(0,-10.5)"/>
-              <ellipse rx="2.8" ry="8.5" fill="rgba(185,178,228,0.65)" transform="rotate(288) translate(0,-10.5)"/>
-              <circle r="5" fill="rgba(248,244,215,0.78)"/>
-              <circle r="2.8" fill="rgba(252,248,205,0.88)"/>
+        <div style="position:absolute;top:14%;right:8%;animation:sp-bloom 1.1s cubic-bezier(0.34,1.56,0.64,1) 1.4s both;">
+          <svg width="46" height="46" viewBox="0 0 46 46" fill="none" style="animation:sp-petal-breathe 6s ease-in-out 2.5s infinite;">
+            <g transform="translate(23,23)">
+              <ellipse rx="2.6" ry="8" fill="none" stroke="rgba(170,162,222,0.58)" stroke-width="1.1" transform="rotate(0) translate(0,-9.5)"/>
+              <ellipse rx="2.6" ry="8" fill="none" stroke="rgba(165,158,218,0.52)" stroke-width="1.1" transform="rotate(72) translate(0,-9.5)"/>
+              <ellipse rx="2.6" ry="8" fill="none" stroke="rgba(170,162,222,0.58)" stroke-width="1.1" transform="rotate(144) translate(0,-9.5)"/>
+              <ellipse rx="2.6" ry="8" fill="none" stroke="rgba(165,158,218,0.52)" stroke-width="1.1" transform="rotate(216) translate(0,-9.5)"/>
+              <ellipse rx="2.6" ry="8" fill="none" stroke="rgba(170,162,222,0.58)" stroke-width="1.1" transform="rotate(288) translate(0,-9.5)"/>
+              <circle r="4.5" fill="none" stroke="rgba(185,175,235,0.32)" stroke-width="0.7"/>
+              <circle r="2.5" fill="rgba(232,225,255,0.25)"/>
             </g>
           </svg>
         </div>
-        <!-- 小勿忘我 左上 -->
-        <div style="position:absolute;top:22%;left:9%;animation:sp-bloom 1.0s cubic-bezier(0.34,1.56,0.64,1) 1.8s both;opacity:0.7;">
-          <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-            <g transform="translate(17,17)">
-              <ellipse rx="2" ry="6" fill="rgba(195,185,235,0.55)" transform="rotate(0) translate(0,-7.5)"/>
-              <ellipse rx="2" ry="6" fill="rgba(200,190,238,0.50)" transform="rotate(72) translate(0,-7.5)"/>
-              <ellipse rx="2" ry="6" fill="rgba(195,185,235,0.55)" transform="rotate(144) translate(0,-7.5)"/>
-              <ellipse rx="2" ry="6" fill="rgba(200,190,238,0.50)" transform="rotate(216) translate(0,-7.5)"/>
-              <ellipse rx="2" ry="6" fill="rgba(195,185,235,0.55)" transform="rotate(288) translate(0,-7.5)"/>
-              <circle r="3.5" fill="rgba(248,244,215,0.72)"/>
+        <!-- 小勿忘我 左上（微透，次级装饰） -->
+        <div style="position:absolute;top:24%;left:10%;animation:sp-bloom 1s cubic-bezier(0.34,1.56,0.64,1) 1.7s both;opacity:0.58;">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <g transform="translate(16,16)">
+              <ellipse rx="1.8" ry="5.8" fill="none" stroke="rgba(175,168,228,0.55)" stroke-width="1" transform="rotate(0) translate(0,-6.8)"/>
+              <ellipse rx="1.8" ry="5.8" fill="none" stroke="rgba(170,162,222,0.50)" stroke-width="1" transform="rotate(72) translate(0,-6.8)"/>
+              <ellipse rx="1.8" ry="5.8" fill="none" stroke="rgba(175,168,228,0.55)" stroke-width="1" transform="rotate(144) translate(0,-6.8)"/>
+              <ellipse rx="1.8" ry="5.8" fill="none" stroke="rgba(170,162,222,0.50)" stroke-width="1" transform="rotate(216) translate(0,-6.8)"/>
+              <ellipse rx="1.8" ry="5.8" fill="none" stroke="rgba(175,168,228,0.55)" stroke-width="1" transform="rotate(288) translate(0,-6.8)"/>
+              <circle r="2.5" fill="rgba(228,222,252,0.20)"/>
+            </g>
+          </svg>
+        </div>
+        <!-- 小雏菊 右下 -->
+        <div style="position:absolute;bottom:28%;right:6%;animation:sp-bloom 1s cubic-bezier(0.34,1.56,0.64,1) 1.9s both;opacity:0.50;">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <g transform="translate(18,18)">
+              <ellipse rx="2" ry="7" fill="none" stroke="rgba(180,172,228,0.52)" stroke-width="1" transform="rotate(0) translate(0,-8.5)"/>
+              <ellipse rx="2" ry="7" fill="none" stroke="rgba(175,168,222,0.48)" stroke-width="1" transform="rotate(45) translate(0,-8.5)"/>
+              <ellipse rx="2" ry="7" fill="none" stroke="rgba(180,172,228,0.52)" stroke-width="1" transform="rotate(90) translate(0,-8.5)"/>
+              <ellipse rx="2" ry="7" fill="none" stroke="rgba(175,168,222,0.48)" stroke-width="1" transform="rotate(135) translate(0,-8.5)"/>
+              <ellipse rx="2" ry="7" fill="none" stroke="rgba(180,172,228,0.52)" stroke-width="1" transform="rotate(180) translate(0,-8.5)"/>
+              <ellipse rx="2" ry="7" fill="none" stroke="rgba(175,168,222,0.48)" stroke-width="1" transform="rotate(225) translate(0,-8.5)"/>
+              <ellipse rx="2" ry="7" fill="none" stroke="rgba(180,172,228,0.52)" stroke-width="1" transform="rotate(270) translate(0,-8.5)"/>
+              <ellipse rx="2" ry="7" fill="none" stroke="rgba(175,168,222,0.48)" stroke-width="1" transform="rotate(315) translate(0,-8.5)"/>
+              <circle r="2.8" fill="rgba(230,224,252,0.18)"/>
             </g>
           </svg>
         </div>
 
-        <!-- ══ 层7：皇冠 ══ -->
-        <div style="animation:sp-crown 1.1s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;margin-bottom:14px;margin-top:16px;">
-          <svg width="56" height="40" viewBox="0 0 56 40" fill="none">
-            <path d="M4 34 L5 12 L18 23 L28 3 L38 23 L51 12 L52 34 Z"
-              stroke="rgba(175,165,218,0.65)" stroke-width="1.4" stroke-linejoin="round"
-              fill="rgba(205,198,238,0.14)"/>
-            <rect x="3" y="34" width="50" height="5" rx="2.5"
-              fill="rgba(200,192,235,0.28)" stroke="rgba(175,165,218,0.45)" stroke-width="0.9"/>
-            <!-- 顶珠 -->
-            <circle cx="28" cy="3" r="2.8" fill="rgba(210,200,248,0.88)"/>
-            <circle cx="5" cy="12" r="2.2" fill="rgba(205,196,242,0.82)"/>
-            <circle cx="51" cy="12" r="2.2" fill="rgba(205,196,242,0.82)"/>
-            <!-- 装饰珠 -->
-            <circle cx="28" cy="22" r="3.2" fill="rgba(215,205,250,0.65)"/>
-            <circle cx="18" cy="22" r="1.8" fill="rgba(205,196,242,0.75)"/>
-            <circle cx="38" cy="22" r="1.8" fill="rgba(205,196,242,0.75)"/>
-            <!-- 皇冠腰线纹 -->
-            <line x1="6" y1="36.5" x2="50" y2="36.5" stroke="rgba(185,175,228,0.3)" stroke-width="0.5"/>
+        <!-- ══ 层6：皇冠（极简线条几何）══ -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(-72px);animation:sp-crown 1.1s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;">
+          <svg width="54" height="38" viewBox="0 0 54 38" fill="none">
+            <!-- 冠身线条 -->
+            <path d="M3.5 33 L4.5 12 L17 22.5 L27 3 L37 22.5 L49.5 12 L50.5 33 Z"
+              stroke="rgba(175,162,228,0.65)" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"
+              fill="rgba(160,148,215,0.06)"/>
+            <!-- 底边 -->
+            <rect x="3" y="33" width="48" height="4.5" rx="2.2"
+              fill="rgba(165,155,218,0.10)" stroke="rgba(172,160,222,0.42)" stroke-width="0.8"/>
+            <!-- 腰线 -->
+            <line x1="5.5" y1="35.2" x2="48.5" y2="35.2" stroke="rgba(178,168,228,0.22)" stroke-width="0.45"/>
+            <!-- 顶珠（三颗，大小呼应） -->
+            <circle cx="27" cy="3" r="2.5" fill="rgba(205,195,255,0.82)" style="animation:sp-star-pulse 2.5s ease-in-out infinite;"/>
+            <circle cx="4.5" cy="12" r="1.9" fill="rgba(198,188,250,0.78)" style="animation:sp-star-pulse 3s ease-in-out 0.8s infinite;"/>
+            <circle cx="49.5" cy="12" r="1.9" fill="rgba(198,188,250,0.78)" style="animation:sp-star-pulse 3s ease-in-out 1.2s infinite;"/>
+            <!-- 装饰内珠 -->
+            <circle cx="27" cy="21" r="2.8" fill="rgba(195,182,248,0.38)"/>
+            <circle cx="17" cy="21.5" r="1.5" fill="rgba(190,178,242,0.42)"/>
+            <circle cx="37" cy="21.5" r="1.5" fill="rgba(190,178,242,0.42)"/>
           </svg>
         </div>
 
-        <!-- ══ 层8：中心文字 ══ -->
-        <div style="display:flex;flex-direction:column;align-items:center;animation:sp-float 5s ease-in-out 2s infinite;">
+        <!-- ══ 层7：非对称海报排版 核心区 ══ -->
+        <div style="position:absolute;top:50%;left:0;right:0;transform:translateY(-8px);padding:0 32px;pointer-events:none;animation:sp-float 6s ease-in-out 2.2s infinite;">
+
+          <!-- 中文主标题（宋体，偏左非居中） -->
           <h1 style="
-            font-family:'Noto Serif SC',serif;font-weight:300;
-            font-size:19px;letter-spacing:0.55em;text-indent:0.55em;
-            color:rgba(145,135,185,0.78);line-height:1;margin:0 0 9px;
-            animation:sp-title 1.3s cubic-bezier(0.22,1,0.36,1) 0.8s both;
+            font-family:'Noto Serif SC',serif;
+            font-weight:300;
+            font-size:22px;
+            letter-spacing:0.42em;
+            text-indent:0.42em;
+            color:rgba(205,195,255,0.82);
+            line-height:1;
+            margin:0 0 0 0;
+            text-align:left;
+            padding-left:6px;
+            animation:sp-title-zh 1.4s cubic-bezier(0.22,1,0.36,1) 0.7s both;
           ">星降长桉林</h1>
-          <div style="
-            height:0.7px;width:0;margin:0 auto 9px;display:block;
-            background:linear-gradient(90deg,transparent,rgba(175,165,220,0.55),transparent);
-            animation:sp-divider 1.1s ease 1.2s both;
-          "></div>
+
+          <!-- 分隔装饰线 -->
+          <div style="display:flex;align-items:center;gap:10px;margin:12px 0 10px 4px;animation:sp-divider 1.2s ease 1.1s both;overflow:hidden;">
+            <div style="height:0.6px;width:0;background:linear-gradient(90deg,rgba(185,172,245,0.7),rgba(155,145,215,0.2));flex:1;max-width:80px;animation:sp-divider 1.2s ease 1.1s both;"></div>
+            <svg width="8" height="8" viewBox="0 0 8 8" style="animation:sp-divider-dot 0.8s ease 1.5s both;opacity:0;flex-shrink:0;">
+              <rect x="1" y="1" width="6" height="6" rx="1" transform="rotate(45 4 4)" fill="none" stroke="rgba(185,172,245,0.65)" stroke-width="0.9"/>
+            </svg>
+            <div style="height:0.6px;width:0;background:linear-gradient(90deg,rgba(155,145,215,0.2),rgba(185,172,245,0.7));flex:1;max-width:40px;animation:sp-divider 1s ease 1.2s both;"></div>
+          </div>
+
+          <!-- 英文副标题（古典斜体，偏右错落） -->
           <p style="
-            font-family:'Cormorant Garamond','IM Fell English',serif;font-style:italic;font-weight:300;
-            font-size:14px;letter-spacing:0.18em;
-            color:rgba(165,155,205,0.70);margin:0;
-            animation:sp-sub 1.1s ease 1.5s both;
+            font-family:'Cormorant Garamond',serif;
+            font-style:italic;
+            font-weight:300;
+            font-size:16px;
+            letter-spacing:0.14em;
+            color:rgba(180,168,238,0.72);
+            margin:0;
+            text-align:right;
+            padding-right:8px;
+            animation:sp-title-en 1.2s cubic-bezier(0.22,1,0.36,1) 1.3s both;
           ">Loreille &amp; Savit</p>
+
+          <!-- 竖排小字（英伦感细节） -->
+          <div style="
+            position:absolute;right:32px;top:-52px;
+            font-family:'IM Fell English',serif;
+            font-style:italic;
+            font-size:8.5px;
+            letter-spacing:0.28em;
+            color:rgba(162,152,218,0.40);
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            animation:sp-sub-vertical 1.2s ease 1.8s both;
+          ">whisper · starlight</div>
         </div>
 
-        <!-- ══ 层9：进度条 ══ -->
-        <div style="position:absolute;bottom:58px;left:50%;transform:translateX(-50%);width:160px;animation:sp-sub 0.8s ease 1.8s both;">
-          <div style="width:100%;height:1px;background:rgba(185,175,228,0.18);border-radius:1px;overflow:hidden;margin-bottom:8px;">
-            <div style="height:100%;background:linear-gradient(90deg,rgba(175,165,218,0.4),rgba(195,185,238,0.7),rgba(175,165,218,0.4));border-radius:1px;
-              animation:sp-progress 2.8s cubic-bezier(0.4,0,0.2,1) 1.6s both;"></div>
+        <!-- ══ 层8：进度条（纤细星轨形式）══ -->
+        <div style="position:absolute;bottom:62px;left:50%;transform:translateX(-50%);width:168px;animation:sp-appear 0.8s ease 1.7s both;">
+          <!-- 轨道底线 -->
+          <div style="width:100%;height:0.8px;background:rgba(155,145,210,0.14);border-radius:1px;position:relative;overflow:hidden;margin-bottom:10px;">
+            <!-- 进度光条 -->
+            <div style="height:100%;background:linear-gradient(90deg,rgba(160,148,222,0.25),rgba(195,182,252,0.85),rgba(165,155,228,0.35));border-radius:1px;position:relative;
+              animation:sp-progress 3s cubic-bezier(0.4,0,0.2,1) 1.5s both;">
+              <!-- 末端发光点 -->
+              <div style="position:absolute;right:0;top:-2px;width:5px;height:5px;border-radius:50%;background:rgba(205,192,255,0.9);
+                animation:sp-progress-glow 1.2s ease-in-out infinite;
+                box-shadow:0 0 8px 2px rgba(190,178,252,0.6);"></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
-            <div style="width:3px;height:3px;border-radius:50%;background:rgba(175,165,218,0.45);animation:sp-pulse-dot 1.4s ease-in-out 0s infinite;"></div>
-            <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:9.5px;letter-spacing:0.3em;color:rgba(165,155,205,0.58);">connecting</span>
-            <div style="width:3px;height:3px;border-radius:50%;background:rgba(175,165,218,0.45);animation:sp-pulse-dot 1.4s ease-in-out 0.7s infinite;"></div>
+          <!-- 状态文字行 -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:9px;">
+            <div style="width:3px;height:3px;border-radius:50%;background:rgba(172,162,228,0.55);animation:sp-pulse-dot 1.5s ease-in-out 0s infinite;"></div>
+            <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:9px;letter-spacing:0.32em;color:rgba(158,148,212,0.55);">connecting</span>
+            <div style="width:3px;height:3px;border-radius:50%;background:rgba(172,162,228,0.55);animation:sp-pulse-dot 1.5s ease-in-out 0.75s infinite;"></div>
           </div>
         </div>
 
-        <!-- ══ 层10：底部徽章 ══ -->
-        <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;white-space:nowrap;animation:sp-badge-in 1.2s ease 2.2s both;">
-          <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="0.8" fill="rgba(165,155,205,0.5)"/><circle cx="2" cy="6" r="0.5" fill="rgba(165,155,205,0.3)"/><circle cx="10" cy="6" r="0.5" fill="rgba(165,155,205,0.3)"/></svg>
-          <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:9px;letter-spacing:0.3em;color:rgba(155,145,195,0.52);">whisper · starlight</span>
-          <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="0.8" fill="rgba(165,155,205,0.5)"/><circle cx="2" cy="6" r="0.5" fill="rgba(165,155,205,0.3)"/><circle cx="10" cy="6" r="0.5" fill="rgba(165,155,205,0.3)"/></svg>
+        <!-- ══ 层9：底部徽章 ══ -->
+        <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:11px;white-space:nowrap;animation:sp-badge-in 1.4s ease 2.1s both;">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <rect x="1.5" y="1.5" width="7" height="7" rx="1" transform="rotate(45 5 5)" fill="none" stroke="rgba(155,145,205,0.38)" stroke-width="0.8"/>
+          </svg>
+          <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:8.5px;letter-spacing:0.28em;color:rgba(148,138,198,0.48);">whisper · starlight</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <rect x="1.5" y="1.5" width="7" height="7" rx="1" transform="rotate(45 5 5)" fill="none" stroke="rgba(155,145,205,0.38)" stroke-width="0.8"/>
+          </svg>
         </div>
 
       </div>
@@ -1142,7 +1303,7 @@
                             <span v-if="settings.showNickname && msg.sender==='them'" class="text-[10px] text-muted ml-2 mb-1">{{ profiles.them.name }}</span>
                             <span v-if="settings.showNickname && msg.sender==='me'" class="text-[10px] text-muted mr-2 mb-1">{{ profiles.me.name }}</span>
                             <!-- 文字气泡 -->
-                            <div v-if="msg.type === 'text'" class="msg-bubble relative" :class="msg.sender === 'me' ? 'bg-bubbleSend text-slate-700 bubble-me' : 'bg-bubbleReceive dark:bg-slate-800/70 text-slate-600 dark:text-slate-200 bubble-them'">
+                            <div v-if="msg.type === 'text'" class="msg-bubble relative" :class="msg.sender === 'me' ? 'bg-bubbleSend bubble-me' : 'bg-bubbleReceive dark:bg-slate-800/70 bubble-them'" style="color:rgba(95,108,140,0.80);">
                                 <div v-if="msg.quote" class="quote-block cursor-pointer" @click="scrollToMsg(msg.quote.id)">
                                     <span class="font-semibold">{{ msg.quote.sender === 'me' ? profiles.me.name : profiles.them.name }}:</span>
                                     <template v-if="msg.quote.type === 'text'">{{ msg.quote.content }}</template>
@@ -2020,7 +2181,6 @@
 if ('serviceWorker' in navigator) {
     const swCode = `
         const CACHE_NAME = 'jingyu-v2';
-        const PUSH _WORKER_URL='https://lorstar0121.moraleskento8.workers.dev'；
         self.addEventListener('install', e => {
             e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./', './index.html'])));
             self.skipWaiting();
