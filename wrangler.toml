@@ -1,0 +1,20 @@
+name        = "lorstar-push"
+main        = "worker.js"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ── KV 命名空间（存储 Push 订阅信息）──
+[[kv_namespaces]]
+binding  = "PUSH_SUBS"
+id       = "REPLACE_WITH_YOUR_KV_ID"        # 运行 `wrangler kv:namespace create PUSH_SUBS` 获取
+preview_id = "REPLACE_WITH_YOUR_KV_PREVIEW_ID"
+
+# ── Cron 触发器（可选）──
+[[triggers]]
+crons = ["0 * * * *"]   # 每小时触发一次 scheduled()
+
+# ── Secrets（通过 wrangler secret put 设置，不要写在这里）──
+# VAPID_PUBLIC   = "..."
+# VAPID_PRIVATE  = "..."
+# VAPID_SUBJECT  = "mailto:your@email.com"
+# PUSH_SECRET    = "your-random-secret-token"
