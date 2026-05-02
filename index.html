@@ -1581,6 +1581,36 @@
                                     </div>
                                     <input type="checkbox" v-model="settings.bgKeepAlive" class="reply-checkbox">
                                 </div>
+
+                                <!-- ☁️ 云端同步 -->
+                                <div class="border-t border-white/40 mt-2 pt-2">
+                                  <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <div>
+                                      <span class="text-sm block text-slate-600 dark:text-slate-300">☁️ 云端同步</span>
+                                      <span class="text-[10px] text-muted">多设备同步 · 自动上传</span>
+                                    </div>
+                                    <input type="checkbox" v-model="settings.cloudSync" class="reply-checkbox">
+                                  </div>
+                                  <div v-if="settings.cloudSync" class="px-3 pb-3 space-y-2">
+                                    <div>
+                                      <span class="text-[10px] text-muted block mb-1">JSONBin API Key <a href="https://jsonbin.io" target="_blank" class="text-accent underline">（点此注册获取）</a></span>
+                                      <input v-model="settings.cloudApiKey" type="password" placeholder="$2b$10$xxxxxxxx..." class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                    </div>
+                                    <div>
+                                      <span class="text-[10px] text-muted block mb-1">Bin ID（首次上传后自动填入）</span>
+                                      <input v-model="settings.cloudBinId" placeholder="留空则自动创建" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                      <span class="text-[10px] text-muted flex-1">自动同步间隔（分钟）</span>
+                                      <input type="number" v-model.number="settings.cloudSyncInterval" min="1" max="60" class="w-14 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-xs outline-none shadow-inner">
+                                    </div>
+                                    <div class="flex gap-2 pt-1">
+                                      <button @click="cloudPush" class="flex-1 bg-accent/80 hover:bg-accent text-white rounded-xl py-2 text-xs font-medium transition shadow active:scale-95">⬆️ 上传</button>
+                                      <button @click="cloudPull" class="flex-1 bg-white/80 hover:bg-white dark:bg-slate-600/60 border border-white/70 rounded-xl py-2 text-xs font-medium transition shadow active:scale-95">⬇️ 恢复</button>
+                                    </div>
+                                    <div v-if="cloudSyncStatus" class="text-[10px] text-center py-1 rounded-lg" :class="cloudSyncOk ? 'text-green-500' : 'text-red-400'">{{ cloudSyncStatus }}</div>
+                                  </div>
+                                </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
                                     <span class="text-sm text-slate-600 dark:text-slate-300">🤖 主动消息</span>
                                     <input type="checkbox" v-model="settings.activeMsg" class="reply-checkbox">
@@ -2496,6 +2526,10 @@ createApp({
             pokePresets: '拍了拍你,戳了戳你,敲了敲你,轻拍一下,戳一戳',
             pushNotify: true,
             bgKeepAlive: true,
+            cloudSync: false,
+            cloudApiKey: '',
+            cloudBinId: '',
+            cloudSyncInterval: 10,
         });
 
         const modals = reactive({
@@ -2618,11 +2652,8 @@ createApp({
             }
         };
 
-        // showNotification：实际弹出通知
-        // 关键修复：当标签页在后台时，用 ServiceWorker 的 showNotification()
-        //           而不是 new Notification()
-        // 原因：new Notification() 在页面不可见时会被浏览器静默丢弃
-        //       但 swReg.showNotification() 是系统级通知，页面隐藏也能弹出
+        // showNotification：只在后台弹出，应用内不打扰
+        // 当 visibilityState === 'visible'（用户正在看页面）时直接返回，保持界面干净
         const showNotification = async (title, body) => {
             if (!settings.pushNotify) return;
             if (!('Notification' in window)) return;
@@ -2630,41 +2661,112 @@ createApp({
                 if (Notification.permission !== 'denied') initNotification();
                 return;
             }
+            // 页面可见时不弹任何通知
+            if (document.visibilityState === 'visible') return;
 
-            const icon = profiles.them.avatar || '';
-            // 每条消息用时间戳生成唯一 tag，这样每条消息都会独立弹出
-            // 而不是用固定 tag 导致新消息覆盖旧消息
-            const uniqueTag = 'chat-msg-' + Date.now();
+            const icon = profiles.them.avatar || '/icon-192.png';
             const notifOptions = {
                 body: body.substring(0, 80),
                 icon,
-                tag: uniqueTag,
-                renotify: false,          // 已是唯一 tag，无需 renotify
-                silent: false,            // 允许声音
-                // data 字段：存一个标记，sw.js 点击通知时用来判断跳转
-                // 不在通知内容里暴露任何 URL
+                tag: 'chat-msg-' + Date.now(), // 每条消息唯一 tag，独立弹出不互相覆盖
+                silent: false,
                 data: { type: 'chat' },
             };
 
-            // 优先走 Service Worker 发通知（无论页面是否可见）
-            // SW 发出的是系统级通知，稳定可靠，不受页面状态影响
+            // Service Worker 发通知（系统级，后台稳定可靠）
             const reg = window.__swReg || (await navigator.serviceWorker?.ready.catch(() => null));
             if (reg) {
-                try {
-                    await reg.showNotification(title, notifOptions);
-                    return;
-                } catch(e) {
-                    console.warn('[通知] SW showNotification 失败，降级到原生', e);
-                }
+                try { await reg.showNotification(title, notifOptions); return; } catch(e) {}
             }
-
-            // SW 不可用时降级：直接用原生 Notification API
+            // SW 不可用时降级到原生 Notification
             try {
                 const n = new Notification(title, { ...notifOptions, requireInteraction: false });
                 n.onclick = () => { window.focus(); n.close(); };
                 setTimeout(() => n.close(), 6000);
             } catch(e) {}
         };
+
+        // ===== 云端同步（JSONBin.io）=====
+        // JSONBin 是免费的在线 JSON 存储，不需要自建后端
+        // 每个"Bin"就是一个 JSON 文件，通过 API Key 鉴权读写
+        const cloudSyncStatus = ref('');
+        const cloudSyncOk     = ref(true);
+        let   cloudSyncTimer  = null;
+
+        const getSnapshotData = () => ({
+            messages:      JSON.parse(JSON.stringify(messages.value)),
+            profiles:      JSON.parse(JSON.stringify(profiles)),
+            settings:      JSON.parse(JSON.stringify(settings)),
+            replyGroups:   JSON.parse(JSON.stringify(replyGroups.value)),
+            stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
+            letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
+            pendingLetter: pendingLetter.value,
+            notes:         JSON.parse(JSON.stringify(notes.value)),
+            emojiPoolText: emojiPoolText.value,
+            _syncAt: Date.now(),
+        });
+
+        const cloudPush = async () => {
+            if (!settings.cloudApiKey) { cloudSyncOk.value = false; cloudSyncStatus.value = '⚠️ 请先填写 API Key'; return; }
+            cloudSyncStatus.value = '上传中…';
+            try {
+                const url    = settings.cloudBinId ? `https://api.jsonbin.io/v3/b/${settings.cloudBinId}` : 'https://api.jsonbin.io/v3/b';
+                const method = settings.cloudBinId ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': settings.cloudApiKey, 'X-Bin-Name': '静语备份', 'X-Bin-Private': 'true' },
+                    body: JSON.stringify(getSnapshotData()),
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (!settings.cloudBinId && data.metadata?.id) settings.cloudBinId = data.metadata.id;
+                cloudSyncOk.value = true;
+                cloudSyncStatus.value = `✅ 上传成功 ${new Date().toLocaleTimeString()}`;
+            } catch(e) {
+                cloudSyncOk.value = false;
+                cloudSyncStatus.value = `❌ 上传失败：${e.message}`;
+            }
+        };
+
+        const cloudPull = async () => {
+            if (!settings.cloudApiKey || !settings.cloudBinId) { cloudSyncOk.value = false; cloudSyncStatus.value = '⚠️ 需要 API Key 和 Bin ID'; return; }
+            cloudSyncStatus.value = '恢复中…';
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${settings.cloudBinId}/latest`, {
+                    headers: { 'X-Master-Key': settings.cloudApiKey },
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const data = json.record;
+                if (data.messages)      messages.value      = data.messages;
+                if (data.profiles)      Object.assign(profiles, data.profiles);
+                if (data.replyGroups)   replyGroups.value   = data.replyGroups;
+                if (data.stickerGroups) stickerGroups.value = data.stickerGroups;
+                if (data.letterHistory) letterHistory.value = data.letterHistory;
+                if (data.pendingLetter) pendingLetter.value = data.pendingLetter;
+                if (data.notes)         notes.value         = data.notes;
+                if (data.emojiPoolText) emojiPoolText.value = data.emojiPoolText;
+                if (data.settings) {
+                    // 不覆盖当前设备的 Key 和 Bin ID，防止循环覆盖
+                    const { cloudApiKey, cloudBinId, ...rest } = data.settings;
+                    Object.assign(settings, rest);
+                }
+                cloudSyncOk.value = true;
+                cloudSyncStatus.value = `✅ 恢复成功 ${new Date().toLocaleTimeString()}`;
+                await nextTick(); scrollToBottom();
+            } catch(e) {
+                cloudSyncOk.value = false;
+                cloudSyncStatus.value = `❌ 恢复失败：${e.message}`;
+            }
+        };
+
+        const restartCloudSyncTimer = () => {
+            if (cloudSyncTimer) safeClearInterval(cloudSyncTimer);
+            if (settings.cloudSync && settings.cloudApiKey) {
+                cloudSyncTimer = safeSetInterval(() => cloudPush(), (settings.cloudSyncInterval || 10) * 60 * 1000);
+            }
+        };
+        watch(() => [settings.cloudSync, settings.cloudSyncInterval, settings.cloudApiKey], restartCloudSyncTimer);
 
         // ===== 音效播放 =====
         const playSound = (type) => {
@@ -3019,7 +3121,7 @@ createApp({
                         sendMsg('them', 'image', s.dataURL, quoteObj, { isSticker: true });
                     } else if (textPool.length) {
                         let t = textPool[Math.floor(Math.random() * textPool.length)].text;
-                        if(emojiArray.length > 0 && Math.random() < 0.6) t += ' ' + emojiArray[Math.floor(Math.random() * emojiArray.length)];
+                        if(emojiArray.length > 0 && Math.random() < 0.45) t += ' ' + emojiArray[Math.floor(Math.random() * emojiArray.length)];
                         sendMsg('them', 'text', t, quoteObj);
                     } else {
                         sendMsg('them', 'text', '✨', quoteObj);
@@ -3450,6 +3552,35 @@ createApp({
                     scheduleRandomCall();         // ← 新增：随机来电调度
                     initNotification();           // ← 新增：申请通知权限
                     scheduleRandomPoke();         // ← 新增：对方随机拍一拍
+                    restartCloudSyncTimer();      // ← 云端同步：启动自动上传定时器
+
+    // 👇 【新增】在这里添加唤醒监听器，执行时间补偿 👇
+            document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        // 1. 弹出堆积在系统队列里的本地通知
+                        if (window.__pendingNotifs && window.__pendingNotifs.length) {
+                        window.__pendingNotifs.forEach(n => {
+                            try {
+                                if (Notification.permission === 'granted') {
+                                    new Notification(n.title, { body: n.body, icon: n.icon || '' });
+                                }
+                            } catch(e){}
+                        });
+                        window.__pendingNotifs = [];
+                    }
+
+                    // 2. 重新计算并触发由于休眠而错过的虚拟回复
+                    restorePendingLetter();
+                    restoreNoteReminders();
+                    
+                    // 3. 有一定概率给用户制造“对方刚刚上线”的惊喜
+                    if (Math.random() > 0.6) {
+                        refreshStatus('them'); 
+                    }
+                }
+            });
+            // 👆 【新增结束】 👆
+            
                 });
             }, 5500);
         });
@@ -3491,6 +3622,8 @@ createApp({
             // 拍一拍
             pokeToast, sendPoke, showPokePicker, confirmPoke,
             pokePickerShow, pokePickerSelected, pokeOptions,
+            // 云端同步
+            cloudPush, cloudPull, cloudSyncStatus, cloudSyncOk,
         };
     }
 }).mount('#app');
