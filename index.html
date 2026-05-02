@@ -15,15 +15,21 @@
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <script>
+      // ===== OneSignal 初始化 =====
+      // 说明：serviceWorkerPath 告诉 OneSignal 去哪里找 SW 文件
+      //       因为网站不在根目录而是在 /Lorstar121/ 子目录下，所以需要手动指定路径
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "ad0c2800-5d31-4ef7-9219-23e214add771",
           safari_web_id: "web.onesignal.auto.5d035d80-811e-4f05-a17d-f7e13950e2b6",
-          notifyButton: {
-        enable: false,
-          },
+          // 关键：告诉 OneSignal SW 文件放在哪里（需要和你上传 OneSignalSDK.sw.js 的位置一致）
+          serviceWorkerPath: "/Lorstar121/OneSignalSDK.sw.js",
+          serviceWorkerParam: { scope: "/Lorstar121/" },
+          notifyButton: { enable: false },
         });
+        // 标记 OneSignal 已就绪，供 initNotification 使用
+        window.__oneSignalReady = true;
       });
     </script>
     <script>
@@ -2168,32 +2174,22 @@
 
 <script>
 // ===== Service Worker（后台推送通知 + 离线缓存）=====
-// 注：GitHub Pages 单文件部署使用 Blob SW，浏览器限制 scope 为 blob: origin。
-// 为绕过此限制，SW 代码通过页面 URL ?__sw=1 自引导注册（需 same-origin 支持）。
-// 降级方案：使用 Web Worker 计时 + visibilitychange 补发通知。
+// 原来用的 Blob URL 注册方式已被浏览器安全策略封锁（blob: 不是 https: 同源）
+// 现在改为注册真实的 sw.js 文件，需要在仓库里上传这个文件（见交付说明）
 (function(){
-    const swCode = `
-        const CACHE='lorstar-v3';
-        self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html'])));self.skipWaiting();});
-        self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
-        self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>r)));});
-        self.addEventListener('push',e=>{
-            const d=e.data?e.data.json():{title:'静语',body:'你有新消息'};
-            e.waitUntil(self.registration.showNotification(d.title,{body:d.body,icon:d.icon||'',tag:'chat',renotify:true}));
-        });
-        self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.matchAll({type:'window'}).then(cs=>{if(cs.length)cs[0].focus();else clients.openWindow('./');})});
-    `;
-    if('serviceWorker' in navigator){
-        // 尝试用 Blob URL 注册（部分浏览器支持，GitHub Pages 同源）
-        try {
-            const blob = new Blob([swCode],{type:'application/javascript'});
-            const url  = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(url,{scope:location.pathname.replace(/[^/]+$/,'')}).then(reg=>{
+    if ('serviceWorker' in navigator) {
+        // 路径说明：'./sw.js' 表示和 index.html 同目录
+        // 如果你的网站在子目录（如 /Lorstar121/），浏览器会自动解析为正确路径
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+            .then(reg => {
+                // 注册成功！把注册对象存起来，后面后台发通知要用它
                 window.__swReg = reg;
-            }).catch(()=>{
-                // Blob SW scope 被拒绝时静默失败，降级到 Web Worker 方案
+                console.log('[SW] ✅ Service Worker 注册成功，作用域:', reg.scope);
+            })
+            .catch(err => {
+                // 注册失败时给出明确提示，而不是静默吞掉错误
+                console.warn('[SW] ❌ 注册失败，后台通知降级为队列模式。原因:', err);
             });
-        } catch(e){}
     }
 })();
 
@@ -2580,39 +2576,76 @@ createApp({
         };
 
         // ===== 消息通知（后台推送）=====
-        const initNotification = () => {
+
+        // initNotification：申请通知权限
+        // 优先走 OneSignal（能收到服务端推送），若 OneSignal 未就绪则降级到浏览器原生权限请求
+        const initNotification = async () => {
             if (!('Notification' in window)) return;
-            // 无论设置如何，只要用户未拒绝就静默申请权限
-            if (Notification.permission === 'default') {
-                Notification.requestPermission().then(p => {
-                    if (p === 'granted' && settings.pushNotify) {
-                        // 授权成功后注册 SW push（如果 SW 已注册）
+
+            if (window.__oneSignalReady) {
+                // ✅ 路径一：OneSignal 已加载 → 用它来申请订阅
+                // 好处：用户订阅后，你可以从 OneSignal 控制台或 REST API 推送通知
+                //       即使页面完全关闭，用户也能收到通知
+                try {
+                    const granted = await window.OneSignal.Notifications.requestPermission();
+                    if (granted) {
+                        await window.OneSignal.User.PushSubscription.optIn();
+                        console.log('[通知] ✅ OneSignal 订阅成功');
                     }
-                });
+                    return; // OneSignal 处理成功，不需要降级
+                } catch(e) {
+                    console.warn('[通知] OneSignal 订阅失败，降级到原生通知模式', e);
+                }
+            }
+
+            // ✅ 路径二：降级 → 使用浏览器原生通知权限
+            if (Notification.permission === 'default') {
+                Notification.requestPermission();
             }
         };
-        const showNotification = (title, body) => {
+
+        // showNotification：实际弹出通知
+        // 关键修复：当标签页在后台时，用 ServiceWorker 的 showNotification()
+        //           而不是 new Notification()
+        // 原因：new Notification() 在页面不可见时会被浏览器静默丢弃
+        //       但 swReg.showNotification() 是系统级通知，页面隐藏也能弹出
+        const showNotification = async (title, body) => {
             if (!settings.pushNotify) return;
             if (!('Notification' in window)) return;
             if (Notification.permission !== 'granted') {
-                // 权限未授予时静默入队，下次回到页面时显示
                 if (Notification.permission !== 'denied') initNotification();
                 return;
             }
-            // 页面被隐藏时放入待发队列，避免通知被浏览器静默丢弃
+
+            const icon = profiles.them.avatar || '';
+            const notifOptions = {
+                body: body.substring(0, 80),
+                icon,
+                tag: 'chat-msg',
+                renotify: true,
+            };
+
+            // 🔑 核心修复：页面在后台时，走 Service Worker 发通知
+            // swReg.showNotification() 是系统级弹窗，不依赖页面是否可见
             if (document.visibilityState === 'hidden') {
+                const reg = window.__swReg || (await navigator.serviceWorker?.ready.catch(()=>null));
+                if (reg) {
+                    try {
+                        await reg.showNotification(title, notifOptions);
+                        return; // SW 发通知成功，结束
+                    } catch(e) {
+                        console.warn('[通知] SW showNotification 失败，放入队列', e);
+                    }
+                }
+                // SW 不可用时，降级到队列（页面重新可见时补发）
                 window.__pendingNotifs = window.__pendingNotifs || [];
-                window.__pendingNotifs.push({ title, body, icon: profiles.them.avatar || '' });
+                window.__pendingNotifs.push({ title, body: notifOptions.body, icon });
                 return;
             }
+
+            // 页面可见时，直接用原生 Notification
             try {
-                const n = new Notification(title, {
-                    body: body.substring(0, 80),
-                    icon: profiles.them.avatar || '',
-                    tag: 'chat-msg',
-                    renotify: true,
-                    requireInteraction: false,
-                });
+                const n = new Notification(title, { ...notifOptions, requireInteraction: false });
                 n.onclick = () => { window.focus(); n.close(); };
                 setTimeout(() => n.close(), 6000);
             } catch(e) {}
