@@ -2632,32 +2632,33 @@ createApp({
             }
 
             const icon = profiles.them.avatar || '';
+            // 每条消息用时间戳生成唯一 tag，这样每条消息都会独立弹出
+            // 而不是用固定 tag 导致新消息覆盖旧消息
+            const uniqueTag = 'chat-msg-' + Date.now();
             const notifOptions = {
                 body: body.substring(0, 80),
                 icon,
-                tag: 'chat-msg',
-                renotify: true,
+                tag: uniqueTag,
+                renotify: false,          // 已是唯一 tag，无需 renotify
+                silent: false,            // 允许声音
+                // data 字段：存一个标记，sw.js 点击通知时用来判断跳转
+                // 不在通知内容里暴露任何 URL
+                data: { type: 'chat' },
             };
 
-            // 🔑 核心修复：页面在后台时，走 Service Worker 发通知
-            // swReg.showNotification() 是系统级弹窗，不依赖页面是否可见
-            if (document.visibilityState === 'hidden') {
-                const reg = window.__swReg || (await navigator.serviceWorker?.ready.catch(()=>null));
-                if (reg) {
-                    try {
-                        await reg.showNotification(title, notifOptions);
-                        return; // SW 发通知成功，结束
-                    } catch(e) {
-                        console.warn('[通知] SW showNotification 失败，放入队列', e);
-                    }
+            // 优先走 Service Worker 发通知（无论页面是否可见）
+            // SW 发出的是系统级通知，稳定可靠，不受页面状态影响
+            const reg = window.__swReg || (await navigator.serviceWorker?.ready.catch(() => null));
+            if (reg) {
+                try {
+                    await reg.showNotification(title, notifOptions);
+                    return;
+                } catch(e) {
+                    console.warn('[通知] SW showNotification 失败，降级到原生', e);
                 }
-                // SW 不可用时，降级到队列（页面重新可见时补发）
-                window.__pendingNotifs = window.__pendingNotifs || [];
-                window.__pendingNotifs.push({ title, body: notifOptions.body, icon });
-                return;
             }
 
-            // 页面可见时，直接用原生 Notification
+            // SW 不可用时降级：直接用原生 Notification API
             try {
                 const n = new Notification(title, { ...notifOptions, requireInteraction: false });
                 n.onclick = () => { window.focus(); n.close(); };
