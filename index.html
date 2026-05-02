@@ -4,7 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>静语·星降</title>
-    <link rel="manifest" href="/Lorstar121/manifest.json">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- ===== iOS / Android PWA 必要标签 ===== -->
+    <!-- 告诉 iOS Safari：这个网页可以像原生 App 一样全屏运行（隐藏浏览器工具栏）-->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- 状态栏样式：black-translucent 让内容延伸到状态栏下方，更沉浸 -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- 添加到主屏幕后显示的 App 名称 -->
+    <meta name="apple-mobile-web-app-title" content="静语">
+    <!-- iOS 主屏幕图标（iOS 不读 manifest，需要单独指定）-->
+    <link rel="apple-touch-icon" href="/icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
+    <!-- 浏览器标签页/任务栏主题色 -->
+    <meta name="theme-color" content="#0f0c2e">
+    <!-- Android Chrome 的应用图标 -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,19 +33,17 @@
 
     <script>
       // ===== OneSignal 初始化 =====
-      // 说明：serviceWorkerPath 告诉 OneSignal 去哪里找 SW 文件
-      //       因为网站不在根目录而是在 /Lorstar121/ 子目录下，所以需要手动指定路径
+      // Netlify 部署在根目录，所以 SW 路径直接用 /OneSignalSDK.sw.js
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "ad0c2800-5d31-4ef7-9219-23e214add771",
           safari_web_id: "web.onesignal.auto.5d035d80-811e-4f05-a17d-f7e13950e2b6",
-          // 关键：告诉 OneSignal SW 文件放在哪里（需要和你上传 OneSignalSDK.sw.js 的位置一致）
-          serviceWorkerPath: "/Lorstar121/OneSignalSDK.sw.js",
-          serviceWorkerParam: { scope: "/Lorstar121/" },
+          // Netlify 根目录部署：直接放根路径
+          serviceWorkerPath: "/OneSignalSDK.sw.js",
+          serviceWorkerParam: { scope: "/" },
           notifyButton: { enable: false },
         });
-        // 标记 OneSignal 已就绪，供 initNotification 使用
         window.__oneSignalReady = true;
       });
     </script>
