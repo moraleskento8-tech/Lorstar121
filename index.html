@@ -2189,21 +2189,20 @@
 
 <script>
 // ===== Service Worker（后台推送通知 + 离线缓存）=====
-// 原来用的 Blob URL 注册方式已被浏览器安全策略封锁（blob: 不是 https: 同源）
-// 现在改为注册真实的 sw.js 文件，需要在仓库里上传这个文件（见交付说明）
+// Service Worker 注册
+// 使用绝对路径 /sw.js，确保在 Netlify 根目录部署时路径正确
+// scope: '/' 表示 SW 管理整个站点
 (function(){
     if ('serviceWorker' in navigator) {
-        // 路径说明：'./sw.js' 表示和 index.html 同目录
-        // 如果你的网站在子目录（如 /Lorstar121/），浏览器会自动解析为正确路径
-        navigator.serviceWorker.register('./sw.js', { scope: './' })
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
             .then(reg => {
-                // 注册成功！把注册对象存起来，后面后台发通知要用它
                 window.__swReg = reg;
-                console.log('[SW] ✅ Service Worker 注册成功，作用域:', reg.scope);
+                console.log('[SW] ✅ 注册成功，作用域:', reg.scope);
             })
             .catch(err => {
-                // 注册失败时给出明确提示，而不是静默吞掉错误
-                console.warn('[SW] ❌ 注册失败，后台通知降级为队列模式。原因:', err);
+                console.warn('[SW] ❌ 注册失败:', err.message);
+                // 注册失败原因通常是：sw.js 文件不在仓库里，或服务器返回了 404
+                // 解决方法：确认 sw.js 已上传到 GitHub 仓库根目录
             });
     }
 })();

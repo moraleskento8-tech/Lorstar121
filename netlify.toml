@@ -1,0 +1,21 @@
+# netlify.toml — Netlify 部署配置
+# 这个文件告诉 Netlify 给 SW 文件设置正确的响应头
+# 没有这个文件，Service Worker 有时会因为 MIME 类型不对而注册失败
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/OneSignalSDK.sw.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "no-cache"
