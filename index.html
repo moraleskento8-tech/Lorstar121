@@ -1581,36 +1581,6 @@
                                     </div>
                                     <input type="checkbox" v-model="settings.bgKeepAlive" class="reply-checkbox">
                                 </div>
-
-                                <!-- ☁️ 云端同步 -->
-                                <div class="border-t border-white/40 mt-2 pt-2">
-                                  <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <div>
-                                      <span class="text-sm block text-slate-600 dark:text-slate-300">☁️ 云端同步</span>
-                                      <span class="text-[10px] text-muted">多设备同步 · 自动上传</span>
-                                    </div>
-                                    <input type="checkbox" v-model="settings.cloudSync" class="reply-checkbox">
-                                  </div>
-                                  <div v-if="settings.cloudSync" class="px-3 pb-3 space-y-2">
-                                    <div>
-                                      <span class="text-[10px] text-muted block mb-1">JSONBin API Key <a href="https://jsonbin.io" target="_blank" class="text-accent underline">（点此注册获取）</a></span>
-                                      <input v-model="settings.cloudApiKey" type="password" placeholder="$2b$10$xxxxxxxx..." class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                                    </div>
-                                    <div>
-                                      <span class="text-[10px] text-muted block mb-1">Bin ID（首次上传后自动填入）</span>
-                                      <input v-model="settings.cloudBinId" placeholder="留空则自动创建" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                      <span class="text-[10px] text-muted flex-1">自动同步间隔（分钟）</span>
-                                      <input type="number" v-model.number="settings.cloudSyncInterval" min="1" max="60" class="w-14 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-xs outline-none shadow-inner">
-                                    </div>
-                                    <div class="flex gap-2 pt-1">
-                                      <button @click="cloudPush" class="flex-1 bg-accent/80 hover:bg-accent text-white rounded-xl py-2 text-xs font-medium transition shadow active:scale-95">⬆️ 上传</button>
-                                      <button @click="cloudPull" class="flex-1 bg-white/80 hover:bg-white dark:bg-slate-600/60 border border-white/70 rounded-xl py-2 text-xs font-medium transition shadow active:scale-95">⬇️ 恢复</button>
-                                    </div>
-                                    <div v-if="cloudSyncStatus" class="text-[10px] text-center py-1 rounded-lg" :class="cloudSyncOk ? 'text-green-500' : 'text-red-400'">{{ cloudSyncStatus }}</div>
-                                  </div>
-                                </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
                                     <span class="text-sm text-slate-600 dark:text-slate-300">🤖 主动消息</span>
                                     <input type="checkbox" v-model="settings.activeMsg" class="reply-checkbox">
@@ -2253,6 +2223,86 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
+// ========= 增强后台保活系统 =========
+// 目标：防止浏览器在标签页切换/锁屏后节流或终止定时器，确保消息推送持续稳定
+
+// ① Wake Lock API —— 告诉操作系统"不要让屏幕/CPU 进入节能休眠"
+//    支持 Chrome/Edge/Android；iOS Safari 暂不支持，自动降级跳过
+let wakeLock = null;
+const requestWakeLock = async () => {
+    if (!('wakeLock' in navigator)) return;
+    try {
+        // 申请"screen"锁，防止设备休眠
+        wakeLock = await navigator.wakeLock.request('screen');
+        // 锁被系统强制释放后（例如切到其他 App）自动重新申请
+        wakeLock.addEventListener('release', () => {
+            if (document.visibilityState === 'visible') requestWakeLock();
+        });
+    } catch(e) {
+        // 权限被拒绝或设备不支持，静默跳过
+    }
+};
+// 页面切回前台时重新申请（防止被系统回收后没有恢复）
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') requestWakeLock();
+});
+requestWakeLock();
+
+// ② 无声音频保活 —— 通过 AudioContext 持续输出一路静音流
+//    iOS Safari / 部分 Android 浏览器后台会暂停 JS 定时器，
+//    但如果有"活跃"的 AudioContext，可以延迟被节流
+(function startSilentAudio() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // 创建一帧静音 buffer，设为循环播放
+        const buf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.loop = true;
+        // GainNode 音量设为 0，对用户完全无感知
+        const gain = ctx.createGain();
+        gain.gain.value = 0;
+        src.connect(gain);
+        gain.connect(ctx.destination);
+        src.start(0);
+        // 用户首次点击后才能激活 AudioContext（浏览器自动播放策略）
+        document.addEventListener('click', () => {
+            if (ctx.state === 'suspended') ctx.resume();
+        }, { once: false });
+    } catch(e) {}
+})();
+
+// ③ Service Worker 心跳 ping —— 每 20 秒向 SW 发一条消息
+//    SW 收到 ping 后可以做必要的保活操作（延长 SW 生命周期）
+//    同时也让浏览器知道"这个 SW 正在被使用"，不要把它关掉
+setInterval(() => {
+    try {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'ping', ts: Date.now() });
+        }
+    } catch(e) {}
+}, 20000);
+
+// ④ 定期唤醒检测 —— 检测浏览器是否节流了 setInterval（节流时间差 > 2x 预期）
+//    一旦发现节流，立即触发一次补偿逻辑（重新注册定时器）
+(function watchdogTimer() {
+    let lastTick = Date.now();
+    const EXPECTED = 5000; // 预期间隔 5 秒
+    setInterval(() => {
+        const now = Date.now();
+        const drift = now - lastTick;
+        lastTick = now;
+        // 如果实际间隔超过预期 2 倍，说明被节流了；向 SW 汇报一次
+        if (drift > EXPECTED * 2) {
+            try {
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'wakeup', drift });
+                }
+            } catch(e) {}
+        }
+    }, EXPECTED);
+})();
+
 // ========= Web Worker 后台定时器（标签页切换时定时器不暂停）=========
 const workerCode = `
     let timers = {};
@@ -2526,10 +2576,6 @@ createApp({
             pokePresets: '拍了拍你,戳了戳你,敲了敲你,轻拍一下,戳一戳',
             pushNotify: true,
             bgKeepAlive: true,
-            cloudSync: false,
-            cloudApiKey: '',
-            cloudBinId: '',
-            cloudSyncInterval: 10,
         });
 
         const modals = reactive({
@@ -2652,121 +2698,57 @@ createApp({
             }
         };
 
-        // showNotification：只在后台弹出，应用内不打扰
-        // 当 visibilityState === 'visible'（用户正在看页面）时直接返回，保持界面干净
+        // showNotification：实际弹出通知
+        // 关键修复：当标签页在后台时，用 ServiceWorker 的 showNotification()
+        //           而不是 new Notification()
+        // 原因：new Notification() 在页面不可见时会被浏览器静默丢弃
+        //       但 swReg.showNotification() 是系统级通知，页面隐藏也能弹出
         const showNotification = async (title, body) => {
             if (!settings.pushNotify) return;
             if (!('Notification' in window)) return;
+            // ✅ 页面在前台（用户正在看）时不弹系统通知，避免重复打扰
+            if (document.visibilityState === 'visible') return;
             if (Notification.permission !== 'granted') {
                 if (Notification.permission !== 'denied') initNotification();
                 return;
             }
-            // 页面可见时不弹任何通知
-            if (document.visibilityState === 'visible') return;
 
-            const icon = profiles.them.avatar || '/icon-192.png';
+            const icon = profiles.them.avatar || '';
+            // ✅ 过滤消息 body 中的 URL，弹窗里不暴露任何网址
+            const safeBody = body.replace(/https?:\/\/[^\s]+/g, '[链接]').substring(0, 80);
+            // 每条消息用时间戳生成唯一 tag，这样每条消息都会独立弹出
+            // 而不是用固定 tag 导致新消息覆盖旧消息
+            const uniqueTag = 'chat-msg-' + Date.now();
             const notifOptions = {
-                body: body.substring(0, 80),
+                body: safeBody,
                 icon,
-                tag: 'chat-msg-' + Date.now(), // 每条消息唯一 tag，独立弹出不互相覆盖
-                silent: false,
+                tag: uniqueTag,
+                renotify: false,          // 已是唯一 tag，无需 renotify
+                silent: false,            // 允许声音
+                // data 字段：存一个标记，sw.js 点击通知时用来判断跳转
+                // 不在通知内容里暴露任何 URL
                 data: { type: 'chat' },
             };
 
-            // Service Worker 发通知（系统级，后台稳定可靠）
+            // 优先走 Service Worker 发通知（无论页面是否可见）
+            // SW 发出的是系统级通知，稳定可靠，不受页面状态影响
             const reg = window.__swReg || (await navigator.serviceWorker?.ready.catch(() => null));
             if (reg) {
-                try { await reg.showNotification(title, notifOptions); return; } catch(e) {}
+                try {
+                    await reg.showNotification(title, notifOptions);
+                    return;
+                } catch(e) {
+                    console.warn('[通知] SW showNotification 失败，降级到原生', e);
+                }
             }
-            // SW 不可用时降级到原生 Notification
+
+            // SW 不可用时降级：直接用原生 Notification API
             try {
                 const n = new Notification(title, { ...notifOptions, requireInteraction: false });
                 n.onclick = () => { window.focus(); n.close(); };
                 setTimeout(() => n.close(), 6000);
             } catch(e) {}
         };
-
-        // ===== 云端同步（JSONBin.io）=====
-        // JSONBin 是免费的在线 JSON 存储，不需要自建后端
-        // 每个"Bin"就是一个 JSON 文件，通过 API Key 鉴权读写
-        const cloudSyncStatus = ref('');
-        const cloudSyncOk     = ref(true);
-        let   cloudSyncTimer  = null;
-
-        const getSnapshotData = () => ({
-            messages:      JSON.parse(JSON.stringify(messages.value)),
-            profiles:      JSON.parse(JSON.stringify(profiles)),
-            settings:      JSON.parse(JSON.stringify(settings)),
-            replyGroups:   JSON.parse(JSON.stringify(replyGroups.value)),
-            stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
-            letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
-            pendingLetter: pendingLetter.value,
-            notes:         JSON.parse(JSON.stringify(notes.value)),
-            emojiPoolText: emojiPoolText.value,
-            _syncAt: Date.now(),
-        });
-
-        const cloudPush = async () => {
-            if (!settings.cloudApiKey) { cloudSyncOk.value = false; cloudSyncStatus.value = '⚠️ 请先填写 API Key'; return; }
-            cloudSyncStatus.value = '上传中…';
-            try {
-                const url    = settings.cloudBinId ? `https://api.jsonbin.io/v3/b/${settings.cloudBinId}` : 'https://api.jsonbin.io/v3/b';
-                const method = settings.cloudBinId ? 'PUT' : 'POST';
-                const res = await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': settings.cloudApiKey, 'X-Bin-Name': '静语备份', 'X-Bin-Private': 'true' },
-                    body: JSON.stringify(getSnapshotData()),
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                if (!settings.cloudBinId && data.metadata?.id) settings.cloudBinId = data.metadata.id;
-                cloudSyncOk.value = true;
-                cloudSyncStatus.value = `✅ 上传成功 ${new Date().toLocaleTimeString()}`;
-            } catch(e) {
-                cloudSyncOk.value = false;
-                cloudSyncStatus.value = `❌ 上传失败：${e.message}`;
-            }
-        };
-
-        const cloudPull = async () => {
-            if (!settings.cloudApiKey || !settings.cloudBinId) { cloudSyncOk.value = false; cloudSyncStatus.value = '⚠️ 需要 API Key 和 Bin ID'; return; }
-            cloudSyncStatus.value = '恢复中…';
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${settings.cloudBinId}/latest`, {
-                    headers: { 'X-Master-Key': settings.cloudApiKey },
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const json = await res.json();
-                const data = json.record;
-                if (data.messages)      messages.value      = data.messages;
-                if (data.profiles)      Object.assign(profiles, data.profiles);
-                if (data.replyGroups)   replyGroups.value   = data.replyGroups;
-                if (data.stickerGroups) stickerGroups.value = data.stickerGroups;
-                if (data.letterHistory) letterHistory.value = data.letterHistory;
-                if (data.pendingLetter) pendingLetter.value = data.pendingLetter;
-                if (data.notes)         notes.value         = data.notes;
-                if (data.emojiPoolText) emojiPoolText.value = data.emojiPoolText;
-                if (data.settings) {
-                    // 不覆盖当前设备的 Key 和 Bin ID，防止循环覆盖
-                    const { cloudApiKey, cloudBinId, ...rest } = data.settings;
-                    Object.assign(settings, rest);
-                }
-                cloudSyncOk.value = true;
-                cloudSyncStatus.value = `✅ 恢复成功 ${new Date().toLocaleTimeString()}`;
-                await nextTick(); scrollToBottom();
-            } catch(e) {
-                cloudSyncOk.value = false;
-                cloudSyncStatus.value = `❌ 恢复失败：${e.message}`;
-            }
-        };
-
-        const restartCloudSyncTimer = () => {
-            if (cloudSyncTimer) safeClearInterval(cloudSyncTimer);
-            if (settings.cloudSync && settings.cloudApiKey) {
-                cloudSyncTimer = safeSetInterval(() => cloudPush(), (settings.cloudSyncInterval || 10) * 60 * 1000);
-            }
-        };
-        watch(() => [settings.cloudSync, settings.cloudSyncInterval, settings.cloudApiKey], restartCloudSyncTimer);
 
         // ===== 音效播放 =====
         const playSound = (type) => {
@@ -3116,11 +3098,18 @@ createApp({
                         const lastUserMsg = [...messages.value].reverse().find(m => m.sender === 'me' && m.type === 'text');
                         if (lastUserMsg) quoteObj = lastUserMsg;
                     }
+                    // 单独发送 emoji 的概率：15%（需要 emoji 池非空且不走贴纸逻辑）
+                    const useEmojiOnly = !useSticker && emojiArray.length > 0 && Math.random() < 0.15;
                     if (useSticker) {
                         const s = stickerPool[Math.floor(Math.random() * stickerPool.length)];
                         sendMsg('them', 'image', s.dataURL, quoteObj, { isSticker: true });
+                    } else if (useEmojiOnly) {
+                        // ✅ 角色可以单独发一个 emoji，不附带文字
+                        const e = emojiArray[Math.floor(Math.random() * emojiArray.length)];
+                        sendMsg('them', 'text', e, quoteObj);
                     } else if (textPool.length) {
                         let t = textPool[Math.floor(Math.random() * textPool.length)].text;
+                        // ✅ emoji 附加在文字末尾的概率改为 45%
                         if(emojiArray.length > 0 && Math.random() < 0.45) t += ' ' + emojiArray[Math.floor(Math.random() * emojiArray.length)];
                         sendMsg('them', 'text', t, quoteObj);
                     } else {
@@ -3552,35 +3541,6 @@ createApp({
                     scheduleRandomCall();         // ← 新增：随机来电调度
                     initNotification();           // ← 新增：申请通知权限
                     scheduleRandomPoke();         // ← 新增：对方随机拍一拍
-                    restartCloudSyncTimer();      // ← 云端同步：启动自动上传定时器
-
-    // 👇 【新增】在这里添加唤醒监听器，执行时间补偿 👇
-            document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible') {
-                        // 1. 弹出堆积在系统队列里的本地通知
-                        if (window.__pendingNotifs && window.__pendingNotifs.length) {
-                        window.__pendingNotifs.forEach(n => {
-                            try {
-                                if (Notification.permission === 'granted') {
-                                    new Notification(n.title, { body: n.body, icon: n.icon || '' });
-                                }
-                            } catch(e){}
-                        });
-                        window.__pendingNotifs = [];
-                    }
-
-                    // 2. 重新计算并触发由于休眠而错过的虚拟回复
-                    restorePendingLetter();
-                    restoreNoteReminders();
-                    
-                    // 3. 有一定概率给用户制造“对方刚刚上线”的惊喜
-                    if (Math.random() > 0.6) {
-                        refreshStatus('them'); 
-                    }
-                }
-            });
-            // 👆 【新增结束】 👆
-            
                 });
             }, 5500);
         });
@@ -3622,8 +3582,6 @@ createApp({
             // 拍一拍
             pokeToast, sendPoke, showPokePicker, confirmPoke,
             pokePickerShow, pokePickerSelected, pokeOptions,
-            // 云端同步
-            cloudPush, cloudPull, cloudSyncStatus, cloudSyncOk,
         };
     }
 }).mount('#app');
