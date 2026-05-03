@@ -61,23 +61,31 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 其他同源请求：网络优先，失败时降级缓存
+    // ✅ 关键修复：HTML 文件（包括根路径 /）永远走网络，绝对不读缓存。
+    // 这是"更新后页面没有变化"问题的根本解决方案。
+    // index.html 是应用入口，一旦被缓存，任何代码更新对用户都是不可见的。
+    if (url.pathname === '/' || url.pathname.endsWith('.html')) {
+        event.respondWith(
+            // 强制带上 no-store 参数，让浏览器每次都真正发起网络请求
+            fetch(event.request, { cache: 'no-store' })
+                .catch(() => caches.match(event.request)) // 完全断网时才降级缓存
+        );
+        return; // 提前返回，不执行下面的缓存写入逻辑
+    }
+
+    // 其他静态资源（图标、字体、manifest 等）：网络优先，成功时写入缓存。
+    // 这类文件不常变化，缓存后能加快加载速度、支持离线访问。
     event.respondWith(
         fetch(event.request)
             .then(response => {
-                // 成功时，顺手缓存 GET 请求（图标、页面等静态资源）
+                // 只缓存成功的 GET 请求（POST/PUT 等写操作不缓存）
                 if (event.request.method === 'GET' && response.ok) {
                     const clone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, clone);
-                    });
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
                 }
                 return response;
             })
-            .catch(() => {
-                // 网络失败：尝试从缓存读取
-                return caches.match(event.request);
-            })
+            .catch(() => caches.match(event.request)) // 网络失败时降级缓存
     );
 });
 
