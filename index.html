@@ -2188,70 +2188,90 @@
 </div>
 
 <script>
-// ===== Service Worker（后台推送通知 + 离线缓存）=====
-// Service Worker 注册
-// 使用绝对路径 /sw.js，确保在 Netlify 根目录部署时路径正确
-// scope: '/' 表示 SW 管理整个站点
-(function(){
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
-            .then(reg => {
-                window.__swReg = reg;
-                console.log('[SW] ✅ 注册成功，作用域:', reg.scope);
-            })
-            .catch(err => {
-                console.warn('[SW] ❌ 注册失败:', err.message);
-                // 注册失败原因通常是：sw.js 文件不在仓库里，或服务器返回了 404
-                // 解决方法：确认 sw.js 已上传到 GitHub 仓库根目录
-            });
+// ===== Service Worker 初始化 =====
+// 【重要】不再单独注册 /sw.js。
+// OneSignal SDK 会自动注册 OneSignalSDK.sw.js（已是合并版，包含所有保活逻辑）。
+// 如果再注册 /sw.js，两个 SW 抢同一个 scope，ping 消息发给谁是随机的，保活链断裂。
+// 这里只做：等待 SW ready → 缓存 reg → 启动 ping → 注册 Background Sync。
+
+// SW 就绪后的初始化函数（可以被 controllerchange 重复调用）
+function initSWChannel(reg) {
+    window.__swReg = reg;
+    console.log('[SW] ✅ controller 就绪，版本:', reg.active?.scriptURL?.split('/').pop());
+
+    // ── SW Ping 保活 ────────────────────────────────────────
+    // 每 18 秒 ping 一次（稍短于浏览器 ~30s 的 SW 空闲超时）
+    // SW 在 message handler 里调用 event.waitUntil() → 延长自身生命周期
+    if (window.__pingInterval) clearInterval(window.__pingInterval);
+    window.__pingInterval = setInterval(() => {
+        const ctrl = navigator.serviceWorker.controller;
+        if (ctrl) {
+            ctrl.postMessage({ type: 'ping', ts: Date.now() });
+        }
+    }, 18000);
+
+    // ── Background Sync ──────────────────────────────────────
+    // 浏览器支持时，SW 可以在有网络时自动唤醒（即使标签页已被挂起）
+    if ('sync' in reg) {
+        reg.sync.register('keep-alive').catch(() => {});
     }
-})();
+}
+
+if ('serviceWorker' in navigator) {
+    // 等 SW 完全就绪（已 activate + clients.claim 完成）
+    navigator.serviceWorker.ready
+        .then(reg => initSWChannel(reg))
+        .catch(() => console.warn('[SW] ready 超时，降级到无 SW 通知模式'));
+
+    // ── 监听 SW 控制权变更 ───────────────────────────────────
+    // 当 SW 被浏览器杀死后重启，或新版本 SW 激活时，controller 会变化。
+    // 这里重新初始化 ping 通道，确保保活链不断。
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('[SW] controller 更新，重建 ping 通道');
+        navigator.serviceWorker.ready.then(reg => initSWChannel(reg)).catch(() => {});
+    });
+
+    // ── 监听来自 SW 的消息 ───────────────────────────────────
+    navigator.serviceWorker.addEventListener('message', (e) => {
+        if (!e.data) return;
+        if (e.data.type === 'pong') {
+            // SW 回复 pong，记录最后一次心跳时间，供调试用
+            window.__lastSwPong = e.data.ts;
+        }
+        if (e.data.type === 'trigger-reply' && window.__app_triggerAutoReply) {
+            // SW Background Sync 触发：让角色发一条消息
+            window.__app_triggerAutoReply();
+        }
+    });
+}
 
 // ╔══════════════════════════════════════════════════════════════╗
-// ║          增强后台保活系统 v3 · 六层防御架构                 ║
+// ║          后台保活系统 v4 · 精简合并版                       ║
 // ╚══════════════════════════════════════════════════════════════╝
-//
-// 【为什么之前的消息时有时无？】
-// 根本原因：sw.js 收到 ping 消息后，如果没有调用 event.waitUntil()，
-// 浏览器认为 SW "什么都没做"，会在 30 秒后强制关掉 SW。
-// SW 死了 → reg.showNotification() 无法调用 → 通知丢失。
-// 同时，之前的 __pendingNotifs 逻辑是"页面回到前台时弹通知"——这完全反了，
-// 用户已经在看页面了，系统通知毫无意义，因此已删除。
 
-// ── 层一：Wake Lock API ──────────────────────────────────────────
-// 告知操作系统"不要让 CPU 进入节能休眠"，防止定时器被系统层节流。
-// Chrome/Edge/Android 支持；iOS Safari 不支持，会静默跳过。
+// ── Wake Lock：阻止操作系统休眠 ─────────────────────────────────
+// Chrome/Edge/Android 支持，iOS Safari 不支持会静默跳过。
+// 使用 'screen' 类型而非 'system'，兼容性最好。
 let wakeLock = null;
 const requestWakeLock = async () => {
     if (!('wakeLock' in navigator)) return;
     try {
+        // 如果已经有锁且没有被释放，不重复申请
+        if (wakeLock && wakeLock.released === false) return;
         wakeLock = await navigator.wakeLock.request('screen');
-        // 被系统强制释放（如切换 App）后，等页面回到前台再重申请
         wakeLock.addEventListener('release', () => { wakeLock = null; });
-    } catch(e) { /* 设备不支持或权限被拒绝，静默跳过 */ }
+    } catch(e) {}
 };
-document.addEventListener('visibilitychange', () => {
-    // 页面恢复可见时：重新申请 Wake Lock + 尝试恢复 AudioContext
-    if (document.visibilityState === 'visible') {
-        requestWakeLock();
-        if (window.__silentAudioCtx && window.__silentAudioCtx.state === 'suspended') {
-            window.__silentAudioCtx.resume().catch(() => {});
-        }
-    }
-});
 requestWakeLock();
 
-// ── 层二：无声 AudioContext 保活 v2 ─────────────────────────────
-// 持续输出一路静音流。iOS Safari / 部分 Android 浏览器在后台会暂停 JS
-// 定时器，但有"活跃"AudioContext 时会延迟节流。
-// v2 改进：① 监听 touchstart/pointerdown（移动端比 click 早触发）
-//          ② 增益设为 0.001（非 0，某些浏览器会停止真正零音量流）
-//          ③ 全局暴露 ctx 供 visibilitychange 恢复
+// ── 无声 AudioContext 保活 ───────────────────────────────────────
+// 保持一路极低音量（0.001，非零）的循环音频流。
+// 理由：浏览器对"有音频活动"的标签页施加的节流比静默标签页宽松得多。
+// 移动端必须等用户手势后才能激活 AudioContext（浏览器自动播放策略限制）。
 (function startSilentAudio() {
     let started = false;
     const start = () => {
         if (started) {
-            // 已启动：仅尝试恢复（防止 suspended 状态）
             if (window.__silentAudioCtx?.state === 'suspended') {
                 window.__silentAudioCtx.resume().catch(() => {});
             }
@@ -2259,91 +2279,54 @@ requestWakeLock();
         }
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 22050 });
-            window.__silentAudioCtx = ctx; // 全局引用，供 visibilitychange 使用
+            window.__silentAudioCtx = ctx;
             const buf = ctx.createBuffer(1, 1, 22050);
             const src = ctx.createBufferSource();
-            src.buffer = buf;
-            src.loop = true;
-            const gain = ctx.createGain();
-            gain.gain.value = 0.001; // 极低但非零
-            src.connect(gain);
-            gain.connect(ctx.destination);
-            src.start(0);
+            src.buffer = buf; src.loop = true;
+            const gain = ctx.createGain(); gain.gain.value = 0.001;
+            src.connect(gain); gain.connect(ctx.destination); src.start(0);
             started = true;
         } catch(e) {}
     };
-    // 同时监听多种用户交互，适配桌面端（click）和移动端（touchstart）
-    ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(evt => {
-        document.addEventListener(evt, start, { passive: true });
-    });
-    start(); // 桌面端通常可以立即成功
+    // 覆盖所有可能的用户交互事件（click 适合桌面，touch* 适合移动端）
+    ['click','touchstart','touchend','pointerdown'].forEach(t =>
+        document.addEventListener(t, start, { passive: true })
+    );
+    start(); // 桌面端大多数情况下可以直接成功
 })();
 
-// ── 层三：SW 保活 Ping（关键修复）───────────────────────────────
-// 【之前的问题】ping 在页面刚加载时就开始，但此时 SW 还没激活，
-// navigator.serviceWorker.controller 为 null，ping 全部丢失。
-// 【修复】等 navigator.serviceWorker.ready 真正 resolve（SW 激活后）再开始 ping。
-// 【重要】sw.js 侧必须用 event.waitUntil() 包裹处理逻辑，否则 ping 无效！
-navigator.serviceWorker?.ready.then(reg => {
-    window.__swReg = reg; // 缓存给 showNotification 使用，比异步 ready 更快
-    console.log('[SW] ✅ 激活就绪，启动保活 ping');
-
-    // 每 20 秒 ping 一次，SW 在 message handler 里 event.waitUntil() → 延长生命周期
-    const pingInterval = setInterval(() => {
-        try {
-            if (navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({ type: 'ping', ts: Date.now() });
-            }
-        } catch(e) {}
-    }, 20000);
-
-    // 注册 Background Sync（浏览器支持时，SW 可在后台定期唤醒）
-    if ('sync' in reg) {
-        reg.sync.register('keep-alive').catch(() => {});
-    }
-}).catch(() => {
-    console.warn('[SW] ready 失败，退回无 SW 通知模式');
-});
-
-// ── 层四：页面隐藏 → 立即通知 SW ────────────────────────────────
-// 页面切到后台时，主动告诉 SW "我要消失了，你来接管"，让 SW 有机会
-// 做必要的保活准备（如重新注册 Background Sync）。
+// ── 统一的 visibilitychange 处理器 ──────────────────────────────
+// 之前代码里有两个 visibilitychange 监听器分散在不同位置，
+// 合并到这一处，逻辑更清晰，不会出现竞争问题。
 document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
+    if (document.visibilityState === 'visible') {
+        // 页面回到前台：恢复 Wake Lock（可能被系统释放了）
+        requestWakeLock();
+        // 恢复 AudioContext（后台时可能被暂停）
+        if (window.__silentAudioCtx?.state === 'suspended') {
+            window.__silentAudioCtx.resume().catch(() => {});
+        }
+    } else {
+        // 页面切到后台：通知 SW 接管，触发 Background Sync 注册
         try {
-            if (navigator.serviceWorker?.controller) {
-                navigator.serviceWorker.controller.postMessage({
-                    type: 'page-hidden',
-                    ts: Date.now()
-                });
-            }
+            const ctrl = navigator.serviceWorker?.controller;
+            if (ctrl) ctrl.postMessage({ type: 'page-hidden', ts: Date.now() });
         } catch(e) {}
     }
 });
 
-// ── 层五：监听来自 SW 的消息（双向通信）─────────────────────────
-// SW 可以通过 Background Sync 唤醒，并通过 postMessage 要求主页面触发回复。
-// triggerAutoReply 在 Vue setup 里定义，需要通过全局引用传出来。
-navigator.serviceWorker?.addEventListener('message', (e) => {
-    if (!e.data) return;
-    if (e.data.type === 'trigger-reply' && window.__app_triggerAutoReply) {
-        // SW 通过 Background Sync 要求触发一次自动回复
-        window.__app_triggerAutoReply();
-    }
-});
-
-// ── 层六：fetch 保活 + 节流检测 Watchdog ────────────────────────
-// 每 25 秒发一个极小的 HEAD 请求（/favicon.ico），维持 SW 的 fetch 拦截活跃。
-// 部分浏览器会因为"长时间无 fetch"而更激进地休眠 SW。
+// ── fetch 保活 Ping ──────────────────────────────────────────────
+// 每 25 秒发一个 HEAD 请求，目的是让 SW 的 fetch handler 持续被触发，
+// 让浏览器认为这个 SW "还在处理事情"，从而推迟休眠。
 setInterval(() => {
-    try {
-        fetch('/favicon.ico?_ka=' + Date.now(), {
-            method: 'HEAD', cache: 'no-store', keepalive: true
-        }).catch(() => {});
-    } catch(e) {}
+    fetch('/favicon.ico?_ka=' + Date.now(), {
+        method: 'HEAD', cache: 'no-store', keepalive: true
+    }).catch(() => {});
 }, 25000);
 
-// Watchdog：检测 setInterval 漂移（实际间隔 > 预期 2 倍 = 主线程被节流）
+// ── Watchdog：主线程节流检测 ────────────────────────────────────
+// 当浏览器对标签页施加节流时，setInterval 的实际触发间隔会远超预设值。
+// 检测到漂移 > 2 倍时，认为已经被节流，立刻补申请 Wake Lock 并唤醒 SW。
 (function watchdogTimer() {
     let lastTick = Date.now();
     const EXPECTED = 5000;
@@ -2352,13 +2335,11 @@ setInterval(() => {
         const drift = now - lastTick;
         lastTick = now;
         if (drift > EXPECTED * 2) {
-            // 被节流时，立刻唤醒 SW 并尝试重新申请 Wake Lock
+            requestWakeLock();
             try {
-                if (navigator.serviceWorker?.controller) {
-                    navigator.serviceWorker.controller.postMessage({ type: 'wakeup', drift });
-                }
+                const ctrl = navigator.serviceWorker?.controller;
+                if (ctrl) ctrl.postMessage({ type: 'wakeup', drift });
             } catch(e) {}
-            requestWakeLock(); // 补申请一次 Wake Lock
         }
     }, EXPECTED);
 })();
@@ -2759,52 +2740,46 @@ createApp({
         };
 
         // showNotification：实际弹出通知
-        // 关键修复：当标签页在后台时，用 ServiceWorker 的 showNotification()
-        //           而不是 new Notification()
-        // 原因：new Notification() 在页面不可见时会被浏览器静默丢弃
-        //       但 swReg.showNotification() 是系统级通知，页面隐藏也能弹出
+        // 【v4 修复】之前直接在页面主线程调 reg.showNotification()，
+        // 当页面被后台节流时这个 async 调用可能执行得太慢，导致通知丢失。
+        // 现在改为：页面 → postMessage → SW → event.waitUntil(showNotification())
+        // 这样通知是从 SW 的 message handler 里发出的，完全不受页面节流影响。
         const showNotification = async (title, body) => {
             if (!settings.pushNotify) return;
             if (!('Notification' in window)) return;
-            // ✅ 页面在前台（用户正在看）时不弹系统通知，避免重复打扰
+            // 页面在前台时不弹系统通知（用户正在看，不需要打扰）
             if (document.visibilityState === 'visible') return;
             if (Notification.permission !== 'granted') {
                 if (Notification.permission !== 'denied') initNotification();
                 return;
             }
 
-            const icon = profiles.them.avatar || '';
-            // ✅ 过滤消息 body 中的 URL，弹窗里不暴露任何网址
-            const safeBody = body.replace(/https?:\/\/[^\s]+/g, '[链接]').substring(0, 80);
-            // 每条消息用时间戳生成唯一 tag，这样每条消息都会独立弹出
-            // 而不是用固定 tag 导致新消息覆盖旧消息
-            const uniqueTag = 'chat-msg-' + Date.now();
-            const notifOptions = {
-                body: safeBody,
-                icon,
-                tag: uniqueTag,
-                renotify: false,          // 已是唯一 tag，无需 renotify
-                silent: false,            // 允许声音
-                // data 字段：存一个标记，sw.js 点击通知时用来判断跳转
-                // 不在通知内容里暴露任何 URL
-                data: { type: 'chat' },
-            };
+            const icon = profiles.them.avatar || '/icon-192.png'; // 保证 icon 不为空
+            // 过滤 body 中的 URL，通知弹窗里不显示具体网址
+            const safeBody = (body || '').replace(/https?:\/\/[^\s]+/g, '[链接]').substring(0, 80);
 
-            // 优先走 Service Worker 发通知（无论页面是否可见）
-            // SW 发出的是系统级通知，稳定可靠，不受页面状态影响
-            const reg = window.__swReg || (await navigator.serviceWorker?.ready.catch(() => null));
-            if (reg) {
-                try {
-                    await reg.showNotification(title, notifOptions);
-                    return;
-                } catch(e) {
-                    console.warn('[通知] SW showNotification 失败，降级到原生', e);
-                }
+            // ✅ 最可靠路径：通过 postMessage 让 SW 在自己的 waitUntil 里发通知
+            const ctrl = navigator.serviceWorker?.controller;
+            if (ctrl) {
+                ctrl.postMessage({
+                    type: 'show-notification',
+                    title,
+                    body: safeBody,
+                    icon,
+                    tag: 'chat-msg-' + Date.now()
+                });
+                return;
             }
 
-            // SW 不可用时降级：直接用原生 Notification API
+            // 降级路径：SW 不可用时直接用原生 Notification API
+            // （页面在前台时浏览器可能静默丢弃，但此时 SW 也没有，只能尽力而为）
             try {
-                const n = new Notification(title, { ...notifOptions, requireInteraction: false });
+                const n = new Notification(title, {
+                    body: safeBody,
+                    icon,
+                    tag: 'chat-fallback-' + Date.now(),
+                    silent: false
+                });
                 n.onclick = () => { window.focus(); n.close(); };
                 setTimeout(() => n.close(), 6000);
             } catch(e) {}
