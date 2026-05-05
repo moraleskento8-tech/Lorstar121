@@ -310,81 +310,159 @@
         .bubble-img { image-rendering:-webkit-optimize-contrast;image-rendering:high-quality;-ms-interpolation-mode:bicubic;filter:contrast(1.03) saturate(1.05);transform:translateZ(0); }
         .reply-checkbox { accent-color: #839deb; width: 18px; height: 18px; }
 
-        /* ===== 语料库分组 Chip 样式 ===== */
-        .group-chip {
-            display: inline-flex; align-items: center; gap: 2px;
-            border-radius: 999px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            flex-shrink: 0; white-space: nowrap;
-            border: 1.5px solid transparent;
-        }
-        .group-chip.chip-active {
-            background: linear-gradient(135deg, rgba(131,157,235,0.18), rgba(162,155,254,0.12));
-            border-color: rgba(131,157,235,0.45);
-            box-shadow: 0 2px 10px rgba(131,157,235,0.2);
-        }
-        .group-chip.chip-inactive {
-            background: rgba(255,255,255,0.75);
-            border-color: rgba(200,215,245,0.6);
-        }
-        .group-chip.chip-inactive:hover { background: rgba(255,255,255,0.95); border-color: rgba(131,157,235,0.3); }
-        .dark .group-chip.chip-active { background: rgba(131,157,235,0.18); border-color: rgba(131,157,235,0.4); }
-        .dark .group-chip.chip-inactive { background: rgba(40,46,68,0.7); border-color: rgba(80,100,150,0.3); }
+        /* ╔══════════════════════════════════════════════╗
+           ║       语料库 — 可折叠分区列表设计             ║
+           ╚══════════════════════════════════════════════╝ */
 
-        .chip-name {
-            padding: 6px 4px 6px 12px; font-size: 11.5px; font-weight: 700;
-            cursor: pointer; max-width: 90px; overflow: hidden; text-overflow: ellipsis;
-            line-height: 1.2; display: flex; align-items: center; gap: 4px;
+        /* ── 分区标题行（可点击折叠）─────────────────── */
+        .corpus-section-hd {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px 10px 16px;
+            background: #f0f3fb;
+            border-radius: 14px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.15s;
         }
-        .chip-active .chip-name { color: #6a85d0; }
-        .dark .chip-active .chip-name { color: #a29bfe; }
-        .chip-inactive .chip-name { color: var(--color-muted); }
-        .chip-count {
-            font-size: 9.5px; font-weight: 600; padding: 1px 5px; border-radius: 999px;
-            margin-left: 1px;
+        .corpus-section-hd:active { background: #e5eaf8; }
+        .dark .corpus-section-hd { background: rgba(40,48,80,0.9); }
+        .dark .corpus-section-hd:active { background: rgba(50,60,100,0.9); }
+
+        .corpus-section-name {
+            flex: 1; font-size: 12.5px; font-weight: 800;
+            color: #5a70b8; letter-spacing: 0.02em;
         }
-        .chip-active .chip-count { background: rgba(131,157,235,0.2); color: #839deb; }
-        .chip-inactive .chip-count { background: rgba(0,0,0,0.05); color: var(--color-muted); }
-        .chip-btn {
-            width: 22px; height: 22px; border-radius: 50%;
+        .dark .corpus-section-name { color: #a29bfe; }
+
+        .corpus-section-count {
+            font-size: 11px; color: #839deb; font-weight: 600;
+            background: rgba(131,157,235,0.15); padding: 1px 8px;
+            border-radius: 999px;
+        }
+
+        /* 折叠箭头 */
+        .corpus-section-arrow {
+            width: 20px; height: 20px;
             display: flex; align-items: center; justify-content: center;
-            transition: all 0.15s; opacity: 0; cursor: pointer; flex-shrink: 0;
+            color: #839deb; transition: transform 0.2s;
+            flex-shrink: 0;
         }
-        .group-chip:hover .chip-btn { opacity: 1; }
-        .chip-btn-rename:hover { background: rgba(131,157,235,0.2); color: #6a85d0; }
-        .chip-btn-del:hover { background: rgba(239,68,68,0.12); color: #ef4444; }
-        .chip-btn-del { margin-right: 4px; }
-        .dark .chip-btn-rename:hover { color: #a29bfe; }
-        /* 分组区域滚动条 */
-        .group-scroll { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 6px; align-items: center; }
-        .group-scroll::-webkit-scrollbar { height: 2px; }
-        .group-scroll::-webkit-scrollbar-thumb { background: rgba(131,157,235,0.3); border-radius: 4px; }
+        .corpus-section-arrow.open { transform: rotate(90deg); }
 
-        /* ===== 语料条目优化 ===== */
-        .reply-item {
-            display: flex; align-items: center; gap-10px;
-            padding: 10px 14px; border-radius: 18px;
-            background: rgba(255,255,255,0.85);
-            border: 1px solid rgba(220,230,250,0.7);
-            box-shadow: 0 2px 8px rgba(131,157,235,0.05);
-            transition: all 0.15s;
+        /* 分区操作按钮（重命名 / 删除）*/
+        .corpus-section-action {
+            width: 28px; height: 28px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s; flex-shrink: 0; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
-        .reply-item:hover { box-shadow: 0 4px 16px rgba(131,157,235,0.12); border-color: rgba(131,157,235,0.25); }
-        .dark .reply-item { background: rgba(35,40,63,0.85); border-color: rgba(80,100,150,0.3); }
-        .reply-idx { width: 20px; text-align: right; font-size: 10px; color: var(--color-muted); font-family: monospace; flex-shrink: 0; }
-        .reply-text-input { flex: 1; background: transparent; border: none; padding: 0 8px; outline: none; font-size: 13px; color: var(--color-text); font-weight: 500; min-width: 0; }
-        .reply-del-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #cbd5e1; transition: all 0.15s; flex-shrink: 0; }
-        .reply-del-btn:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
+        .corpus-section-action.rename { color: #839deb; }
+        .corpus-section-action.rename:active { background: rgba(131,157,235,0.2); }
+        .corpus-section-action.del { color: #ef4444; }
+        .corpus-section-action.del:active { background: rgba(239,68,68,0.1); }
 
-        /* 添加新分组按钮 */
-        .add-group-btn {
-            display: inline-flex; align-items: center; gap: 4px;
-            padding: 6px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700;
-            color: #839deb; background: rgba(131,157,235,0.1);
-            border: 1.5px dashed rgba(131,157,235,0.4);
-            cursor: pointer; flex-shrink: 0; transition: all 0.2s;
+        /* ── 语料条目 ─────────────────────────────────── */
+        .reply-row {
+            display: flex; align-items: center;
+            min-height: 50px; padding: 7px 6px 7px 12px;
+            background: #fff;
+            border-bottom: 1px solid #f0f3fb;
+            transition: background 0.12s;
         }
-        .add-group-btn:hover { background: rgba(131,157,235,0.2); border-style: solid; }
-        @media (min-width: 768px) { .msg-bubble { max-width: 86%; } }
+        .reply-row:last-child { border-bottom: none; }
+        .reply-row:active { background: #f8f9ff; }
+        .reply-row.is-selected { background: rgba(131,157,235,0.06); }
+        .dark .reply-row { background: rgba(28,34,58,0.9); border-color: rgba(60,75,110,0.4); }
+        .dark .reply-row:active { background: rgba(38,46,78,0.9); }
+        .dark .reply-row.is-selected { background: rgba(131,157,235,0.1); }
+
+        /* 分区容器（包住该分区的所有条目）*/
+        .corpus-section-body {
+            border-radius: 0 0 14px 14px;
+            overflow: hidden;
+            border: 1px solid #e8edf8;
+            border-top: none;
+            margin-bottom: 10px;
+        }
+        .dark .corpus-section-body { border-color: rgba(60,75,110,0.4); }
+
+        /* 未分组的条目直接裸放，外面包一个单独容器 */
+        .corpus-ungroup-body {
+            border-radius: 14px; overflow: hidden;
+            border: 1px solid #e8edf8;
+            margin-bottom: 10px;
+        }
+        .dark .corpus-ungroup-body { border-color: rgba(60,75,110,0.4); }
+
+        /* 勾选框 — 大触控区 */
+        .reply-check-wrap {
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
+        }
+        .reply-checkbox { width: 17px; height: 17px; accent-color: #839deb; cursor: pointer; }
+
+        /* 文本输入 */
+        .reply-text-input {
+            flex: 1; background: transparent; border: none;
+            padding: 0 4px; outline: none;
+            font-size: 13.5px; color: var(--color-text); font-weight: 500;
+            min-width: 0; line-height: 1.5;
+        }
+
+        /* 删除按钮 */
+        .reply-del-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #c8d5e8; transition: all 0.15s; flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .reply-del-btn:active { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+        /* ── 底部选中操作栏 ──────────────────────────── */
+        .corpus-action-bar {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 12px;
+            background: #fff;
+            border-top: 1px solid #f0f3fb;
+        }
+        .dark .corpus-action-bar { background: rgba(25,30,55,0.98); border-color: rgba(60,75,110,0.4); }
+        .corpus-action-btn {
+            flex: 1; padding: 9px 0; border-radius: 14px;
+            font-size: 12.5px; font-weight: 700; text-align: center;
+            cursor: pointer; transition: all 0.15s;
+            border: 1.5px solid #e8edf8;
+            background: #f8f9ff; color: var(--color-text);
+        }
+        .corpus-action-btn:active { transform: scale(0.95); }
+        .corpus-action-btn.primary { background: #839deb; color: #fff; border-color: transparent; }
+        .corpus-action-btn.danger { background: rgba(239,68,68,0.07); color: #ef4444; border-color: rgba(239,68,68,0.18); }
+        .dark .corpus-action-btn { background: rgba(40,46,68,0.8); border-color: rgba(80,100,150,0.3); }
+
+        /* 移动 sheet */
+        .move-sheet {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
+            background: #fff; border-radius: 22px 22px 0 0;
+            padding: 16px 16px 28px;
+            box-shadow: 0 -6px 32px rgba(131,157,235,0.15);
+            border-top: 1px solid #e8edf8;
+        }
+        .dark .move-sheet { background: rgba(22,28,52,0.99); border-color: rgba(80,100,150,0.3); }
+        .move-sheet-tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 8px 14px; border-radius: 999px;
+            font-size: 12.5px; font-weight: 700;
+            background: rgba(131,157,235,0.09);
+            border: 1.5px solid rgba(131,157,235,0.22);
+            color: #6a85d0; cursor: pointer; transition: all 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .move-sheet-tag:active { transform: scale(0.92); background: rgba(131,157,235,0.18); }
+        .move-sheet-tag.new-group { border-style: dashed; color: #839deb; }
+        .dark .move-sheet-tag { color: #a29bfe; background: rgba(131,157,235,0.12); }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .slide-up-enter-active, .slide-up-leave-active { transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; }
+        .slide-up-enter-from, .slide-up-leave-to { transform: translateY(20px); opacity: 0; }
 
         .quote-block {
             background: rgba(0,0,0,0.03); border-left: 3px solid var(--color-accent);
@@ -1700,15 +1778,27 @@
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-blue-50/60 to-indigo-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-base">💾</span>
-                                <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">全局备份与恢复</label>
+                                <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">备份与恢复</label>
                             </div>
-                            <p class="text-[10px] text-muted">导出/导入包含聊天记录、语料库、表情包、设置等全部数据的备份文件（.json）</p>
+                            <!-- 分类导出/导入 -->
                             <div class="flex gap-2">
-                                <button @click="globalExport" class="flex-1 py-2.5 bg-accent/10 border border-accent/20 text-accent rounded-2xl font-medium text-xs hover:bg-accent/20 transition flex items-center justify-center gap-1.5">
-                                    <i data-lucide="download" class="w-3.5 h-3.5"></i>全局导出
+                                <button @click="selectiveExportMode='export'; modals.selectiveExport=true"
+                                        class="flex-1 py-2.5 bg-accent/10 border border-accent/20 text-accent rounded-2xl font-medium text-xs hover:bg-accent/20 transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i>分类导出
                                 </button>
-                                <label class="flex-1 py-2.5 bg-white/80 border border-white/70 text-slate-600 rounded-2xl font-medium text-xs hover:bg-white transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>全局导入
+                                <button @click="selectiveExportMode='import'; modals.selectiveExport=true"
+                                        class="flex-1 py-2.5 bg-white/80 dark:bg-slate-700/60 border border-white/70 text-slate-600 dark:text-slate-300 rounded-2xl font-medium text-xs hover:bg-white transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>分类导入
+                                </button>
+                            </div>
+                            <!-- 全局一键备份 -->
+                            <div class="flex gap-2 pt-1 border-t border-white/50 dark:border-slate-600/40">
+                                <button @click="globalExport"
+                                        class="flex-1 py-2 bg-white/60 dark:bg-slate-700/40 border border-white/60 text-slate-500 rounded-xl text-[11px] hover:bg-white transition flex items-center justify-center gap-1">
+                                    <i data-lucide="database" class="w-3 h-3"></i>全量导出
+                                </button>
+                                <label class="flex-1 py-2 bg-white/60 dark:bg-slate-700/40 border border-white/60 text-slate-500 rounded-xl text-[11px] hover:bg-white transition flex items-center justify-center gap-1 cursor-pointer">
+                                    <i data-lucide="database" class="w-3 h-3"></i>全量导入
                                     <input type="file" accept=".json" class="hidden" ref="globalImportInput" @change="globalImport">
                                 </label>
                             </div>
@@ -1727,89 +1817,284 @@
 
         <!-- ===== 语料库 Modal ===== -->
         <transition name="fade">
-            <div v-if="modals.replyManager" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.replyManager = false">
-                <div class="bg-white/90 dark:bg-slate-800/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[85vh] backdrop-blur-xl border border-white/70">
+          <div v-if="modals.replyManager" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center" @click.self="modals.replyManager=false">
+            <div class="bg-slate-50 dark:bg-slate-900 w-full max-w-sm rounded-t-[2rem] sm:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col h-[92vh] sm:h-[88vh] relative">
 
-                    <!-- 顶部标题栏 -->
-                    <div class="p-5 border-b border-white/60 flex justify-between items-center shrink-0">
-                        <div>
-                            <h3 class="font-bold text-lg text-slate-700 dark:text-white flex items-center gap-2">📚 语料库</h3>
-                            <p class="text-[10px] text-muted mt-0.5">共 {{ replyGroups.reduce((a,g)=>a+g.replies.length,0) }} 条 · {{ replyGroups.length }} 个分组</p>
-                        </div>
-                        <button @click="modals.replyManager = false" class="bg-white/60 dark:bg-slate-700/60 p-1.5 rounded-full hover:bg-white dark:hover:bg-slate-600 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
-                    </div>
-
-                    <!-- Emoji 尾缀库 -->
-                    <div class="px-4 pt-3 pb-2 border-b border-white/60 bg-white/40 dark:bg-slate-800/40 shrink-0">
-                        <div class="flex items-center gap-2 mb-1.5">
-                            <i data-lucide="sparkles" class="w-3 h-3 text-accent"></i>
-                            <span class="text-[10px] font-bold text-accent uppercase tracking-wider">Emoji 尾缀库</span>
-                            <span class="text-[9px] text-muted">（AI 回复时随机附加）</span>
-                        </div>
-                        <input v-model="emojiPoolText" placeholder="多个 emoji 用逗号隔开，如: ✨,🫐,🌿" class="w-full bg-white/80 dark:bg-slate-700/80 border border-white/70 dark:border-slate-600 rounded-xl px-3 py-2 text-xs outline-none focus:border-accent shadow-inner transition">
-                    </div>
-
-                    <!-- ===== 分组 Chips ===== -->
-                    <div class="px-4 pt-3 pb-2 border-b border-white/60 bg-white/50 dark:bg-slate-800/50 shrink-0">
-                        <div class="group-scroll">
-                            <!-- 分组 Chip -->
-                            <div v-for="g in replyGroups" :key="g.id"
-                                 class="group-chip"
-                                 :class="currentGroupId===g.id ? 'chip-active' : 'chip-inactive'">
-                                <span class="chip-name" @click="currentGroupId = g.id">
-                                    {{ g.name }}
-                                    <span class="chip-count">{{ g.replies.length }}</span>
-                                </span>
-                                <!-- 重命名 -->
-                                <button @click.stop="renameGroup(g)" class="chip-btn chip-btn-rename" title="重命名">
-                                    <i data-lucide="pencil" style="width:10px;height:10px;"></i>
-                                </button>
-                                <!-- 删除（至少2个分组才显示） -->
-                                <button v-if="replyGroups.length > 1" @click.stop="deleteGroup(g)" class="chip-btn chip-btn-del" title="删除分组">
-                                    <i data-lucide="x" style="width:10px;height:10px;"></i>
-                                </button>
-                                <span v-else style="width:6px"></span>
-                            </div>
-                            <!-- 新建分组按钮 -->
-                            <button @click="addGroup" class="add-group-btn">
-                                <i data-lucide="plus" style="width:11px;height:11px;"></i>新建
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 工具栏 -->
-                    <div class="px-3 py-2 flex gap-1.5 flex-wrap bg-white/40 dark:bg-slate-800/40 border-b border-white/60 shrink-0">
-                        <input v-model="searchQuery" placeholder="🔍 搜索当前分组…" class="flex-1 min-w-[100px] bg-white/80 dark:bg-slate-700/70 border border-white/70 dark:border-slate-600 rounded-full px-3 py-1.5 text-xs outline-none focus:border-accent transition">
-                        <button @click="toggleSelectAll" class="text-[11px] border border-white/70 px-2.5 py-1.5 rounded-full bg-white/80 hover:bg-white dark:bg-slate-700/70 dark:hover:bg-slate-600 shadow-sm transition">{{ selectAll ? '取消全选' : '全选' }}</button>
-                        <button @click="moveSelectedToGroup" class="text-[11px] border border-white/70 px-2.5 py-1.5 rounded-full bg-white/80 hover:bg-white dark:bg-slate-700/70 dark:hover:bg-slate-600 shadow-sm transition">移动</button>
-                        <button @click="deleteSelectedReplies" class="text-[11px] border border-red-200 px-2.5 py-1.5 rounded-full bg-red-50/80 text-red-500 hover:bg-red-100 shadow-sm transition">删除</button>
-                        <button @click="deduplicateCurrentGroup" class="text-[11px] border border-white/70 px-2.5 py-1.5 rounded-full bg-white/80 hover:bg-white dark:bg-slate-700/70 shadow-sm transition">去重</button>
-                        <button @click="modals.batchInput = true" class="text-[11px] border border-accent/30 px-2.5 py-1.5 rounded-full bg-accent/10 text-accent font-medium hover:bg-accent/20 shadow-sm transition">批量导入</button>
-                    </div>
-
-                    <!-- 语料列表 -->
-                    <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-white/20 dark:bg-slate-900/20">
-                        <div v-if="filteredReplies.length === 0" class="flex flex-col items-center justify-center h-32 gap-2 opacity-50">
-                            <i data-lucide="inbox" class="w-8 h-8 text-muted"></i>
-                            <p class="text-xs text-muted">{{ searchQuery ? '没有匹配的语料' : '还没有语料，点下方添加' }}</p>
-                        </div>
-                        <div v-for="(reply, idx) in filteredReplies" :key="idx" class="reply-item flex items-center gap-2">
-                            <input type="checkbox" v-model="selectedReplies" :value="reply" class="reply-checkbox cursor-pointer shrink-0">
-                            <span class="reply-idx">{{ idx+1 }}</span>
-                            <input v-model="reply.text" class="reply-text-input">
-                            <button @click="removeReply(reply)" class="reply-del-btn" title="删除">
-                                <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 底部输入栏 -->
-                    <div class="p-3 bg-white/60 dark:bg-slate-800/60 border-t border-white/60 flex gap-2 shrink-0">
-                        <input v-model="newReplyText" @keydown.enter="addReply" placeholder="新增一条语料，回车确认…" class="flex-1 bg-white/90 dark:bg-slate-700/90 border border-white/70 dark:border-slate-600 rounded-full px-4 py-2.5 text-sm outline-none focus:border-accent shadow-inner transition">
-                        <button @click="addReply" :disabled="!newReplyText.trim()" class="bg-accent text-white px-5 rounded-full text-sm font-bold shadow-md hover:bg-opacity-90 disabled:opacity-40 transition shrink-0">添加</button>
-                    </div>
+              <!-- ── 标题栏 ────────────────────────────────────────── -->
+              <div class="bg-white dark:bg-slate-800 px-4 pt-4 pb-3 shrink-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-bold text-[16px] text-slate-700 dark:text-white flex-1">📚 语料库</h3>
+                  <!-- 管理按钮：切换是否显示分组的重命名/删除 -->
+                  <button @click="corpusEditing=!corpusEditing"
+                          class="text-[11.5px] font-bold px-3 py-1.5 rounded-full transition"
+                          :class="corpusEditing
+                            ? 'bg-accent text-white'
+                            : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300'">
+                    {{ corpusEditing ? '完成' : '管理' }}
+                  </button>
+                  <button @click="modals.replyManager=false" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+                    <i data-lucide="x" style="width:15px;height:15px;" class="text-slate-500"></i>
+                  </button>
                 </div>
+                <p class="text-[10.5px] text-muted">
+                  共 {{ ungroupedReplies.length + replyGroups.reduce((a,g)=>a+g.replies.length,0) }} 条
+                  · {{ replyGroups.length }} 个分组
+                  <span v-if="selectedReplies.length" class="text-accent font-bold ml-1">· 已选 {{ selectedReplies.length }}</span>
+                </p>
+
+                <!-- Emoji 尾缀 -->
+                <div class="mt-2.5 flex items-center gap-2 bg-slate-50 dark:bg-slate-700/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-slate-600">
+                  <i data-lucide="sparkles" class="w-3 h-3 text-accent shrink-0"></i>
+                  <input v-model="emojiPoolText" placeholder="Emoji 尾缀，逗号分隔：✨,🫐,🌿"
+                         class="flex-1 bg-transparent text-[11.5px] outline-none text-slate-600 dark:text-slate-300 placeholder-slate-300 min-w-0">
+                </div>
+              </div>
+
+              <!-- ── 搜索 + 工具栏 ─────────────────────────────────── -->
+              <div class="bg-white dark:bg-slate-800 px-3 pb-3 flex gap-2 shrink-0 border-b border-slate-100 dark:border-slate-700">
+                <div class="relative flex-1">
+                  <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none"></i>
+                  <input v-model="searchQuery" placeholder="搜索全部语料…"
+                         class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full pl-8 pr-8 py-2 text-[12.5px] outline-none focus:border-accent transition">
+                  <button v-if="searchQuery" @click="searchQuery=''" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-accent">
+                    <i data-lucide="x" style="width:12px;height:12px;"></i>
+                  </button>
+                </div>
+                <button @click="addGroup" class="shrink-0 text-[11.5px] font-bold px-3 py-2 rounded-full bg-accent/10 text-accent border border-accent/20">＋分组</button>
+                <button @click="deduplicateAll" class="shrink-0 text-[11.5px] font-bold px-3 py-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500">去重</button>
+                <button @click="modals.batchInput=true" class="shrink-0 text-[11.5px] font-bold px-3 py-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500">导入</button>
+              </div>
+
+              <!-- ── 列表区 ─────────────────────────────────────────── -->
+              <div class="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+
+                <!-- 搜索结果 -->
+                <template v-if="searchQuery">
+                  <p class="text-[10.5px] text-accent font-bold px-1">搜索结果 · {{ filteredReplies.length }} 条</p>
+                  <div v-if="!filteredReplies.length" class="flex flex-col items-center justify-center h-24 opacity-40 gap-1">
+                    <i data-lucide="search-x" class="w-8 h-8 text-slate-400"></i>
+                    <p class="text-xs text-muted">没有匹配结果</p>
+                  </div>
+                  <div v-else class="corpus-ungroup-body">
+                    <div v-for="(item,i) in filteredReplies" :key="'s'+i"
+                         class="reply-row" :class="selectedReplies.includes(item)?'is-selected':''">
+                      <div class="reply-check-wrap" @click="toggleSelectItem(item)">
+                        <input type="checkbox" :checked="selectedReplies.includes(item)" @change="toggleSelectItem(item)" class="reply-checkbox" @click.stop>
+                      </div>
+                      <span v-if="item.groupId" class="text-[9.5px] font-bold text-accent/60 shrink-0 mr-1 whitespace-nowrap border border-accent/20 rounded-full px-1.5">{{ item.groupName }}</span>
+                      <input v-model="item.reply.text" class="reply-text-input">
+                      <button @click="removeReply(item)" class="reply-del-btn"><i data-lucide="trash-2" style="width:15px;height:15px;"></i></button>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- 正常视图 -->
+                <template v-else>
+
+                  <!-- ① 无分组词句（直接裸放，无标题） -->
+                  <div v-if="ungroupedReplies.length" class="corpus-ungroup-body">
+                    <div v-for="(r,i) in ungroupedReplies" :key="'u'+i"
+                         class="reply-row"
+                         :class="selectedReplies.some(s=>s.reply===r&&s.groupId===null)?'is-selected':''">
+                      <div class="reply-check-wrap"
+                           @click="toggleSelectItem({reply:r,groupId:null,groupName:''})">
+                        <input type="checkbox"
+                               :checked="selectedReplies.some(s=>s.reply===r&&s.groupId===null)"
+                               @change="toggleSelectItem({reply:r,groupId:null,groupName:''})"
+                               class="reply-checkbox" @click.stop>
+                      </div>
+                      <input v-model="r.text" class="reply-text-input">
+                      <button @click="removeReply({reply:r,groupId:null,groupName:''})" class="reply-del-btn">
+                        <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- ② 用户分组（可折叠，管理模式下显示重命名/删除）-->
+                  <div v-for="g in replyGroups" :key="g.id">
+                    <!-- 分区标题 -->
+                    <div class="corpus-section-hd"
+                         :class="collapsedGroups.includes(g.id) ? 'rounded-[14px] mb-0' : 'rounded-t-[14px]'"
+                         @click="toggleCollapse(g.id)">
+                      <div class="corpus-section-arrow" :class="collapsedGroups.includes(g.id)?'':'open'">
+                        <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+                      </div>
+                      <span class="corpus-section-name">{{ g.name }}</span>
+                      <span class="corpus-section-count">{{ g.replies.length }}</span>
+                      <!-- 管理模式才显示的操作按钮 -->
+                      <template v-if="corpusEditing">
+                        <button @click.stop="renameGroup(g)" class="corpus-section-action rename">
+                          <i data-lucide="pencil" style="width:13px;height:13px;"></i>
+                        </button>
+                        <button @click.stop="deleteGroup(g)" class="corpus-section-action del">
+                          <i data-lucide="trash-2" style="width:13px;height:13px;"></i>
+                        </button>
+                      </template>
+                    </div>
+                    <!-- 分区内容 -->
+                    <div v-if="!collapsedGroups.includes(g.id)" class="corpus-section-body">
+                      <div v-if="!g.replies.length" class="px-4 py-3 text-[11px] text-muted opacity-50 flex items-center gap-1.5">
+                        <i data-lucide="inbox" style="width:13px;height:13px;"></i> 暂无语料，可将无分组词句移入
+                      </div>
+                      <div v-for="(r,i) in g.replies" :key="g.id+i"
+                           class="reply-row"
+                           :class="selectedReplies.some(s=>s.reply===r&&s.groupId===g.id)?'is-selected':''">
+                        <div class="reply-check-wrap"
+                             @click="toggleSelectItem({reply:r,groupId:g.id,groupName:g.name})">
+                          <input type="checkbox"
+                                 :checked="selectedReplies.some(s=>s.reply===r&&s.groupId===g.id)"
+                                 @change="toggleSelectItem({reply:r,groupId:g.id,groupName:g.name})"
+                                 class="reply-checkbox" @click.stop>
+                        </div>
+                        <input v-model="r.text" class="reply-text-input">
+                        <button @click="removeReply({reply:r,groupId:g.id,groupName:g.name})" class="reply-del-btn">
+                          <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 空状态 -->
+                  <div v-if="!ungroupedReplies.length && !replyGroups.length"
+                       class="flex flex-col items-center justify-center h-32 opacity-40 gap-2">
+                    <i data-lucide="inbox" class="w-10 h-10 text-slate-400"></i>
+                    <p class="text-xs text-muted">还没有语料，在下方添加吧</p>
+                  </div>
+
+                </template>
+              </div><!-- end list -->
+
+              <!-- ── 选中操作栏 ─────────────────────────────────────── -->
+              <transition name="slide-up">
+                <div v-if="selectedReplies.length" class="corpus-action-bar shrink-0">
+                  <button @click="selectedReplies=[];selectAll=false" class="corpus-action-btn" style="font-size:11px;flex:0.8">
+                    取消({{ selectedReplies.length }})
+                  </button>
+                  <button @click="toggleSelectAll" class="corpus-action-btn" style="font-size:11px;flex:0.8">
+                    {{ selectAll?'取消全选':'全选' }}
+                  </button>
+                  <button @click="showMovePanel=!showMovePanel" class="corpus-action-btn primary">移动</button>
+                  <button @click="deleteSelectedReplies" class="corpus-action-btn danger">删除</button>
+                </div>
+              </transition>
+
+              <!-- ── 底部输入栏 ─────────────────────────────────────── -->
+              <div v-if="!selectedReplies.length"
+                   class="px-3 py-3 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 shrink-0">
+                <div class="flex gap-2">
+                  <input v-model="newReplyText" @keydown.enter="addReply"
+                         placeholder="添加语料（默认无分组）…"
+                         class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full px-4 py-2.5 text-[13px] outline-none focus:border-accent transition">
+                  <button @click="addReply" :disabled="!newReplyText.trim()"
+                          class="bg-accent text-white px-5 rounded-full text-[13px] font-bold disabled:opacity-40 shrink-0">添加</button>
+                </div>
+              </div>
+
+              <!-- ── 移动 Sheet ─────────────────────────────────────── -->
+              <transition name="slide-up">
+                <div v-if="showMovePanel" class="move-sheet" @click.stop>
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-[12.5px] font-bold text-slate-700 dark:text-slate-100">移动 {{ selectedReplies.length }} 条到…</p>
+                    <button @click="showMovePanel=false"><i data-lucide="x" style="width:16px;height:16px;" class="text-muted"></i></button>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <!-- 移回无分组 -->
+                    <button @click="doMoveToGroup(null)" class="move-sheet-tag">不分组</button>
+                    <button v-for="g in replyGroups" :key="g.id" @click="doMoveToGroup(g)" class="move-sheet-tag">
+                      {{ g.name }} <span class="text-[10px] opacity-50">{{ g.replies.length }}</span>
+                    </button>
+                    <button @click="doMoveToNewGroup" class="move-sheet-tag new-group">
+                      <i data-lucide="plus" style="width:11px;height:11px;"></i> 新建分组
+                    </button>
+                  </div>
+                </div>
+              </transition>
+              <div v-if="showMovePanel" class="absolute inset-0 z-20 bg-black/10 rounded-t-[2rem]" @click="showMovePanel=false"></div>
+
             </div>
+          </div>
+        </transition>
+
+        <!-- ===== 分类导出/导入 Modal ===== -->
+        <transition name="fade">
+          <div v-if="modals.selectiveExport" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[110] flex items-end sm:items-center justify-center" @click.self="modals.selectiveExport=false">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-slate-200/60 dark:border-slate-700/60 overflow-hidden">
+
+              <!-- 标题栏 -->
+              <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-slate-100 dark:border-slate-700">
+                <div>
+                  <h3 class="font-bold text-[16px] text-slate-700 dark:text-white">
+                    {{ selectiveExportMode === 'export' ? '📤 分类导出' : '📥 分类导入' }}
+                  </h3>
+                  <p class="text-[10.5px] text-muted mt-0.5">
+                    {{ selectiveExportMode === 'export' ? '选择要导出的数据类型' : '选择要从文件中导入的数据类型' }}
+                  </p>
+                </div>
+                <button @click="modals.selectiveExport=false" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+                  <i data-lucide="x" style="width:14px;height:14px;" class="text-slate-500"></i>
+                </button>
+              </div>
+
+              <!-- 选项列表 -->
+              <div class="px-4 py-4 space-y-2">
+                <!-- 聊天记录 -->
+                <label class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition"
+                       :class="selectiveItems.messages ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
+                  <input type="checkbox" v-model="selectiveItems.messages" class="w-4 h-4 accent-accent rounded">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">💬 聊天记录</p>
+                    <p class="text-[10.5px] text-muted">{{ messages.length }} 条消息</p>
+                  </div>
+                </label>
+                <!-- 语料库 -->
+                <label class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition"
+                       :class="selectiveItems.corpus ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
+                  <input type="checkbox" v-model="selectiveItems.corpus" class="w-4 h-4 accent-accent rounded">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">📚 语料库</p>
+                    <p class="text-[10.5px] text-muted">{{ ungroupedReplies.length + replyGroups.reduce((a,g)=>a+g.replies.length,0) }} 条语料 · {{ replyGroups.length }} 个分组</p>
+                  </div>
+                </label>
+                <!-- 表情包 -->
+                <label class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition"
+                       :class="selectiveItems.stickers ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
+                  <input type="checkbox" v-model="selectiveItems.stickers" class="w-4 h-4 accent-accent rounded">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">🖼️ 表情包</p>
+                    <p class="text-[10.5px] text-muted">{{ stickerGroups.reduce((a,g)=>a+g.stickers.length,0) }} 张图</p>
+                  </div>
+                </label>
+                <!-- 日记记录 -->
+                <label class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition"
+                       :class="selectiveItems.notes ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
+                  <input type="checkbox" v-model="selectiveItems.notes" class="w-4 h-4 accent-accent rounded">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">📅 日记记录</p>
+                    <p class="text-[10.5px] text-muted">{{ notes.length }} 条日记</p>
+                  </div>
+                </label>
+              </div>
+
+              <!-- 底部按钮 -->
+              <div class="px-4 pb-6 pt-2 border-t border-slate-100 dark:border-slate-700 flex gap-2">
+                <button @click="modals.selectiveExport=false"
+                        class="flex-1 py-3 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-[13px]">取消</button>
+                <!-- 导出 -->
+                <button v-if="selectiveExportMode==='export'"
+                        @click="doSelectiveExport"
+                        :disabled="!selectiveItems.messages && !selectiveItems.corpus && !selectiveItems.stickers && !selectiveItems.notes"
+                        class="flex-1 py-3 rounded-2xl bg-accent text-white font-bold text-[13px] shadow-md disabled:opacity-40">
+                  导出文件
+                </button>
+                <!-- 导入 -->
+                <label v-else class="flex-1 py-3 rounded-2xl bg-accent text-white font-bold text-[13px] shadow-md flex items-center justify-center cursor-pointer">
+                  选择文件
+                  <input type="file" accept=".json" class="hidden" @change="doSelectiveImport">
+                </label>
+              </div>
+
+            </div>
+          </div>
         </transition>
 
         <!-- ===== 批量导入 Modal ===== -->
@@ -1955,10 +2240,24 @@
                         </div>
                         <div v-for="(note, idx) in filteredNotes" :key="note.id" class="rounded-[1.4rem] overflow-hidden shadow-sm">
                             <!-- 笔记主体 -->
-                            <div class="bg-white/85 border border-white/70 p-4 flex flex-col gap-2 relative group">
-                                <div class="flex justify-between items-start">
-                                    <span class="text-sm text-slate-700 leading-relaxed pr-6 whitespace-pre-wrap break-words flex-1">{{note.text}}</span>
-                                    <button @click="deleteNote(note.id)" class="absolute top-3 right-3 text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition bg-white rounded-full p-1 shadow-sm"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                            <div class="bg-white/85 dark:bg-slate-700/80 border border-white/70 dark:border-slate-600/60 p-4 flex flex-col gap-2 relative group">
+                                <div class="flex justify-between items-start gap-2">
+                                    <!-- 文字内容：超过3行时截断，点击展开 -->
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap break-words"
+                                           :class="!expandedNotes.has(note.id) && note.text.length > 80 ? 'line-clamp-3' : ''">
+                                            {{ note.text }}
+                                        </p>
+                                        <!-- 展开/收起按钮（文字超过80字才显示）-->
+                                        <button v-if="note.text.length > 80"
+                                                @click="expandedNotes.has(note.id) ? expandedNotes.delete(note.id) : expandedNotes.add(note.id)"
+                                                class="mt-1 text-[10.5px] text-accent font-bold hover:underline">
+                                            {{ expandedNotes.has(note.id) ? '收起 ▲' : '展开全文 ▼' }}
+                                        </button>
+                                    </div>
+                                    <button @click="deleteNote(note.id)" class="shrink-0 text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition bg-white dark:bg-slate-600 rounded-full p-1 shadow-sm">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
                                 </div>
                                 <span class="text-[10px] text-muted font-mono">{{ formatTime(note.timestamp) }}</span>
                             </div>
@@ -2558,7 +2857,7 @@ createApp({
             pokeToastTimer = setTimeout(() => { pokeToast.show = false; }, 2100);
             // 对方用文字回应
             safeSetTimeout(() => {
-                const pool = replyGroups.value.flatMap(g => g.replies);
+                const pool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g => g.replies)];
                 const r = pool.length ? pool[Math.floor(Math.random() * pool.length)].text : '嗯？';
                 sendMsg('them', 'text', r);
             }, (Math.random() * 2 + 1) * 1000);
@@ -2622,21 +2921,64 @@ createApp({
         const modals = reactive({
             settings: false, replyManager: false, stickerPicker: false,
             stickerManager: false, letter: false, letterHistory: false,
-            notebook: false, batchInput: false
+            notebook: false, batchInput: false, selectiveExport: false
         });
+        const selectiveExportMode = ref('export'); // 'export' | 'import'
+        const selectiveItems = reactive({ messages: true, corpus: true, stickers: false, notes: false });
+        const expandedNotes = ref(new Set()); // 展开的笔记 id
 
-        const replyGroups = ref([{ id: 'g1', name: '日常', replies: [{text:'我在听'},{text:'今天天气真好'}] }]);
-        const currentGroupId = ref('g1');
+        // 语料库默认数据：
+        // ── 语料库数据模型 ─────────────────────────────────────────
+        // ungroupedReplies：无分组的词句，直接显示，不属于任何分组
+        // replyGroups：用户自建分组，每个分组有 id / name / replies[]
+        // 两者完全独立，addReply 永远写入 ungroupedReplies
+        const ungroupedReplies = ref([{text:'我在听'},{text:'今天天气真好'}]);
+        const replyGroups = ref([]);
+        const currentGroupId = ref('');
         const searchQuery = ref('');
         const newReplyText = ref('');
         const stickerGroups = ref([{ id: 'sg1', name: '默认', stickers: [] }]);
         const currentStickerGroupId = ref('sg1');
 
-        const currentGroup = computed(() => replyGroups.value.find(g=>g.id===currentGroupId.value)||replyGroups.value[0]);
+        const corpusEditing = ref(false);   // 管理模式（显示重命名/删除）
+        const collapsedGroups = ref([]);    // 已折叠的分组 id 列表
+
+        // 用户分组（即 replyGroups 本身，保持语义一致）
+        const userGroups = computed(() => replyGroups.value);
+
+        // filteredReplies：仅搜索时使用，全库平铺
         const filteredReplies = computed(() => {
-            if(!searchQuery.value) return currentGroup.value.replies;
-            return currentGroup.value.replies.filter(r=>r.text.includes(searchQuery.value));
+            if (!searchQuery.value) return [];
+            const q = searchQuery.value.toLowerCase();
+            const out = [];
+            // 先搜未分组
+            ungroupedReplies.value.forEach(r => {
+                if (r.text.toLowerCase().includes(q))
+                    out.push({ reply: r, groupId: null, groupName: '' });
+            });
+            // 再搜各分组
+            replyGroups.value.forEach(g => {
+                g.replies.forEach(r => {
+                    if (r.text.toLowerCase().includes(q))
+                        out.push({ reply: r, groupId: g.id, groupName: g.name });
+                });
+            });
+            return out;
         });
+
+        const showMovePanel = ref(false);
+
+        const toggleCollapse = (gid) => {
+            const idx = collapsedGroups.value.indexOf(gid);
+            if (idx > -1) collapsedGroups.value.splice(idx, 1);
+            else collapsedGroups.value.push(gid);
+        };
+
+        const toggleSelectItem = (item) => {
+            const idx = selectedReplies.value.indexOf(item);
+            if (idx > -1) selectedReplies.value.splice(idx, 1);
+            else selectedReplies.value.push(item);
+        };
         const currentStickerGroup = computed(() => stickerGroups.value.find(g=>g.id===currentStickerGroupId.value)||stickerGroups.value[0]);
 
         // ===== 日历系统 =====
@@ -2673,6 +3015,7 @@ createApp({
                 messages: JSON.parse(JSON.stringify(messages.value)),
                 profiles: JSON.parse(JSON.stringify(profiles)),
                 settings: JSON.parse(JSON.stringify(settings)),
+                ungroupedReplies: JSON.parse(JSON.stringify(ungroupedReplies.value)),
                 replyGroups: JSON.parse(JSON.stringify(replyGroups.value)),
                 stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
                 letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
@@ -2681,7 +3024,7 @@ createApp({
                 emojiPoolText: emojiPoolText.value
             });
         };
-        watch([messages, profiles, settings, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, emojiPoolText], saveData, { deep: true });
+        watch([messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, emojiPoolText], saveData, { deep: true });
 
         watch(() => settings.bgImage, (newBg) => {
             if (newBg) {
@@ -3121,7 +3464,7 @@ createApp({
             scrollToBottom();
             const baseDelay = force ? 400 : (Math.random()*(settings.delayMax-settings.delayMin)+settings.delayMin)*1000;
             safeSetTimeout(()=>{
-                const textPool = replyGroups.value.flatMap(g=>g.replies);
+                const textPool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g=>g.replies)];
                 const stickerPool = stickerGroups.value.flatMap(g=>g.stickers);
                 const emojiArray = emojiPoolText.value.split(/[,，]/).map(e=>e.trim()).filter(e=>e);
                 const replyCount = force ? 1 : (Math.floor(Math.random() * 3) + 1);
@@ -3187,7 +3530,7 @@ createApp({
                 const t2 = notes.value.find(n => n.id === noteId);
                 if (!t2) return;
                 if (t2._reminderTargetAt) delete t2._reminderTargetAt;
-                const pool = replyGroups.value.flatMap(g=>g.replies);
+                const pool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g=>g.replies)];
                 if (!pool.length) return;
                 const count = Math.floor(Math.random() * 4) + 2;
                 const prefixes = ['看到你记录的心情了~', '嗯嗯', '你说的', '嗯，', '看到啦'];
@@ -3259,7 +3602,7 @@ createApp({
             const id = Date.now();
             letterHistory.value.push({ id, timestamp: id, content, status: '时光寄送中', reply: null });
             sendMsg('me', 'text', `✉️ 寄出信件：${content.substring(0,15)}…`);
-            const pool = replyGroups.value.flatMap(g=>g.replies).map(r=>r.text);
+            const pool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g=>g.replies)].map(r=>r.text);
             const replyCount = Math.floor(Math.random()*7)+6; // 6~12条
             const replies = [];
             for(let i=0; i<replyCount; i++) {
@@ -3326,57 +3669,127 @@ createApp({
         const addStickerGroup = () => { const name = prompt('分组名'); if(name) stickerGroups.value.push({ id: 'sg_'+Date.now(), name, stickers: [] }); };
 
         // ===== 语料库操作 =====
-        const addGroup = () => { const n=prompt('新建分组名称'); if(n && n.trim()) { const id='g_'+Date.now(); replyGroups.value.push({ id, name:n.trim(), replies:[] }); currentGroupId.value = id; } };
-        const renameGroup = (g) => { const n=prompt('重命名分组', g.name); if(n && n.trim()) g.name = n.trim(); };
-        const deleteGroup = (g) => {
-            if(replyGroups.value.length <= 1) return;
-            if(!confirm(`确定删除分组「${g.name}」？\n该分组内的 ${g.replies.length} 条语料也会一并删除。`)) return;
-            const idx = replyGroups.value.indexOf(g);
-            if(idx > -1) {
-                replyGroups.value.splice(idx, 1);
-                if(currentGroupId.value === g.id) {
-                    currentGroupId.value = replyGroups.value[Math.max(0, idx-1)]?.id || replyGroups.value[0]?.id;
-                }
+        // ── 分组管理 ──────────────────────────────────────────────
+        const addGroup = () => {
+            const n = prompt('新建分组名称');
+            if (n?.trim()) {
+                replyGroups.value.push({ id: 'g_' + Date.now(), name: n.trim(), replies: [] });
             }
         };
-        const addReply = () => { if(newReplyText.value.trim()) { currentGroup.value.replies.push({text:newReplyText.value.trim()}); newReplyText.value=''; } };
-        const removeReply = (r) => { const idx = currentGroup.value.replies.indexOf(r); if(idx>-1) currentGroup.value.replies.splice(idx,1); };
-        const moveSelectedToGroup = () => {
-            if(selectedReplies.value.length===0) return alert('请先勾选要移动的语料');
-            const targetGroupName = prompt('输入目标分组名 (若不存在将自动新建)');
-            if(!targetGroupName) return;
-            let targetGroup = replyGroups.value.find(g=>g.name === targetGroupName);
-            if(!targetGroup) { targetGroup = { id: 'g_'+Date.now(), name: targetGroupName, replies: [] }; replyGroups.value.push(targetGroup); }
-            selectedReplies.value.forEach(r => {
-                const idx = currentGroup.value.replies.indexOf(r);
-                if(idx>-1) currentGroup.value.replies.splice(idx,1);
-                targetGroup.replies.push(r);
+        const renameGroup = (g) => {
+            const n = prompt('重命名分组', g.name);
+            if (n?.trim()) g.name = n.trim();
+        };
+        const deleteGroup = (g) => {
+            if (!confirm(`删除分组「${g.name}」？\n分组内 ${g.replies.length} 条语料将移入无分组区域。`)) return;
+            // 删除分组时把该组的词句移回 ungroupedReplies，而非丢弃
+            ungroupedReplies.value.push(...g.replies);
+            const idx = replyGroups.value.indexOf(g);
+            if (idx > -1) replyGroups.value.splice(idx, 1);
+        };
+
+        // ── 词句增删 ──────────────────────────────────────────────
+        // addReply：永远添加到无分组区域（ungroupedReplies），不进任何分组
+        const addReply = () => {
+            if (!newReplyText.value.trim()) return;
+            ungroupedReplies.value.push({ text: newReplyText.value.trim() });
+            newReplyText.value = '';
+        };
+
+        // removeReply：item = { reply, groupId }
+        // groupId === null 表示在 ungroupedReplies 里
+        const removeReply = (item) => {
+            if (item.groupId === null) {
+                const idx = ungroupedReplies.value.indexOf(item.reply);
+                if (idx > -1) ungroupedReplies.value.splice(idx, 1);
+            } else {
+                const g = replyGroups.value.find(g => g.id === item.groupId);
+                if (g) { const i = g.replies.indexOf(item.reply); if (i > -1) g.replies.splice(i, 1); }
+            }
+        };
+
+        // ── 批量移动 ──────────────────────────────────────────────
+        // target = { id, replies } 或 null（表示移回无分组）
+        const doMoveToGroup = (target) => {
+            if (!selectedReplies.value.length) { showMovePanel.value = false; return; }
+            selectedReplies.value.forEach(item => {
+                // 从来源移除
+                if (item.groupId === null) {
+                    const i = ungroupedReplies.value.indexOf(item.reply);
+                    if (i > -1) ungroupedReplies.value.splice(i, 1);
+                } else {
+                    const sg = replyGroups.value.find(g => g.id === item.groupId);
+                    if (sg) { const i = sg.replies.indexOf(item.reply); if (i > -1) sg.replies.splice(i, 1); }
+                }
+                // 放入目标
+                if (target === null) {
+                    ungroupedReplies.value.push(item.reply);
+                } else if (target.id !== item.groupId) {
+                    target.replies.push(item.reply);
+                }
             });
             selectedReplies.value = [];
+            selectAll.value = false;
+            showMovePanel.value = false;
         };
+
+        const doMoveToNewGroup = () => {
+            const n = prompt('新分组名称');
+            if (!n?.trim()) return;
+            const g = { id: 'g_' + Date.now(), name: n.trim(), replies: [] };
+            replyGroups.value.push(g);
+            doMoveToGroup(g);
+        };
+
+        // ── 批量删除 ──────────────────────────────────────────────
         const deleteSelectedReplies = () => {
-            selectedReplies.value.forEach(r => {
-                const idx = currentGroup.value.replies.indexOf(r);
-                if(idx>-1) currentGroup.value.replies.splice(idx,1);
-            });
+            if (!selectedReplies.value.length) return;
+            selectedReplies.value.forEach(item => removeReply(item));
             selectedReplies.value = [];
+            selectAll.value = false;
         };
+
+        // ── 全选 ──────────────────────────────────────────────────
         const toggleSelectAll = () => {
-            if(selectAll.value) selectedReplies.value = [];
-            else selectedReplies.value = [...filteredReplies.value];
-            selectAll.value = !selectAll.value;
+            if (selectAll.value) {
+                selectedReplies.value = []; selectAll.value = false;
+            } else {
+                const all = [];
+                if (searchQuery.value) {
+                    all.push(...filteredReplies.value);
+                } else {
+                    ungroupedReplies.value.forEach(r => all.push({ reply: r, groupId: null, groupName: '' }));
+                    replyGroups.value.forEach(g => g.replies.forEach(r => all.push({ reply: r, groupId: g.id, groupName: g.name })));
+                }
+                selectedReplies.value = all;
+                selectAll.value = true;
+            }
         };
-        const deduplicateCurrentGroup = () => {
+
+        // ── 全库去重 ───────────────────────────────────────────────
+        const deduplicateAll = () => {
             const seen = new Set();
-            currentGroup.value.replies = currentGroup.value.replies.filter(r => {
-                if(seen.has(r.text)) return false;
+            let removed = 0;
+            // 未分组先处理（优先保留）
+            const before0 = ungroupedReplies.value.length;
+            ungroupedReplies.value = ungroupedReplies.value.filter(r => {
+                if (seen.has(r.text)) return false;
                 seen.add(r.text); return true;
             });
+            removed += before0 - ungroupedReplies.value.length;
+            // 各分组
+            replyGroups.value.forEach(g => {
+                const b = g.replies.length;
+                g.replies = g.replies.filter(r => { if (seen.has(r.text)) return false; seen.add(r.text); return true; });
+                removed += b - g.replies.length;
+            });
+            alert(removed > 0 ? `✅ 去重完成，删除 ${removed} 条重复语料。` : '✅ 全库无重复语料。');
         };
+
         const confirmBatchAdd = () => {
-            if(!batchInputText.value.trim()) return;
-            const lines = batchInputText.value.split('\n').map(l=>l.trim()).filter(l=>l);
-            lines.forEach(line => currentGroup.value.replies.push({ text: line }));
+            if (!batchInputText.value.trim()) return;
+            batchInputText.value.split('\n').map(l => l.trim()).filter(l => l)
+                .forEach(line => ungroupedReplies.value.push({ text: line }));
             batchInputText.value = '';
             modals.batchInput = false;
         };
@@ -3422,6 +3835,85 @@ createApp({
             settings.bgImage = url;
         };
 
+        // ===== 分类导出 / 导入 =====
+        const doSelectiveExport = () => {
+            const items = selectiveItems;
+            if (!items.messages && !items.corpus && !items.stickers && !items.notes) return;
+            const data = {
+                _version: 'lorstar41_selective_v1',
+                _exportedAt: new Date().toISOString(),
+                _includes: { ...items }
+            };
+            if (items.messages) data.messages = JSON.parse(JSON.stringify(messages.value));
+            if (items.corpus) {
+                data.ungroupedReplies = JSON.parse(JSON.stringify(ungroupedReplies.value));
+                data.replyGroups = JSON.parse(JSON.stringify(replyGroups.value));
+                data.emojiPoolText = emojiPoolText.value;
+            }
+            if (items.stickers) data.stickerGroups = JSON.parse(JSON.stringify(stickerGroups.value));
+            if (items.notes) {
+                data.notes = JSON.parse(JSON.stringify(notes.value));
+                data.letterHistory = JSON.parse(JSON.stringify(letterHistory.value));
+            }
+            const parts = [
+                items.messages && '聊天',
+                items.corpus && '语料',
+                items.stickers && '表情',
+                items.notes && '日记'
+            ].filter(Boolean).join('_');
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `静语星降_${parts}_${new Date().toLocaleDateString('zh-CN').replace(/\//g,'-')}.json`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            modals.selectiveExport = false;
+        };
+
+        const doSelectiveImport = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    const inc = data._includes || {};
+                    // 根据文件里实际有什么来决定导入什么，同时尊重用户勾选
+                    const shouldImport = {
+                        messages: selectiveItems.messages && !!data.messages,
+                        corpus: selectiveItems.corpus && (!!data.ungroupedReplies || !!data.replyGroups),
+                        stickers: selectiveItems.stickers && !!data.stickerGroups,
+                        notes: selectiveItems.notes && (!!data.notes || !!data.letterHistory)
+                    };
+                    const importList = Object.entries(shouldImport).filter(([,v])=>v).map(([k])=>({
+                        messages:'聊天记录', corpus:'语料库', stickers:'表情包', notes:'日记'
+                    }[k])).join('、');
+                    if (!importList) { alert('所选文件中没有可导入的数据，请检查勾选项。'); e.target.value=''; return; }
+                    if (!confirm(`确认导入：${importList}？\n此操作将覆盖对应数据，无法撤销。`)) { e.target.value=''; return; }
+
+                    if (shouldImport.messages) messages.value = data.messages;
+                    if (shouldImport.corpus) {
+                        if (data.ungroupedReplies) ungroupedReplies.value = data.ungroupedReplies;
+                        if (data.replyGroups) replyGroups.value = data.replyGroups;
+                        if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
+                        // 兼容旧全量备份格式
+                        const oldUG = replyGroups.value.find(g=>g.id==='__ungroup__');
+                        if (oldUG) { ungroupedReplies.value.push(...oldUG.replies); replyGroups.value = replyGroups.value.filter(g=>g.id!=='__ungroup__'); }
+                    }
+                    if (shouldImport.stickers) stickerGroups.value = data.stickerGroups;
+                    if (shouldImport.notes) {
+                        if (data.notes) notes.value = data.notes;
+                        if (data.letterHistory) letterHistory.value = data.letterHistory;
+                    }
+                    modals.selectiveExport = false;
+                    alert(`✅ 导入成功！已恢复：${importList}`);
+                } catch(err) {
+                    alert('❌ 文件解析失败，请确认是正确的备份文件。');
+                }
+                e.target.value = '';
+            };
+            reader.readAsText(file);
+        };
+
         // ===== 全局导出 / 导入 =====
         const globalExport = () => {
             const data = {
@@ -3430,6 +3922,7 @@ createApp({
                 messages: JSON.parse(JSON.stringify(messages.value)),
                 profiles: JSON.parse(JSON.stringify(profiles)),
                 settings: JSON.parse(JSON.stringify(settings)),
+                ungroupedReplies: JSON.parse(JSON.stringify(ungroupedReplies.value)),
                 replyGroups: JSON.parse(JSON.stringify(replyGroups.value)),
                 stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
                 letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
@@ -3457,6 +3950,7 @@ createApp({
                     if (data.messages) messages.value = data.messages;
                     if (data.profiles) Object.assign(profiles, data.profiles);
                     if (data.settings) Object.assign(settings, data.settings);
+                    if (data.ungroupedReplies) ungroupedReplies.value = data.ungroupedReplies;
                     if (data.replyGroups) replyGroups.value = data.replyGroups;
                     if (data.stickerGroups) stickerGroups.value = data.stickerGroups;
                     if (data.letterHistory) letterHistory.value = data.letterHistory;
@@ -3554,13 +4048,19 @@ createApp({
                 if(data.messages) messages.value = data.messages;
                 if(data.profiles) Object.assign(profiles, data.profiles);
                 if(data.settings) Object.assign(settings, data.settings);
+                if(data.ungroupedReplies) ungroupedReplies.value = data.ungroupedReplies;
                 if(data.replyGroups) replyGroups.value = data.replyGroups;
                 if(data.stickerGroups) stickerGroups.value = data.stickerGroups;
                 if(data.letterHistory) letterHistory.value = data.letterHistory;
                 if(data.pendingLetter) pendingLetter.value = data.pendingLetter;
                 if(data.notes) notes.value = data.notes;
                 if(data.emojiPoolText) emojiPoolText.value = data.emojiPoolText;
-
+                // 兼容旧版：如果存了 __ungroup__ 分组，迁移到 ungroupedReplies
+                const oldUngroup = replyGroups.value.find(g => g.id === '__ungroup__');
+                if (oldUngroup) {
+                    ungroupedReplies.value.push(...oldUngroup.replies);
+                    replyGroups.value = replyGroups.value.filter(g => g.id !== '__ungroup__');
+                }
             }
             applyFontSettings(); toggleTheme(); applyCSS();
             setTimeout(()=>{
@@ -3587,15 +4087,18 @@ createApp({
         return {
             showSplash, chatList, imgInput, globalImportInput, messages, inputText, isTyping, previewImg,
             profiles, settings, modals,
-            replyGroups, currentGroupId, searchQuery, newReplyText, filteredReplies,
+            selectiveExportMode, selectiveItems, expandedNotes, doSelectiveExport, doSelectiveImport,
+            ungroupedReplies, replyGroups, userGroups, corpusEditing,
+            collapsedGroups, toggleCollapse, searchQuery, newReplyText, filteredReplies,
+            showMovePanel,
             stickerGroups, currentStickerGroupId, currentStickerGroup,
             letterHistory, letterContent, pendingLetter,
-            notes, newNoteText, addNote, deleteNote, emojiPoolText,
+            notes, newNoteText, addNote, deleteNote, emojiPoolText, expandedNotes,
             calendarDate, calendarDays, currentMonthYearText, prevMonth, nextMonth,
             selectedDateObj, selectDate, isSelectedDate, filteredNotes, selectedDateText,
             notebookInputExpanded,
-            selectedReplies, selectAll, toggleSelectAll, moveSelectedToGroup,
-            deleteSelectedReplies, deduplicateCurrentGroup, batchInputText, confirmBatchAdd,
+            selectedReplies, selectAll, toggleSelectAll, toggleSelectItem, doMoveToGroup, doMoveToNewGroup,
+            deleteSelectedReplies, deduplicateAll, batchInputText, confirmBatchAdd,
             sendMsg, triggerImageUpload, onImageUpload,
             batchImportStickers, sendSticker, deleteSticker, addStickerGroup,
             addGroup, addReply, removeReply, renameGroup, deleteGroup,
