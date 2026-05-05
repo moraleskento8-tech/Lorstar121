@@ -1980,10 +1980,32 @@
 
               <!-- ── 底部输入栏 ─────────────────────────────────────── -->
               <div v-if="!selectedReplies.length"
-                   class="px-3 py-3 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 shrink-0">
-                <div class="flex gap-2">
+                   class="bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 shrink-0">
+                <!-- 分组选择器 chip 行 -->
+                <div class="px-3 pt-2.5 pb-1 flex gap-1.5 overflow-x-auto"
+                     style="-ms-overflow-style:none;scrollbar-width:none;">
+                  <!-- 无分组 chip -->
+                  <button @click="newReplyGroupId=null"
+                          class="shrink-0 text-[11px] font-bold px-3 py-1 rounded-full border transition"
+                          :class="newReplyGroupId===null
+                            ? 'bg-accent text-white border-transparent'
+                            : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-muted'">
+                    无分组
+                  </button>
+                  <!-- 各分组 chip -->
+                  <button v-for="g in replyGroups" :key="g.id"
+                          @click="newReplyGroupId=g.id"
+                          class="shrink-0 text-[11px] font-bold px-3 py-1 rounded-full border transition whitespace-nowrap"
+                          :class="newReplyGroupId===g.id
+                            ? 'bg-accent text-white border-transparent'
+                            : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-muted'">
+                    {{ g.name }}
+                  </button>
+                </div>
+                <!-- 输入行 -->
+                <div class="flex gap-2 px-3 pb-3 pt-1">
                   <input v-model="newReplyText" @keydown.enter="addReply"
-                         placeholder="添加语料（默认无分组）…"
+                         :placeholder="newReplyGroupId ? `添加到「${replyGroups.find(g=>g.id===newReplyGroupId)?.name}」…` : '添加语料（无分组）…'"
                          class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full px-4 py-2.5 text-[13px] outline-none focus:border-accent transition">
                   <button @click="addReply" :disabled="!newReplyText.trim()"
                           class="bg-accent text-white px-5 rounded-full text-[13px] font-bold disabled:opacity-40 shrink-0">添加</button>
@@ -2099,14 +2121,54 @@
 
         <!-- ===== 批量导入 Modal ===== -->
         <transition name="fade">
-            <div v-if="modals.batchInput" class="fixed inset-0 bg-slate-900/30 backdrop-blur-md z-[110] flex items-center justify-center p-6" @click.self="modals.batchInput = false">
-                <div class="bg-white/95 w-full max-w-sm rounded-[2.5rem] p-6 backdrop-blur-xl border border-white/70 shadow-2xl flex flex-col">
-                    <h3 class="text-lg font-bold mb-2 text-slate-700">📥 批量导入语料</h3>
-                    <p class="text-xs text-muted mb-4">每行将作为一句独立的语料导入当前分组。</p>
-                    <textarea v-model="batchInputText" rows="8" placeholder="在这里粘贴文本...&#10;第一句&#10;第二句" class="w-full bg-white/70 border border-white/70 rounded-2xl p-4 text-sm outline-none focus:ring-1 focus:ring-accent shadow-inner resize-none"></textarea>
-                    <div class="flex gap-3 mt-5">
-                        <button @click="modals.batchInput = false" class="flex-1 py-3 bg-white border border-white/70 rounded-2xl font-medium shadow-sm">取消</button>
-                        <button @click="confirmBatchAdd" class="flex-1 py-3 bg-accent text-white rounded-2xl font-medium shadow-md">确认导入</button>
+            <div v-if="modals.batchInput" class="fixed inset-0 bg-slate-900/30 backdrop-blur-md z-[110] flex items-end sm:items-center justify-center" @click.self="modals.batchInput = false">
+                <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-t-[2rem] sm:rounded-[2rem] p-5 border border-slate-200/60 dark:border-slate-700/60 shadow-2xl flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-[16px] font-bold text-slate-700 dark:text-white">📥 批量导入语料</h3>
+                            <p class="text-[10.5px] text-muted mt-0.5">每行作为一条独立语料</p>
+                        </div>
+                        <button @click="modals.batchInput=false" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+                            <i data-lucide="x" style="width:14px;height:14px;" class="text-slate-500"></i>
+                        </button>
+                    </div>
+
+                    <!-- 分组选择 -->
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-2">导入到：</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button @click="newReplyGroupId=null"
+                                    class="text-[11.5px] font-bold px-3 py-1.5 rounded-full border transition"
+                                    :class="newReplyGroupId===null
+                                      ? 'bg-accent text-white border-transparent'
+                                      : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-muted'">
+                                无分组
+                            </button>
+                            <button v-for="g in replyGroups" :key="g.id"
+                                    @click="newReplyGroupId=g.id"
+                                    class="text-[11.5px] font-bold px-3 py-1.5 rounded-full border transition"
+                                    :class="newReplyGroupId===g.id
+                                      ? 'bg-accent text-white border-transparent'
+                                      : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-muted'">
+                                {{ g.name }}
+                                <span class="opacity-50 font-normal text-[10px] ml-0.5">{{ g.replies.length }}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 文本区域 -->
+                    <textarea v-model="batchInputText" rows="7"
+                              :placeholder="`每行一条语料，将导入到「${newReplyGroupId ? (replyGroups.find(g=>g.id===newReplyGroupId)?.name||'') : '无分组'}」\n\n例：\n今天天气真好\n我在听\n嗯嗯`"
+                              class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-sm outline-none focus:border-accent resize-none leading-relaxed"></textarea>
+
+                    <div class="flex gap-3">
+                        <button @click="modals.batchInput=false"
+                                class="flex-1 py-3 bg-slate-100 dark:bg-slate-700 rounded-2xl font-bold text-slate-600 dark:text-slate-300">取消</button>
+                        <button @click="confirmBatchAdd"
+                                :disabled="!batchInputText.trim()"
+                                class="flex-1 py-3 bg-accent text-white rounded-2xl font-bold shadow-md disabled:opacity-40">
+                            导入 {{ batchInputText.trim() ? batchInputText.trim().split('\n').filter(l=>l.trim()).length : 0 }} 条
+                        </button>
                     </div>
                 </div>
             </div>
@@ -3690,9 +3752,18 @@ createApp({
 
         // ── 词句增删 ──────────────────────────────────────────────
         // addReply：永远添加到无分组区域（ungroupedReplies），不进任何分组
+        const newReplyGroupId = ref(null); // null = 无分组，string = 分组 id
+
         const addReply = () => {
             if (!newReplyText.value.trim()) return;
-            ungroupedReplies.value.push({ text: newReplyText.value.trim() });
+            const gid = newReplyGroupId.value;
+            if (gid) {
+                const g = replyGroups.value.find(g => g.id === gid);
+                if (g) { g.replies.push({ text: newReplyText.value.trim() }); }
+                else { ungroupedReplies.value.push({ text: newReplyText.value.trim() }); }
+            } else {
+                ungroupedReplies.value.push({ text: newReplyText.value.trim() });
+            }
             newReplyText.value = '';
         };
 
@@ -3788,8 +3859,13 @@ createApp({
 
         const confirmBatchAdd = () => {
             if (!batchInputText.value.trim()) return;
-            batchInputText.value.split('\n').map(l => l.trim()).filter(l => l)
-                .forEach(line => ungroupedReplies.value.push({ text: line }));
+            const lines = batchInputText.value.split('\n').map(l => l.trim()).filter(l => l);
+            const gid = newReplyGroupId.value;
+            const targetGroup = gid ? replyGroups.value.find(g => g.id === gid) : null;
+            lines.forEach(line => {
+                if (targetGroup) targetGroup.replies.push({ text: line });
+                else ungroupedReplies.value.push({ text: line });
+            });
             batchInputText.value = '';
             modals.batchInput = false;
         };
@@ -4089,7 +4165,7 @@ createApp({
             profiles, settings, modals,
             selectiveExportMode, selectiveItems, expandedNotes, doSelectiveExport, doSelectiveImport,
             ungroupedReplies, replyGroups, userGroups, corpusEditing,
-            collapsedGroups, toggleCollapse, searchQuery, newReplyText, filteredReplies,
+            collapsedGroups, toggleCollapse, searchQuery, newReplyText, newReplyGroupId, filteredReplies,
             showMovePanel,
             stickerGroups, currentStickerGroupId, currentStickerGroup,
             letterHistory, letterContent, pendingLetter,
