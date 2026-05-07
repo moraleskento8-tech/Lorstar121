@@ -2549,160 +2549,93 @@
 </div>
 
 <script>
-// ===== Service Worker 初始化 =====
-// 【重要】不再单独注册 /sw.js。
-// OneSignal SDK 会自动注册 OneSignalSDK.sw.js（已是合并版，包含所有保活逻辑）。
-// 如果再注册 /sw.js，两个 SW 抢同一个 scope，ping 消息发给谁是随机的，保活链断裂。
-// 这里只做：等待 SW ready → 缓存 reg → 启动 ping → 注册 Background Sync。
+// ═══════════════════════════════════════════════════
+//  保活：三层简洁架构
+//  1. Web Worker 定时器 → ping SW（不受页面节流影响）
+//  2. visibilitychange → 切后台时通知 SW
+//  3. Wake Lock + 无声音频 → 阻止系统休眠
+// ═══════════════════════════════════════════════════
 
-// SW 就绪后的初始化函数（可以被 controllerchange 重复调用）
-function initSWChannel(reg) {
-    window.__swReg = reg;
-    console.log('[SW] ✅ controller 就绪，版本:', reg.active?.scriptURL?.split('/').pop());
-
-    // ── SW Ping 保活 ────────────────────────────────────────
-    // 每 18 秒 ping 一次（稍短于浏览器 ~30s 的 SW 空闲超时）
-    // SW 在 message handler 里调用 event.waitUntil() → 延长自身生命周期
-    if (window.__pingInterval) clearInterval(window.__pingInterval);
-    window.__pingInterval = setInterval(() => {
-        const ctrl = navigator.serviceWorker.controller;
-        if (ctrl) {
-            ctrl.postMessage({ type: 'ping', ts: Date.now() });
-        }
-    }, 18000);
-
-    // ── Background Sync ──────────────────────────────────────
-    // 浏览器支持时，SW 可以在有网络时自动唤醒（即使标签页已被挂起）
-    if ('sync' in reg) {
-        reg.sync.register('keep-alive').catch(() => {});
-    }
-}
-
+// ── 层1：SW 通道 ────────────────────────────────────
 if ('serviceWorker' in navigator) {
-    // 等 SW 完全就绪（已 activate + clients.claim 完成）
-    navigator.serviceWorker.ready
-        .then(reg => initSWChannel(reg))
-        .catch(() => console.warn('[SW] ready 超时，降级到无 SW 通知模式'));
+    const startPing = () => {
+        if (window.__swPingStarted) return;
+        window.__swPingStarted = true;
+        // 用 Web Worker 的 safeSetInterval，后台也稳定触发
+        window.__swPingId = safeSetInterval(() => {
+            const ctrl = navigator.serviceWorker.controller;
+            if (ctrl) {
+                ctrl.postMessage({ type: 'ping', ts: Date.now() });
+            } else {
+                window.__swPingStarted = false;
+                safeClearInterval(window.__swPingId);
+            }
+        }, 15000);
+    };
 
-    // ── 监听 SW 控制权变更 ───────────────────────────────────
-    // 当 SW 被浏览器杀死后重启，或新版本 SW 激活时，controller 会变化。
-    // 这里重新初始化 ping 通道，确保保活链不断。
+    navigator.serviceWorker.ready.then(reg => {
+        window.__swReg = reg;
+        startPing();
+        reg.sync?.register('keep-alive').catch(() => {});
+    }).catch(() => {});
+
+    // SW 重启或更新时重建 ping 通道
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log('[SW] controller 更新，重建 ping 通道');
-        navigator.serviceWorker.ready.then(reg => initSWChannel(reg)).catch(() => {});
+        window.__swPingStarted = false;
+        if (window.__swPingId) safeClearInterval(window.__swPingId);
+        navigator.serviceWorker.ready.then(reg => {
+            window.__swReg = reg; startPing();
+        }).catch(() => {});
     });
 
-    // ── 监听来自 SW 的消息 ───────────────────────────────────
-    navigator.serviceWorker.addEventListener('message', (e) => {
+    // 接收 SW 消息
+    navigator.serviceWorker.addEventListener('message', e => {
         if (!e.data) return;
-        if (e.data.type === 'pong') {
-            // SW 回复 pong，记录最后一次心跳时间，供调试用
-            window.__lastSwPong = e.data.ts;
-        }
-        if (e.data.type === 'trigger-reply' && window.__app_triggerAutoReply) {
-            // SW Background Sync 触发：让角色发一条消息
-            window.__app_triggerAutoReply();
-        }
+        if (e.data.type === 'pong') window.__lastPong = Date.now();
+        if (e.data.type === 'trigger-reply') window.__app_triggerAutoReply?.();
     });
 }
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║          后台保活系统 v4 · 精简合并版                       ║
-// ╚══════════════════════════════════════════════════════════════╝
-
-// ── Wake Lock：阻止操作系统休眠 ─────────────────────────────────
-// Chrome/Edge/Android 支持，iOS Safari 不支持会静默跳过。
-// 使用 'screen' 类型而非 'system'，兼容性最好。
-let wakeLock = null;
-const requestWakeLock = async () => {
-    if (!('wakeLock' in navigator)) return;
-    try {
-        // 如果已经有锁且没有被释放，不重复申请
-        if (wakeLock && wakeLock.released === false) return;
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => { wakeLock = null; });
-    } catch(e) {}
-};
-requestWakeLock();
-
-// ── 无声 AudioContext 保活 ───────────────────────────────────────
-// 保持一路极低音量（0.001，非零）的循环音频流。
-// 理由：浏览器对"有音频活动"的标签页施加的节流比静默标签页宽松得多。
-// 移动端必须等用户手势后才能激活 AudioContext（浏览器自动播放策略限制）。
-(function startSilentAudio() {
-    let started = false;
-    const start = () => {
-        if (started) {
-            if (window.__silentAudioCtx?.state === 'suspended') {
-                window.__silentAudioCtx.resume().catch(() => {});
-            }
-            return;
-        }
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 22050 });
-            window.__silentAudioCtx = ctx;
-            const buf = ctx.createBuffer(1, 1, 22050);
-            const src = ctx.createBufferSource();
-            src.buffer = buf; src.loop = true;
-            const gain = ctx.createGain(); gain.gain.value = 0.001;
-            src.connect(gain); gain.connect(ctx.destination); src.start(0);
-            started = true;
-        } catch(e) {}
-    };
-    // 覆盖所有可能的用户交互事件（click 适合桌面，touch* 适合移动端）
-    ['click','touchstart','touchend','pointerdown'].forEach(t =>
-        document.addEventListener(t, start, { passive: true })
-    );
-    start(); // 桌面端大多数情况下可以直接成功
-})();
-
-// ── 统一的 visibilitychange 处理器 ──────────────────────────────
-// 之前代码里有两个 visibilitychange 监听器分散在不同位置，
-// 合并到这一处，逻辑更清晰，不会出现竞争问题。
+// ── 层2：切后台通知 SW + 回前台恢复音频 ────────────
 document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-        // 页面回到前台：恢复 Wake Lock（可能被系统释放了）
-        requestWakeLock();
-        // 恢复 AudioContext（后台时可能被暂停）
-        if (window.__silentAudioCtx?.state === 'suspended') {
-            window.__silentAudioCtx.resume().catch(() => {});
-        }
+    const ctrl = navigator.serviceWorker?.controller;
+    if (document.visibilityState === 'hidden') {
+        ctrl?.postMessage({ type: 'page-hidden', ts: Date.now() });
     } else {
-        // 页面切到后台：通知 SW 接管，触发 Background Sync 注册
-        try {
-            const ctrl = navigator.serviceWorker?.controller;
-            if (ctrl) ctrl.postMessage({ type: 'page-hidden', ts: Date.now() });
-        } catch(e) {}
+        if (window.__silentAudioCtx?.state === 'suspended')
+            window.__silentAudioCtx.resume().catch(() => {});
     }
 });
 
-// ── fetch 保活 Ping ──────────────────────────────────────────────
-// 每 25 秒发一个 HEAD 请求，目的是让 SW 的 fetch handler 持续被触发，
-// 让浏览器认为这个 SW "还在处理事情"，从而推迟休眠。
-setInterval(() => {
-    fetch('/favicon.ico?_ka=' + Date.now(), {
-        method: 'HEAD', cache: 'no-store', keepalive: true
-    }).catch(() => {});
-}, 25000);
+// ── 层3：Wake Lock + 无声音频 ───────────────────────
+(function() {
+    // Wake Lock
+    const lock = async () => {
+        if (!('wakeLock' in navigator) || window.__wl?.released === false) return;
+        try { window.__wl = await navigator.wakeLock.request('screen'); } catch(e) {}
+    };
+    lock();
+    document.addEventListener('visibilitychange',
+        () => document.visibilityState === 'visible' && lock());
 
-// ── Watchdog：主线程节流检测 ────────────────────────────────────
-// 当浏览器对标签页施加节流时，setInterval 的实际触发间隔会远超预设值。
-// 检测到漂移 > 2 倍时，认为已经被节流，立刻补申请 Wake Lock 并唤醒 SW。
-(function watchdogTimer() {
-    let lastTick = Date.now();
-    const EXPECTED = 5000;
-    setInterval(() => {
-        const now = Date.now();
-        const drift = now - lastTick;
-        lastTick = now;
-        if (drift > EXPECTED * 2) {
-            requestWakeLock();
-            try {
-                const ctrl = navigator.serviceWorker?.controller;
-                if (ctrl) ctrl.postMessage({ type: 'wakeup', drift });
-            } catch(e) {}
-        }
-    }, EXPECTED);
+    // 无声音频（首次用户交互后激活）
+    let audioOk = false;
+    const startAudio = () => {
+        if (audioOk) return;
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            window.__silentAudioCtx = ctx;
+            const src = ctx.createBufferSource();
+            src.buffer = ctx.createBuffer(1, 1, 22050);
+            src.loop = true;
+            const g = ctx.createGain(); g.gain.value = 0.001;
+            src.connect(g); g.connect(ctx.destination); src.start();
+            audioOk = true;
+        } catch(e) {}
+    };
+    ['click','touchstart','pointerdown'].forEach(t =>
+        document.addEventListener(t, startAudio, { passive: true })
+    );
 })();
 
 // ========= Web Worker 后台定时器（标签页切换时定时器不暂停）=========
