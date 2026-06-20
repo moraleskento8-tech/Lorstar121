@@ -1649,6 +1649,12 @@
                                     <div>
                                         <span class="text-sm block text-slate-600 dark:text-slate-300">📲 后台消息推送</span>
                                         <span class="text-[10px] text-muted">切换标签页时收到通知</span>
+                                        <!-- 通知权限状态提示 -->
+                                        <span v-if="notifPermStatus==='granted'" class="text-[10px] text-green-500 font-bold block mt-0.5">✅ 已授权</span>
+                                        <span v-else-if="notifPermStatus==='denied'" class="text-[10px] text-red-400 font-bold block mt-0.5">❌ 已拒绝 — 请在浏览器设置中手动开启</span>
+                                        <span v-else class="text-[10px] text-amber-500 font-bold block mt-0.5">⚠️ 未授权 — 点右侧开关申请</span>
+                                        <!-- iOS 提示 -->
+                                        <span v-if="isIOS && !isInstalledPWA" class="text-[10px] text-blue-400 block mt-0.5">📱 iOS：请点击 Safari 分享按钮 → 添加到主屏幕，再从主屏打开以启用通知</span>
                                     </div>
                                     <input type="checkbox" v-model="settings.pushNotify" class="reply-checkbox" @change="initNotification">
                                 </div>
@@ -2561,31 +2567,37 @@ if ('serviceWorker' in navigator) {
     const startPing = () => {
         if (window.__swPingStarted) return;
         window.__swPingStarted = true;
-        // 用 Web Worker 的 safeSetInterval，后台也稳定触发
         window.__swPingId = safeSetInterval(() => {
             const ctrl = navigator.serviceWorker.controller;
             if (ctrl) {
                 ctrl.postMessage({ type: 'ping', ts: Date.now() });
             } else {
+                // controller 丢失（SW 重启中），暂停等 controllerchange 重建
                 window.__swPingStarted = false;
                 safeClearInterval(window.__swPingId);
             }
         }, 15000);
     };
 
-    navigator.serviceWorker.ready.then(reg => {
+    const onSWReady = (reg) => {
         window.__swReg = reg;
         startPing();
         reg.sync?.register('keep-alive').catch(() => {});
-    }).catch(() => {});
+    };
+
+    navigator.serviceWorker.ready.then(onSWReady).catch(() => {});
+
+    // reload 场景：controller 可能已经存在，直接启动 ping 不等 ready
+    if (navigator.serviceWorker.controller) {
+        // 用 setTimeout 0 确保 safeSetInterval 已定义
+        setTimeout(() => startPing(), 0);
+    }
 
     // SW 重启或更新时重建 ping 通道
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.__swPingStarted = false;
         if (window.__swPingId) safeClearInterval(window.__swPingId);
-        navigator.serviceWorker.ready.then(reg => {
-            window.__swReg = reg; startPing();
-        }).catch(() => {});
+        navigator.serviceWorker.ready.then(onSWReady).catch(() => {});
     });
 
     // 接收 SW 消息
@@ -3050,76 +3062,89 @@ createApp({
 
         // ===== 消息通知（后台推送）=====
 
-        // initNotification：申请通知权限
-        // 优先走 OneSignal（能收到服务端推送），若 OneSignal 未就绪则降级到浏览器原生权限请求
+        // 通知权限状态（响应式，供设置页面实时显示）
+        const notifPermStatus = ref(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
+        // iOS 检测
+        const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+        // 是否已安装为 PWA（iOS 需要这个才能收到通知）
+        const isInstalledPWA = window.matchMedia('(display-mode: standalone)').matches
+            || window.navigator.standalone === true;
+
         const initNotification = async () => {
             if (!('Notification' in window)) return;
+            if (Notification.permission === 'denied') {
+                notifPermStatus.value = 'denied';
+                return;
+            }
 
+            // 路径一：OneSignal 就绪 → 用它订阅（支持服务端推送）
             if (window.__oneSignalReady) {
-                // ✅ 路径一：OneSignal 已加载 → 用它来申请订阅
-                // 好处：用户订阅后，你可以从 OneSignal 控制台或 REST API 推送通知
-                //       即使页面完全关闭，用户也能收到通知
                 try {
                     const granted = await window.OneSignal.Notifications.requestPermission();
+                    notifPermStatus.value = Notification.permission;
                     if (granted) {
-                        await window.OneSignal.User.PushSubscription.optIn();
+                        await window.OneSignal.User.PushSubscription.optIn().catch(() => {});
                         console.log('[通知] ✅ OneSignal 订阅成功');
+                        return;
                     }
-                    return; // OneSignal 处理成功，不需要降级
+                    return;
                 } catch(e) {
-                    console.warn('[通知] OneSignal 订阅失败，降级到原生通知模式', e);
+                    console.warn('[通知] OneSignal 失败，降级到原生', e);
                 }
             }
 
-            // ✅ 路径二：降级 → 使用浏览器原生通知权限
+            // 路径二：降级 → 原生浏览器权限请求
             if (Notification.permission === 'default') {
-                Notification.requestPermission();
+                try {
+                    const result = await Notification.requestPermission();
+                    notifPermStatus.value = result;
+                    console.log('[通知] 原生权限结果:', result);
+                } catch(e) {}
+            } else {
+                notifPermStatus.value = Notification.permission;
             }
         };
 
-        // showNotification：实际弹出通知
-        // 【v4 修复】之前直接在页面主线程调 reg.showNotification()，
-        // 当页面被后台节流时这个 async 调用可能执行得太慢，导致通知丢失。
-        // 现在改为：页面 → postMessage → SW → event.waitUntil(showNotification())
-        // 这样通知是从 SW 的 message handler 里发出的，完全不受页面节流影响。
+        // showNotification：弹出系统通知
+        // 三路径容错：ctrl.postMessage → reg.showNotification → native Notification
         const showNotification = async (title, body) => {
             if (!settings.pushNotify) return;
             if (!('Notification' in window)) return;
-            // 页面在前台时不弹系统通知（用户正在看，不需要打扰）
-            if (document.visibilityState === 'visible') return;
+            if (document.visibilityState === 'visible') return; // 用户正在看，不打扰
             if (Notification.permission !== 'granted') {
                 if (Notification.permission !== 'denied') initNotification();
                 return;
             }
 
-            const icon = profiles.them.avatar || '/icon-192.png'; // 保证 icon 不为空
-            // 过滤 body 中的 URL，通知弹窗里不显示具体网址
+            const icon = profiles.them.avatar || '/icon-192.png';
             const safeBody = (body || '').replace(/https?:\/\/[^\s]+/g, '[链接]').substring(0, 80);
+            const tag = 'chat-msg-' + Date.now();
+            const opts = {
+                body: safeBody, icon, badge: '/icon-192.png',
+                tag, renotify: true, silent: false,
+                data: { type: 'chat' }
+            };
 
-            // ✅ 最可靠路径：通过 postMessage 让 SW 在自己的 waitUntil 里发通知
+            // ── 路径1：通过 ctrl.postMessage 让 SW 在 waitUntil 里发（最可靠）──
             const ctrl = navigator.serviceWorker?.controller;
             if (ctrl) {
-                ctrl.postMessage({
-                    type: 'show-notification',
-                    title,
-                    body: safeBody,
-                    icon,
-                    tag: 'chat-msg-' + Date.now()
-                });
+                ctrl.postMessage({ type: 'show-notification', title, ...opts });
                 return;
             }
 
-            // 降级路径：SW 不可用时直接用原生 Notification API
-            // （页面在前台时浏览器可能静默丢弃，但此时 SW 也没有，只能尽力而为）
+            // ── 路径2：ctrl 为 null，但 reg 存在 → 直接用 reg.showNotification() ──
+            // 场景：SW 刚重启 / 首次加载时 clients.claim() 还未完成
+            const reg = window.__swReg
+                ?? await navigator.serviceWorker?.ready.catch(() => null);
+            if (reg) {
+                try { await reg.showNotification(title, opts); return; } catch(e) {}
+            }
+
+            // ── 路径3：降级 → 原生 Notification API ──────────────────────────
             try {
-                const n = new Notification(title, {
-                    body: safeBody,
-                    icon,
-                    tag: 'chat-fallback-' + Date.now(),
-                    silent: false
-                });
+                const n = new Notification(title, opts);
                 n.onclick = () => { window.focus(); n.close(); };
-                setTimeout(() => n.close(), 6000);
+                setTimeout(() => n.close(), 8000);
             } catch(e) {}
         };
 
@@ -4096,6 +4121,7 @@ createApp({
         return {
             showSplash, chatList, imgInput, globalImportInput, messages, inputText, isTyping, previewImg,
             profiles, settings, modals,
+            notifPermStatus, isIOS, isInstalledPWA, initNotification,
             selectiveExportMode, selectiveItems, expandedNotes, doSelectiveExport, doSelectiveImport,
             ungroupedReplies, replyGroups, userGroups, corpusEditing,
             collapsedGroups, toggleCollapse, searchQuery, newReplyText, newReplyGroupId, filteredReplies,
