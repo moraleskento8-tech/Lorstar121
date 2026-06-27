@@ -246,4 +246,51 @@ self.addEventListener('push', (event) => {
     );
 });
 
+self.addEventListener("sync",(event)=>{
+    if(event.tag==="sync-chat"){
+        event.waitUntil(syncMessages());
+    }
+});
+
+navigator.serviceWorker.ready.then(reg=>{
+    reg.sync.register("sync-chat");
+});
+
+self.addEventListener("push",(event)=>{
+    const data=event.data.json();
+    event.waitUntil(
+        self.registration.showNotification(
+            data.title,
+            {
+                body:data.body,
+                icon:"icon-192.png",
+                badge:"badge.png",
+                vibrate:[200,100,200],
+                tag:data.chatid,
+                renotify:true,
+                requireInteraction:true,
+                data:data
+            }
+        )
+    );
+});
+
+self.addEventListener("notificationclick",(event)=>{
+    event.notification.close();
+    event.waitUntil(
+        clients.openWindow("/")
+    );
+});
+
+navigator.serviceWorker.ready.then(async(reg)=>{
+    if(reg.periodicSync){
+        await reg.periodicSync.register(
+            "chat-refresh",
+            {
+                minInterval:15*60*1000
+            }
+        );
+    }
+});
+
 console.log(`[SW ${SW_VERSION}] 脚本加载完成`);

@@ -3054,23 +3054,56 @@ createApp({
         });
 
         // ===== 数据持久化 =====
-        const saveData = async () => {
-            if(showSplash.value) return;
-            await localforage.setItem('app_fusion_v6', {
-                messages: JSON.parse(JSON.stringify(messages.value)),
-                profiles: JSON.parse(JSON.stringify(profiles)),
-                settings: JSON.parse(JSON.stringify(settings)),
-                ungroupedReplies: JSON.parse(JSON.stringify(ungroupedReplies.value)),
-                replyGroups: JSON.parse(JSON.stringify(replyGroups.value)),
-                stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
-                letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
-                pendingLetter: pendingLetter.value,
-                notes: JSON.parse(JSON.stringify(notes.value)),
-                emojiPoolText: emojiPoolText.value
-            });
-        };
-        watch([messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, emojiPoolText], saveData, { deep: true });
+    const DB_KEY = 'app_fusion_v6';
+    const LS_KEY = 'app_fusion_v6_backup';
 
+    const buildSavePayload = () => ({
+        _version: 'lorstar41_backup_v2',
+        _savedAt: new Date().toISOString(),
+        messages: JSON.parse(JSON.stringify(messages.value)),
+        profiles: JSON.parse(JSON.stringify(profiles)),
+        settings: JSON.parse(JSON.stringify(settings)),
+        ungroupedReplies: JSON.parse(JSON.stringify(ungroupedReplies.value)),
+        replyGroups: JSON.parse(JSON.stringify(replyGroups.value)),
+        stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
+        letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
+        pendingLetter: pendingLetter.value,
+        notes: JSON.parse(JSON.stringify(notes.value)),
+        emojiPoolText: emojiPoolText.value
+});
+
+    const saveData = async (force = false) => {
+        if (!force && showSplash.value) return;
+
+        const data = buildSavePayload();
+
+    // 先写同步兜底，防止后台被杀时来不及完成异步写入
+    try {
+            localStorage.setItem(LS_KEY, JSON.stringify(data));
+    } catch (e) {
+            console.warn('localStorage 备份失败', e);
+    }
+
+    // 再写 IndexedDB / localforage
+        try {
+            await localforage.setItem(DB_KEY, data);
+        } catch (e) {
+                console.warn('localforage 保存失败', e);
+        }
+    };
+
+    watch(
+        [messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, emojiPoolText],
+        () => { saveData(); },
+        { deep: true }
+    );
+    const flushSave = () => { saveData(true); };
+
+    window.addEventListener('pagehide', flushSave);
+    window.addEventListener('beforeunload', flushSave);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') flushSave();
+    });
         watch(() => settings.bgImage, (newBg) => {
             if (newBg) {
                 document.body.style.backgroundImage = `url(${newBg})`;
@@ -4120,46 +4153,66 @@ createApp({
                 Notification.requestPermission();
             }
         });
-        onMounted(async () => {
-            const data = await localforage.getItem('app_fusion_v6');
-            if(data) {
-                if(data.messages) messages.value = data.messages;
-                if(data.profiles) Object.assign(profiles, data.profiles);
-                if(data.settings) Object.assign(settings, data.settings);
-                if(data.ungroupedReplies) ungroupedReplies.value = data.ungroupedReplies;
-                if(data.replyGroups) replyGroups.value = data.replyGroups;
-                if(data.stickerGroups) stickerGroups.value = data.stickerGroups;
-                if(data.letterHistory) letterHistory.value = data.letterHistory;
-                if(data.pendingLetter) pendingLetter.value = data.pendingLetter;
-                if(data.notes) notes.value = data.notes;
-                if(data.emojiPoolText) emojiPoolText.value = data.emojiPoolText;
-                // 兼容旧版：如果存了 __ungroup__ 分组，迁移到 ungroupedReplies
-                const oldUngroup = replyGroups.value.find(g => g.id === '__ungroup__');
-                if (oldUngroup) {
-                    ungroupedReplies.value.push(...oldUngroup.replies);
-                    replyGroups.value = replyGroups.value.filter(g => g.id !== '__ungroup__');
-                }
-            }
-            applyFontSettings(); toggleTheme(); applyCSS();
-            setTimeout(()=>{
-                showSplash.value = false;
-                nextTick(()=>{
-                    scrollToBottom();
-                    lucide.createIcons();
-                    if(window.formkit && chatList.value) formkit.autoAnimate(chatList.value);
-                    restorePendingLetter();       // ← 信件定时器恢复（精确 targetAt）
-                    restoreNoteReminders();        // ← 笔记提醒定时器恢复（刷新后持续）
-                    restartActiveMsgTimer();
-                    // 首次加载静默申请通知权限（需用户手势，挂在 onMounted 末尾）
-                    setTimeout(() => initNotification(), 3200);
-                    scheduleStatusRefresh();      // ← 新增：状态自动刷新
-                    scheduleRandomCall();         // ← 新增：随机来电调度
-                    initNotification();           // ← 新增：申请通知权限
-                    scheduleRandomPoke();         // ← 新增：对方随机拍一拍
-                });
-            }, 5500);
-        });
+            onMounted(async () => {
+        let data = null;
 
+    // 先读 IndexedDB
+        try {
+            data = await localforage.getItem(DB_KEY);
+    } catch (e) {
+            console.warn('localforage 读取失败', e);
+    }
+
+    // 再读 localStorage 兜底
+        if (!data) {
+            try {
+                const raw = localStorage.getItem(LS_KEY);
+                data = raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                console.warn('localStorage 读取失败', e);
+            }
+        }
+
+        if (data) {
+            if (data.messages) messages.value = data.messages;
+            if (data.profiles) Object.assign(profiles, data.profiles);
+            if (data.settings) Object.assign(settings, data.settings);
+            if (data.ungroupedReplies) ungroupedReplies.value = data.ungroupedReplies;
+            if (data.replyGroups) replyGroups.value = data.replyGroups;
+            if (data.stickerGroups) stickerGroups.value = data.stickerGroups;
+            if (data.letterHistory) letterHistory.value = data.letterHistory;
+            if (data.pendingLetter !== undefined) pendingLetter.value = data.pendingLetter;
+            if (data.notes) notes.value = data.notes;
+            if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
+
+            const oldUngroup = replyGroups.value.find(g => g.id === '__ungroup__');
+            if (oldUngroup) {
+                ungroupedReplies.value.push(...oldUngroup.replies);
+                replyGroups.value = replyGroups.value.filter(g => g.id !== '__ungroup__');
+            }
+        }
+
+        applyFontSettings();
+        toggleTheme();
+        applyCSS();
+
+        setTimeout(() => {
+            showSplash.value = false;
+            nextTick(() => {
+                scrollToBottom();
+                lucide.createIcons();
+                if (window.formkit && chatList.value) formkit.autoAnimate(chatList.value);
+                restorePendingLetter();
+                restoreNoteReminders();
+                restartActiveMsgTimer();
+                setTimeout(() => initNotification(), 3200);
+                scheduleStatusRefresh();
+                scheduleRandomCall();
+                initNotification();
+                scheduleRandomPoke();
+            });
+        }, 5500);
+    });
         watch([messages, modals], () => nextTick(() => lucide.createIcons()), { deep: true });
 
         return {
