@@ -1438,7 +1438,7 @@
                             </div>
                             <!-- 拍一拍消息 (居中系统消息风格) -->
                             <div v-else-if="msg.type === 'poke'" class="poke-system-msg">
-                                👆 {{ msg.content }}
+                                🫳🏻 {{ msg.content }}
                             </div>
                             <!-- 时间戳 -->
                             <div class="flex items-center gap-1.5 mt-1 px-1 text-[10px] text-muted tracking-tight font-sans opacity-70" :class="msg.sender === 'me' ? 'justify-end' : 'justify-start'">
@@ -1594,8 +1594,8 @@
                                     <input v-model="profiles.them.statusPresets" class="w-full bg-white/90 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
                                 </div>
                                 <div>
-                                    <span class="text-[10px] text-muted">👆 拍一拍预设 <span class="opacity-60">(逗号分隔)</span></span>
-                                    <input v-model="settings.pokePresets" placeholder="拍了拍你,戳一戳,敲了敲你" class="w-full bg-white/90 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                    <span class="text-[10px] text-muted"> 🫳🏻 拍一拍预设 <span class="opacity-60">(逗号分隔)</span></span>
+                                    <input v-model="settings.pokePresets" placeholder="{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋" class="w-full bg-white/90 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
                                 </div>
                             </div>
                         </section>
@@ -2538,7 +2538,7 @@
     <!-- ===== 拍一拍选择器 ===== -->
     <transition name="poke-picker">
         <div v-if="pokePickerShow" class="poke-picker">
-            <div class="poke-picker-title">👆 选择拍一拍方式</div>
+            <div class="poke-picker-title">🫳🏻 选择拍一拍方式</div>
             <div>
                 <span v-for="opt in pokeOptions" :key="opt" class="poke-option" :class="{ selected: pokePickerSelected === opt }" @click="pokePickerSelected = opt">{{ opt }}</span>
             </div>
@@ -2614,11 +2614,11 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
         ctrl?.postMessage({ type: 'page-hidden', ts: Date.now() });
     } else {
-        if (window.__silentAudioCtx?.state === 'suspended')
+        if (window.__silentAudioCtx?.state === 'suspended') {
             window.__silentAudioCtx.resume().catch(() => {});
+        }
     }
 });
-
 // ── 层3：Wake Lock + 静音音频（双保险）────────────────
 (function() {
     // Wake Lock
@@ -2878,17 +2878,19 @@ createApp({
         const pokePickerShow = ref(false);
         const pokePickerSelected = ref('');
         const pokeOptions = computed(() => {
-            const raw = settings.pokePresets || '拍了拍你,戳了戳你,敲了敲你,轻拍一下,戳一戳';
+            const raw = settings.pokePresets || '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋';
             return raw.split(/[,，]/).map(s => s.trim()).filter(s => s);
         });
         const showPokePicker = () => {
-            const opts = (settings.pokePresets || '拍了拍你,戳了戳你,敲了敲你,轻拍一下,戳一戳').split(/[,，]/).map(s=>s.trim()).filter(s=>s);
+            const opts = (settings.pokePresets || '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋').split(/[,，]/).map(s=>s.trim()).filter(s=>s);
             pokePickerSelected.value = opts[Math.floor(Math.random() * opts.length)];
             pokePickerShow.value = true;
         };
         const sendPoke = (pokeText) => {
-            const msgText = `你${pokeText} ${profiles.them.name}`;
-            messages.value.push({
+            const msgText = pokeText
+                .replace(/\{me\}/g,"你")
+                .replace(/\{them\}/g,profiles.them.name);            
+          messages.value.push({
                 id: Date.now() + Math.random(),
                 sender: 'me', type: 'poke',
                 content: msgText,
@@ -2918,10 +2920,11 @@ createApp({
         const scheduleRandomPoke = () => {
             const delay = (Math.random() * 2.67 + 0.33) * 3600 * 1000; // 20min~3h
             randomPokeTimer = safeSetTimeout(() => {
-                const opts = (settings.pokePresets || '拍了拍你,戳了戳你,敲了敲你,轻拍一下,戳一戳').split(/[,，]/).map(s=>s.trim()).filter(s=>s);
+                const opts = (settings.pokePresets || '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋').split(/[,，]/).map(s=>s.trim()).filter(s=>s);
                 const pokeWord = opts[Math.floor(Math.random() * opts.length)];
-                const theirMsg = `${profiles.them.name}${pokeWord} 你`;
-                messages.value.push({
+                const theirMsg = pokeWord
+                    .replace(/\{me\}/g,profiles.them.name)
+                    .replace(/\{them\}/g,"你");                messages.value.push({
                     id: Date.now() + Math.random(),
                     sender: 'them', type: 'poke',
                     content: theirMsg,
@@ -2958,7 +2961,7 @@ createApp({
             customFontUrl: '', fontFamily: "'Quicksand', 'Noto Serif SC', sans-serif", fontSize: 15,
             soundUrl: '', sendSoundUrl: '', soundVolume: 100,
             callBgImage: '', callBgUrl: '',
-            pokePresets: '拍了拍你,戳了戳你,敲了敲你,轻拍一下,戳一戳',
+            pokePresets: '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋',
             pushNotify: true,
             bgKeepAlive: true,
         });
@@ -3360,6 +3363,15 @@ createApp({
                 quote: null,
             };
             messages.value.push(msg);
+            if (document.hidden &&
+            navigator.serviceWorker.controller) {
+
+            navigator.serviceWorker.controller.postMessage({
+                type: "show-notification",
+                title: profiles.them.name,
+                body: msg.content || msg.text || ""
+            });
+        }
             callState.status = 'idle';
             scrollToBottom();
             nextTick(() => lucide.createIcons());
