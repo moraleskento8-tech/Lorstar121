@@ -2748,6 +2748,21 @@ createApp({
         const letterContent = ref('');
         const pendingLetter = ref(null);
         let audioCtx;
+        // ===== 核心：离线推送调度函数 =====
+        const scheduleOfflinePush = async (title, body, delayMs) => {
+            if (!settings.pushNotify) return;
+            const subId = window.OneSignal?.User?.PushSubscription?.id;
+            if (!subId) return; // 没授权通知就不调后端
+            
+            const delayMinutes = Math.max(1, Math.floor(delayMs / 60000));
+            try {
+                await fetch("/.netlify/functions/push", {
+                    method: "POST",
+                    body: JSON.stringify({ title, body, delayMinutes, subscriptionId: subId })
+                });
+                console.log(`[离线推送] 已交由后端，${delayMinutes}分钟后发送`);
+            } catch (e) { console.error("离线推送请求失败", e); }
+        };
         const notes = ref([]);
         const newNoteText = ref('');
         const quotingMsg = ref(null);
@@ -3627,6 +3642,10 @@ createApp({
         const scheduleNoteReminder = (noteId, overrideDelay = null) => {
             if(noteReminderTimer !== null) safeClearTimeout(noteReminderTimer);
             const delay = overrideDelay !== null ? overrideDelay : (Math.random() * 2 + 3) * 3600 * 1000;
+            // 💡 只有在新写日记（overrideDelay为null）时，才呼叫后端，避免刷新页面重复发通知
+            if (overrideDelay === null) {
+                scheduleOfflinePush(profiles.them.name, "我看了你的日记，有话对你说...", delay);
+            }
             // 保存绝对触发时间，用于页面刷新后恢复
             const targetNote = notes.value.find(n => n.id === noteId);
             if (targetNote && overrideDelay === null) {
@@ -3720,6 +3739,8 @@ createApp({
             // 保存绝对触发时间戳，页面刷新后精确恢复
             const totalDelay = 10*3600*1000 + Math.random()*14*3600*1000;
             pendingLetter.value = { letterId: id, replies, scheduled: true, sentAt: Date.now(), targetAt: Date.now() + totalDelay };
+            // 💡 呼叫云函数处理长信的离线推送
+            scheduleOfflinePush("时光信箱", "我收到你的信了，这是我的回信。", totalDelay);
             scheduleLetterReplies(id, replies, totalDelay);
             letterContent.value = '';
             modals.letter = false;
