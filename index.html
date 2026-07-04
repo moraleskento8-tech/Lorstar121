@@ -3067,9 +3067,8 @@ createApp({
         replyGroups: JSON.parse(JSON.stringify(replyGroups.value)),
         stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
         letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
-        pendingLetter: pendingLetter.value,
-        notes: JSON.parse(JSON.stringify(notes.value)),
-        emojiPoolText: emojiPoolText.value
+        pendingLetter: pendingLetter.value ? JSON.parse(JSON.stringify(pendingLetter.value)) : null,
+        notes: JSON.parse(JSON.stringify(notes.value)),        emojiPoolText: emojiPoolText.value
 });
 
     const saveData = async (force = false) => {
@@ -4154,25 +4153,33 @@ createApp({
             }
         });
             onMounted(async () => {
-        let data = null;
+        let idbData = null;
+            let lsData = null;
 
-    // 先读 IndexedDB
-        try {
-            data = await localforage.getItem(DB_KEY);
-    } catch (e) {
-            console.warn('localforage 读取失败', e);
-    }
+        // 1. 读取 IndexedDB
+            try {
+                idbData = await localforage.getItem(DB_KEY);
+            } catch (e) {
+                console.warn('localforage 读取失败', e);
+            }
 
-    // 再读 localStorage 兜底
-        if (!data) {
+            // 2. 读取 localStorage 兜底
             try {
                 const raw = localStorage.getItem(LS_KEY);
-                data = raw ? JSON.parse(raw) : null;
+                lsData = raw ? JSON.parse(raw) : null;
             } catch (e) {
                 console.warn('localStorage 读取失败', e);
             }
-        }
 
+        // 3. 核心修复：对比时间戳，永远取最新的一份数据
+        let data = null;
+        if (idbData && lsData) {
+            const t1 = new Date(idbData._savedAt || 0).getTime();
+            const t2 = new Date(lsData._savedAt || 0).getTime();
+            data = t1 > t2 ? idbData : lsData;
+        } else {
+            data = idbData || lsData;
+        }
         if (data) {
             if (data.messages) messages.value = data.messages;
             if (data.profiles) Object.assign(profiles, data.profiles);
