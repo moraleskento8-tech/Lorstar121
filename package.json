@@ -1,0 +1,9 @@
+{
+  "name": "lorstar-chat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "静语·星降 —— 前端静态站 + Netlify Functions 后端",
+  "dependencies": {
+    "@netlify/blobs": "latest"
+  }
+}

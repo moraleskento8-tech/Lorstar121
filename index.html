@@ -3075,6 +3075,15 @@ createApp({
     const DB_KEY = 'app_fusion_v6';
     const LS_KEY = 'app_fusion_v6_backup';
 
+    // ===== 云端同步：持久化设备ID（跨会话不变，用于在服务器上认领这台设备的数据）=====
+    let CLOUD_DEVICE_ID = localStorage.getItem('app_fusion_device_id');
+    if (!CLOUD_DEVICE_ID) {
+        CLOUD_DEVICE_ID = 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem('app_fusion_device_id', CLOUD_DEVICE_ID);
+    }
+    // OneSignal 推送订阅ID，OneSignal 就绪并订阅成功后会被写入（见 initNotification）
+    const cloudSubId = ref('');
+
     const buildSavePayload = () => ({
         _version: 'lorstar41_backup_v2',
         _savedAt: new Date().toISOString(),
@@ -3088,6 +3097,27 @@ createApp({
         pendingLetter: pendingLetter.value ? JSON.parse(JSON.stringify(pendingLetter.value)) : null,
         notes: JSON.parse(JSON.stringify(notes.value)),        emojiPoolText: emojiPoolText.value
 });
+
+    // ===== 云端同步：把数据备份到 Netlify Blobs，并把推送所需信息交给后端 =====
+    // 做了 4 秒防抖，避免每次输入都请求；网络失败也不影响本地聊天，只是静默重试
+    let cloudSyncTimer = null;
+    const syncToCloud = () => {
+        if (cloudSyncTimer) clearTimeout(cloudSyncTimer);
+        cloudSyncTimer = setTimeout(async () => {
+            try {
+                const payload = buildSavePayload();
+                payload.deviceId = CLOUD_DEVICE_ID;
+                payload.subscriptionId = cloudSubId.value || '';
+                await fetch('/.netlify/functions/sync-save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                console.warn('[云端同步] 保存失败（不影响本地聊天）', e);
+            }
+        }, 4000);
+    };
 
     const saveData = async (force = false) => {
         if (!force && showSplash.value) return;
@@ -3107,6 +3137,9 @@ createApp({
         } catch (e) {
                 console.warn('localforage 保存失败', e);
         }
+
+        // 云端备份（异步防抖，不阻塞、不影响本地体验）
+        syncToCloud();
     };
 
     watch(
@@ -3173,6 +3206,9 @@ createApp({
                     if (granted) {
                         await window.OneSignal.User.PushSubscription.optIn().catch(() => {});
                         console.log('[通知] ✅ OneSignal 订阅成功');
+                        // 记录订阅ID，并立即同步一次到云端，确保后端定时任务/信箱推送能找到这台设备
+                        cloudSubId.value = window.OneSignal?.User?.PushSubscription?.id || '';
+                        if (cloudSubId.value) syncToCloud();
                         return;
                     }
                     return;
@@ -4230,6 +4266,44 @@ createApp({
                 ungroupedReplies.value.push(...oldUngroup.replies);
                 replyGroups.value = replyGroups.value.filter(g => g.id !== '__ungroup__');
             }
+        }
+
+        // ===== 云端数据：拉取备份 + 离线期间服务器代发的"待处理消息" =====
+        try {
+            const res = await fetch('/.netlify/functions/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID));
+            if (res.ok) {
+                const cloud = await res.json();
+
+                // 本地完全没有数据时（换设备/清过缓存），用云端备份兜底恢复一次
+                if (!data && cloud && cloud.messages) {
+                    if (cloud.messages) messages.value = cloud.messages;
+                    if (cloud.profiles) Object.assign(profiles, cloud.profiles);
+                    if (cloud.settings) Object.assign(settings, cloud.settings);
+                    if (cloud.ungroupedReplies) ungroupedReplies.value = cloud.ungroupedReplies;
+                    if (cloud.replyGroups) replyGroups.value = cloud.replyGroups;
+                    if (cloud.stickerGroups) stickerGroups.value = cloud.stickerGroups;
+                    if (cloud.letterHistory) letterHistory.value = cloud.letterHistory;
+                    if (cloud.notes) notes.value = cloud.notes;
+                    if (cloud.emojiPoolText !== undefined) emojiPoolText.value = cloud.emojiPoolText;
+                    console.log('[云端同步] 本地无数据，已从云端恢复备份');
+                }
+
+                // 把离开期间（定时任务离线推送）产生的消息补进聊天记录里
+                if (cloud && Array.isArray(cloud.pendingMessages) && cloud.pendingMessages.length) {
+                    for (const m of cloud.pendingMessages) {
+                        messages.value.push({
+                            id: m.id || (Date.now() + Math.random()),
+                            sender: 'them', type: m.type || 'text',
+                            content: m.text || m.content || '',
+                            timestamp: m.timestamp || Date.now(),
+                            status: 'sent', quote: null
+                        });
+                    }
+                    console.log('[云端同步] 已合并', cloud.pendingMessages.length, '条离线期间的消息');
+                }
+            }
+        } catch (e) {
+            console.warn('[云端同步] 拉取失败（不影响本地聊天）', e);
         }
 
         applyFontSettings();

@@ -1,69 +1,11 @@
-# ╔══════════════════════════════════════════════════════════════╗
-# ║                    netlify.toml                              ║
-# ║                                                              ║
-# ║  放在 GitHub 仓库根目录，与 index.html 同级。                ║
-# ║  作用：控制 Netlify CDN 返回给浏览器的 HTTP 响应头。         ║
-# ║                                                              ║
-# ║  【为什么需要这个文件？】                                    ║
-# ║  即使 sw.js 里做了"HTML 不缓存"的策略，浏览器和 Netlify     ║
-# ║  的 CDN 本身也可能根据 HTTP 响应头决定是否缓存文件。         ║
-# ║  这个文件是"从服务端"保证每次请求 index.html 都得到最新版。 ║
-# ╚══════════════════════════════════════════════════════════════╝
+[build]
+  functions = "netlify/functions"
+  # 如果你的仓库根目录本来就没有构建步骤（纯静态站点），保持 command 为空即可，
+  # Netlify 仍然会执行 npm install 来安装下面 functions 需要的 @netlify/blobs 依赖。
+  # command = ""
+  # publish = "."
 
-# ── HTML 入口文件：完全禁止缓存 ────────────────────────────────
-# no-cache：每次使用前必须向服务器确认是否有新版本
-# no-store：不在任何地方存储副本
-# must-revalidate：过期后必须重新验证
-[[headers]]
-  for = "/"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Pragma = "no-cache"
-
-[[headers]]
-  for = "/*.html"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Pragma = "no-cache"
-
-# ── Service Worker 脚本：同样禁止缓存 ──────────────────────────
-# sw.js 如果被浏览器缓存，你更新 sw.js 后用户可能要等很久才能用到新版本。
-# 禁止缓存后，浏览器每次启动都会检查 sw.js 是否有变化，发现变化立刻更新。
-[[headers]]
-  for = "/sw.js"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Pragma = "no-cache"
-
-[[headers]]
-  for = "/OneSignalSDK.sw.js"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Pragma = "no-cache"
-
-# ── manifest.json：短缓存，允许更新 ────────────────────────────
-[[headers]]
-  for = "/manifest.json"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-
-# ── 图标文件：可以缓存 7 天 ────────────────────────────────────
-# 图标文件名固定、内容不常变化，缓存可以减少重复请求。
-[[headers]]
-  for = "/icon-*"
-  [headers.values]
-    Cache-Control = "public, max-age=604800"
-
-[[headers]]
-  for = "/apple-touch-icon*"
-  [headers.values]
-    Cache-Control = "public, max-age=604800"
-
-# ── SPA 路由：所有路径都返回 index.html ────────────────────────
-# 这是单页应用（SPA）的标准配置。
-# 如果用户直接访问 /chat 或 /settings 这样的路径，
-# Netlify 默认会返回 404，加上这条规则就能正确返回 index.html。
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[functions."scheduled-proactive"]
+  # 每 5 分钟检查一次是否有"主动消息"到点该推送
+  # cron 格式：分 时 日 月 星期，可在 https://crontab.guru 上验证
+  schedule = "*/5 * * * *"
