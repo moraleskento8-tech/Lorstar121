@@ -23,7 +23,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
     
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/localforage@1.10.0/dist/localforage.min.js"></script>
@@ -1660,9 +1660,7 @@
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
                                     <div>
-                                        <span class="text-sm block text-slate-600 dark:text-slate-300">⚙️ 后台保活</span>
-                                        <span class="text-[10px] text-muted">页面隐藏时定时器持续运行</span>
-                                    </div>
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">⚙️ 后台保活</span>                                    </div>
                                     <input type="checkbox" v-model="settings.bgKeepAlive" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
@@ -1807,6 +1805,82 @@
                                     <i data-lucide="database" class="w-3 h-3"></i>全量导入
                                     <input type="file" accept=".json" class="hidden" ref="globalImportInput" @change="globalImport">
                                 </label>
+                            </div>
+                        </section>
+
+                        <!-- 云端自动备份 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-sky-50/60 to-cyan-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">☁️</span>
+                                <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">云端自动备份</label>
+                            </div>
+                            <div class="flex justify-between items-center py-1 px-1">
+                                <div>
+                                    <span class="text-sm block text-slate-600 dark:text-slate-300">定时自动备份</span>
+                                    <span class="text-[10px] text-muted">
+                                        每次修改聊天/语料库都会自动同步一次；这里额外设置一个固定周期，不管有没有改动都强制备份一次
+                                    </span>
+                                </div>
+                                <input type="checkbox" v-model="settings.autoBackupEnabled" class="reply-checkbox">
+                            </div>
+                            <div class="flex justify-between items-center py-1 px-1" v-if="settings.autoBackupEnabled">
+                                <span class="text-sm text-slate-600 dark:text-slate-300">备份间隔</span>
+                                <select v-model.number="settings.autoBackupIntervalHours"
+                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-1.5 text-xs outline-none">
+                                    <option :value="1">每 1 小时</option>
+                                    <option :value="3">每 3 小时</option>
+                                    <option :value="6">每 6 小时</option>
+                                    <option :value="12">每 12 小时</option>
+                                    <option :value="24">每 24 小时</option>
+                                </select>
+                            </div>
+                            <div class="text-[10px] text-muted px-1" v-if="settings.lastCloudBackupAt">
+                                上次云端备份：{{ new Date(settings.lastCloudBackupAt).toLocaleString('zh-CN') }}
+                            </div>
+                            <button @click="manualBackupNow"
+                                    class="w-full py-2 bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-300 rounded-xl text-xs font-medium hover:bg-sky-500/20 transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="upload" class="w-3.5 h-3.5"></i>立即备份一次
+                            </button>
+                        </section>
+
+                        <!-- GitHub 直传备份 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-slate-100/70 to-gray-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">🐙</span>
+                                <label class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">GitHub 直传备份</label>
+                            </div>
+                            <div class="flex justify-between items-center py-1 px-1">
+                                <div>
+                                    <span class="text-sm block text-slate-600 dark:text-slate-300">备份到我的 GitHub 仓库</span>
+                                    <span class="text-[10px] text-muted">按上面设置的周期，把存档 JSON 直接提交进你的 GitHub 仓库</span>
+                                </div>
+                                <input type="checkbox" v-model="settings.githubBackupEnabled" class="reply-checkbox">
+                            </div>
+                            <div v-if="settings.githubBackupEnabled" class="space-y-2 pt-1 border-t border-white/50 dark:border-slate-600/40">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input v-model="settings.githubOwner" placeholder="用户名 / 组织名"
+                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                    <input v-model="settings.githubRepo" placeholder="仓库名"
+                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input v-model="settings.githubBranch" placeholder="分支（默认 main）"
+                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                    <input v-model="settings.githubPath" placeholder="文件路径，如 backup/latest.json"
+                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                </div>
+                                <input v-model="settings.githubToken" type="password" placeholder="GitHub Token（建议用 Fine-grained token，只授权这一个仓库的 Contents 读写权限）"
+                                    class="w-full bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                <div class="text-[10px] text-amber-500 leading-relaxed">
+                                    ⚠️ Token 保存在你这台设备本地，用于直接调用 GitHub API 提交文件。请不要把"全量导出"之外的地方（比如截图、控制台）泄露给别人；建议创建一个只能访问这一个仓库、只勾选 Contents 权限的 Fine-grained Token。
+                                </div>
+                                <div class="text-[10px] text-muted" v-if="settings.lastGithubBackupAt">
+                                    上次 GitHub 备份：{{ new Date(settings.lastGithubBackupAt).toLocaleString('zh-CN') }}
+                                </div>
+                                <button @click="backupToGitHub().then(r => alert(r.ok ? '✅ 已提交到 GitHub' : ('❌ ' + r.error)))"
+                                        class="w-full py-2 bg-slate-700/10 dark:bg-slate-600/40 border border-slate-400/30 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-medium hover:bg-slate-700/20 transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="database" class="w-3.5 h-3.5"></i>立即备份到 GitHub
+                                </button>
                             </div>
                         </section>
 
@@ -2560,11 +2634,26 @@
 //  1. Web Worker 定时器 → ping SW（不受页面节流影响）
 //  2. visibilitychange → 切后台时通知 SW
 //  3. Wake Lock + 无声音频 → 阻止系统休眠
+//
+//  这三层由"设置 → 后台保活"开关统一控制（settings.bgKeepAlive）。
+//  这段代码在 Vue 挂载前就执行，所以先同步读一次 localStorage 里的开关状态；
+//  之后 Vue 里通过 window.__setKeepAlive(true/false) 实时切换，不需要刷新页面。
 // ═══════════════════════════════════════════════════
+
+const __readKeepAliveSetting = () => {
+    try {
+        const raw = localStorage.getItem('app_fusion_v6_backup');
+        if (!raw) return true; // 默认开启
+        const d = JSON.parse(raw);
+        return d?.settings?.bgKeepAlive !== false;
+    } catch (e) { return true; }
+};
+let __keepAliveEnabled = __readKeepAliveSetting();
 
 // ── 层1：SW 通道 ────────────────────────────────────
 if ('serviceWorker' in navigator) {
     const startPing = () => {
+        if (!__keepAliveEnabled) return;
         if (window.__swPingStarted) return;
         window.__swPingStarted = true;
         window.__swPingId = safeSetInterval(() => {
@@ -2578,6 +2667,12 @@ if ('serviceWorker' in navigator) {
             }
         }, 15000);
     };
+    const stopPing = () => {
+        window.__swPingStarted = false;
+        if (window.__swPingId) safeClearInterval(window.__swPingId);
+    };
+    window.__swStartPing = startPing;
+    window.__swStopPing = stopPing;
 
     const onSWReady = (reg) => {
         window.__swReg = reg;
@@ -2614,7 +2709,7 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
         ctrl?.postMessage({ type: 'page-hidden', ts: Date.now() });
     } else {
-        if (window.__silentAudioCtx?.state === 'suspended') {
+        if (__keepAliveEnabled && window.__silentAudioCtx?.state === 'suspended') {
             window.__silentAudioCtx.resume().catch(() => {});
         }
     }
@@ -2623,12 +2718,17 @@ document.addEventListener('visibilitychange', () => {
 (function() {
     // Wake Lock
     const lock = async () => {
+        if (!__keepAliveEnabled) return;
         if (!('wakeLock' in navigator) || window.__wl?.released === false) return;
         try { window.__wl = await navigator.wakeLock.request('screen'); } catch(e) {}
     };
-    lock();
+    const unlock = () => {
+        try { window.__wl?.release(); } catch(e) {}
+        window.__wl = null;
+    };
+    if (__keepAliveEnabled) lock();
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
+        if (document.visibilityState === 'visible' && __keepAliveEnabled) {
             lock();
             // 回到前台时恢复所有音频
             window.__silentAudio?.play().catch(() => {});
@@ -2646,13 +2746,13 @@ document.addEventListener('visibilitychange', () => {
     silentAudio.volume = 0.01;
     window.__silentAudio = silentAudio;
 
-    // 尝试立即播放（部分浏览器允许静默自动播放）
-    silentAudio.play().catch(() => {});
+    // 尝试立即播放（部分浏览器允许静默自动播放），仅在开关开启时
+    if (__keepAliveEnabled) silentAudio.play().catch(() => {});
 
     // ── 静音音频方案 B：AudioContext 节点 ──────────────────
     let audioCtxOk = false;
     const startAudioCtx = () => {
-        if (audioCtxOk) return;
+        if (!__keepAliveEnabled || audioCtxOk) return;
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             window.__silentAudioCtx = ctx;
@@ -2664,9 +2764,15 @@ document.addEventListener('visibilitychange', () => {
             audioCtxOk = true;
         } catch(e) {}
     };
+    const stopAudioCtx = () => {
+        try { window.__silentAudioCtx?.close(); } catch(e) {}
+        window.__silentAudioCtx = null;
+        audioCtxOk = false;
+    };
 
     // 首次用户交互后启动（自动播放策略要求）
     const startAll = () => {
+        if (!__keepAliveEnabled) return;
         silentAudio.play().catch(() => {});
         startAudioCtx();
     };
@@ -2677,6 +2783,7 @@ document.addEventListener('visibilitychange', () => {
     // ── 音频心跳：每 30s 检查一次，确保音频持续播放 ────────
     // 切到后台后，浏览器可能暂停音频；心跳负责重新唤醒它
     setInterval(() => {
+        if (!__keepAliveEnabled) return;
         // 方案 A：Audio 元素暂停了就重播
         if (silentAudio.paused) {
             silentAudio.play().catch(() => {});
@@ -2686,6 +2793,24 @@ document.addEventListener('visibilitychange', () => {
             window.__silentAudioCtx.resume().catch(() => {});
         }
     }, 30000);
+
+    // ── 全局开关：供设置页"后台保活"勾选框实时调用 ──────────
+    // enabled=true  → 立刻启动 SW ping + Wake Lock + 静音音频
+    // enabled=false → 立刻停止三者，释放屏幕常亮、暂停静音音频
+    window.__setKeepAlive = (enabled) => {
+        __keepAliveEnabled = !!enabled;
+        if (__keepAliveEnabled) {
+            window.__swStartPing?.();
+            lock();
+            silentAudio.play().catch(() => {});
+            startAudioCtx();
+        } else {
+            window.__swStopPing?.();
+            unlock();
+            silentAudio.pause();
+            stopAudioCtx();
+        }
+    };
 })();
 
 // ========= Web Worker 后台定时器（标签页切换时定时器不暂停）=========
@@ -2979,6 +3104,18 @@ createApp({
             pokePresets: '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋',
             pushNotify: true,
             bgKeepAlive: true,
+            // ===== 自动云备份（Netlify Blobs，已有通道，仅新增定时开关）=====
+            autoBackupEnabled: true,
+            autoBackupIntervalHours: 6,
+            lastCloudBackupAt: 0,
+            // ===== GitHub 直传备份 =====
+            githubBackupEnabled: false,
+            githubToken: '',
+            githubOwner: '',
+            githubRepo: '',
+            githubBranch: 'main',
+            githubPath: 'backup/latest.json',
+            lastGithubBackupAt: 0,
         });
 
         const modals = reactive({
@@ -3119,27 +3256,144 @@ createApp({
         }, 4000);
     };
 
-    const saveData = async (force = false) => {
-        if (!force && showSplash.value) return;
+    // 立即执行一次云端备份（不走 4 秒防抖），供"立即备份"按钮 / 定时自动备份使用
+    const syncToCloudNow = async () => {
+        try {
+            const payload = buildSavePayload();
+            payload.deviceId = CLOUD_DEVICE_ID;
+            payload.subscriptionId = cloudSubId.value || '';
+            const res = await fetch('/.netlify/functions/sync-save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return res.ok;
+        } catch (e) {
+            console.warn('[云端同步] 立即备份失败', e);
+            return false;
+        }
+    };
 
+    // ===== GitHub 直传备份 =====
+    // 用 GitHub 的 Contents API 把当前存档写成一个 JSON 文件提交到指定仓库。
+    // 需要在设置里填：Token（建议用只授权这一个仓库 contents 读写权限的 Fine-grained token）
+    // / 仓库拥有者 / 仓库名 / 分支 / 文件路径。
+    const backupToGitHub = async () => {
+        if (!settings.githubToken || !settings.githubOwner || !settings.githubRepo) {
+            return { ok: false, error: '请先在设置里填写 GitHub Token / 仓库拥有者 / 仓库名' };
+        }
+        const branch = settings.githubBranch?.trim() || 'main';
+        const path = (settings.githubPath?.trim() || 'backup/latest.json').replace(/^\/+/, '');
+        const apiUrl = `https://api.github.com/repos/${encodeURIComponent(settings.githubOwner)}/${encodeURIComponent(settings.githubRepo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}`;
+        const headers = {
+            'Authorization': `Bearer ${settings.githubToken}`,
+            'Accept': 'application/vnd.github+json'
+        };
+        try {
+            // 1. 先查文件是否已存在，取 sha 才能"更新"而不是报 409 冲突
+            let sha = null;
+            try {
+                const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+                if (getRes.ok) {
+                    const info = await getRes.json();
+                    sha = info.sha || null;
+                } else if (getRes.status !== 404) {
+                    const errBody = await getRes.text().catch(() => '');
+                    return { ok: false, error: `查询文件失败（HTTP ${getRes.status}）${errBody.slice(0,200)}` };
+                }
+            } catch (e) { /* 查询失败就当作文件不存在，走创建流程 */ }
+
+            // 2. 把存档 JSON 转成 UTF-8 安全的 base64
+            const payload = buildSavePayload();
+            const jsonStr = JSON.stringify(payload, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(jsonStr)));
+
+            const body = {
+                message: `自动备份 ${new Date().toLocaleString('zh-CN')}`,
+                content: base64Content,
+                branch
+            };
+            if (sha) body.sha = sha;
+
+            const putRes = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: { ...headers, 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!putRes.ok) {
+                const errBody = await putRes.text().catch(() => '');
+                let msg = `HTTP ${putRes.status}`;
+                if (putRes.status === 401) msg = 'Token 无效或已过期';
+                else if (putRes.status === 404) msg = '仓库不存在，或 Token 没有访问这个仓库的权限';
+                else if (putRes.status === 403) msg = 'Token 权限不足（需要 Contents 读写权限）';
+                return { ok: false, error: `GitHub 备份失败：${msg}` };
+            }
+            settings.lastGithubBackupAt = Date.now();
+            return { ok: true };
+        } catch (e) {
+            return { ok: false, error: '网络请求失败：' + (e?.message || e) };
+        }
+    };
+
+    // 手动点击"立即备份"按钮：本地 + Netlify 云端 + （如果开启了）GitHub，一次性都做一遍
+    const manualBackupNow = async () => {
+        const cloudOk = await syncToCloudNow();
+        settings.lastCloudBackupAt = Date.now();
+        let githubMsg = '';
+        if (settings.githubBackupEnabled) {
+            const r = await backupToGitHub();
+            githubMsg = r.ok ? '\nGitHub 备份：✅ 成功' : `\nGitHub 备份：❌ ${r.error}`;
+        }
+        alert(`${cloudOk ? '✅ 云端备份成功' : '⚠️ 云端备份请求失败（不影响本地聊天数据）'}${githubMsg}`);
+    };
+
+    // 定时自动备份：按 settings.autoBackupIntervalHours 的间隔，周期性做一次
+    // 本地 + 云端 + GitHub（如果开启）备份，不需要用户手动点按钮
+    let autoBackupTimer = null;
+    const restartAutoBackupTimer = () => {
+        if (autoBackupTimer) safeClearInterval(autoBackupTimer);
+        if (!settings.autoBackupEnabled) return;
+        const hours = Math.max(0.5, Number(settings.autoBackupIntervalHours) || 6);
+        autoBackupTimer = safeSetInterval(async () => {
+            await syncToCloudNow();
+            settings.lastCloudBackupAt = Date.now();
+            if (settings.githubBackupEnabled) await backupToGitHub();
+        }, hours * 3600 * 1000);
+    };
+
+    // 真正写本地盘（localStorage + IndexedDB）+ 触发云端同步
+    const writeLocalSave = async () => {
         const data = buildSavePayload();
-
-    // 先写同步兜底，防止后台被杀时来不及完成异步写入
-    try {
+        try {
             localStorage.setItem(LS_KEY, JSON.stringify(data));
-    } catch (e) {
+        } catch (e) {
             console.warn('localStorage 备份失败', e);
-    }
-
-    // 再写 IndexedDB / localforage
+        }
         try {
             await localforage.setItem(DB_KEY, data);
         } catch (e) {
-                console.warn('localforage 保存失败', e);
+            console.warn('localforage 保存失败', e);
         }
-
         // 云端备份（异步防抖，不阻塞、不影响本地体验）
         syncToCloud();
+    };
+
+    // saveData(false)：日常自动保存，做 500ms 防抖 —— 深度 watch 挂在整个聊天记录/
+    // 语料库/设置等大对象上，任何一次编辑（哪怕只是设置里打一个字）都会触发它；
+    // 不防抖的话，每敲一个字都要把整份存档重新 JSON.stringify 一遍再写盘，
+    // 数据量一大就会明显卡顿。500ms 内的连续编辑只在最后落一次盘。
+    // saveData(true)：强制立即保存，绕开防抖 —— 用在切后台/关闭页面这类
+    // "必须马上落盘"的场景（flushSave），防止防抖窗口内数据丢失。
+    let localSaveTimer = null;
+    const saveData = async (force = false) => {
+        if (!force && showSplash.value) return;
+        if (force) {
+            if (localSaveTimer) { clearTimeout(localSaveTimer); localSaveTimer = null; }
+            await writeLocalSave();
+            return;
+        }
+        if (localSaveTimer) clearTimeout(localSaveTimer);
+        localSaveTimer = setTimeout(writeLocalSave, 500);
     };
 
     watch(
@@ -3154,6 +3408,13 @@ createApp({
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') flushSave();
     });
+        // 「后台保活」开关：勾选/取消时立刻生效，不需要刷新页面
+        // （真正的 SW ping / Wake Lock / 静音音频逻辑在文件末尾的顶层 <script> 里，
+        //  这里只是把 Vue 里的设置值同步过去）
+        watch(() => settings.bgKeepAlive, (enabled) => {
+            window.__setKeepAlive?.(enabled);
+        });
+
         watch(() => settings.bgImage, (newBg) => {
             if (newBg) {
                 document.body.style.backgroundImage = `url(${newBg})`;
@@ -3705,6 +3966,8 @@ createApp({
                     const text = idx === 0 ? `${prefixes[Math.floor(Math.random()*prefixes.length)]} ${txt}` : txt;
                     t2.replies.push({ id: Date.now()+Math.random(), text, timestamp: Date.now() });
                     playSound('receive');
+                    // ✅ 日历/日记回复也要弹系统通知（之前只有聊天消息和时光信箱信件会弹通知）
+                    showNotification(profiles.them.name + ' · 日记回复', text);
                     idx++;
                     if (idx < count) safeSetTimeout(addNext, (Math.random() * 3 + 2) * 1000);
                 };
@@ -3740,23 +4003,37 @@ createApp({
 
         // ===== 时光信箱 =====
         // 修复：接受可选的 overrideDelay 参数，解决页面刷新后定时器丢失问题
-        const scheduleLetterReplies = (letterId, replyTexts, overrideDelay = null) => {
-            if (!replyTexts.length) return;
+        // 修复2：letterTimerActive 防重复调度锁 + startIndex 断点续传——
+        //   之前的问题是：如果切后台期间页面被系统整个杀死重启（比如接电话），
+        //   onMounted 会重新执行 restorePendingLetter()，但此时可能已经有一个
+        //   仍在等待的定时器在跑，两边都会各自把全部回信从头发一遍，导致重复消息。
+        //   现在用 letterTimerActive 锁住"同一时间只有一路在跑"，
+        //   并用 sentCount 记录已经发出的条数，恢复时从断点继续，而不是从头重发。
+        let letterTimerActive = false;
+        const scheduleLetterReplies = (letterId, replyTexts, overrideDelay = null, startIndex = 0) => {
+            if (letterTimerActive) return; // 已有一路在跑，不重复调度
+            if (!replyTexts.length || startIndex >= replyTexts.length) return;
             const baseDelay = overrideDelay !== null ? overrideDelay : (10*3600*1000 + Math.random()*14*3600*1000);
-            let currentIndex = 0;
+            letterTimerActive = true;
+            let currentIndex = startIndex;
             const sendNext = () => {
-                if (currentIndex >= replyTexts.length) return;
+                if (currentIndex >= replyTexts.length) { letterTimerActive = false; return; }
                 sendMsg('them', 'text', replyTexts[currentIndex]);
                 currentIndex++;
+                if (pendingLetter.value && pendingLetter.value.letterId === letterId) {
+                    pendingLetter.value.sentCount = currentIndex; // 记录断点，供恢复时续传
+                }
                 if (currentIndex < replyTexts.length) {
                     safeSetTimeout(sendNext, (Math.random()*3+1)*60*1000);
                 } else {
                     const letter = letterHistory.value.find(l=>l.id===letterId);
                     if(letter) { letter.status = '已回信'; letter.reply = replyTexts.join(' · '); }
                     pendingLetter.value = null;
+                    letterTimerActive = false;
                 }
             };
-            safeSetTimeout(sendNext, baseDelay);
+            // 断点续传场景（startIndex>0）：说明第一条早就该发了，只需按正常的条间间隔接上，不用再等 baseDelay
+            safeSetTimeout(sendNext, startIndex > 0 ? (Math.random()*3+1)*60*1000 : baseDelay);
         };
 
         const sendLetter = () => {
@@ -3774,7 +4051,7 @@ createApp({
             }
             // 保存绝对触发时间戳，页面刷新后精确恢复
             const totalDelay = 10*3600*1000 + Math.random()*14*3600*1000;
-            pendingLetter.value = { letterId: id, replies, scheduled: true, sentAt: Date.now(), targetAt: Date.now() + totalDelay };
+            pendingLetter.value = { letterId: id, replies, scheduled: true, sentAt: Date.now(), targetAt: Date.now() + totalDelay, sentCount: 0 };
             // 💡 呼叫云函数处理长信的离线推送
             scheduleOfflinePush("时光信箱", "我收到你的信了，这是我的回信。", totalDelay);
             scheduleLetterReplies(id, replies, totalDelay);
@@ -3783,9 +4060,13 @@ createApp({
         };
 
         // 修复：使用 targetAt 精确计算剩余等待时间，避免每次刷新重新随机延迟
+        // 修复2：如果之前已经发出了一部分回信（p.sentCount），从断点续传，不从头重发
         const restorePendingLetter = () => {
+            if (letterTimerActive) return; // 已经有一路定时器在跑，不需要再恢复一次
             const p = pendingLetter.value;
             if (!p || !p.replies || !p.replies.length) return;
+            const startIndex = p.sentCount || 0;
+            if (startIndex >= p.replies.length) { pendingLetter.value = null; return; }
             let remaining;
             if (p.targetAt) {
                 remaining = Math.max(p.targetAt - Date.now(), 5000);
@@ -3796,8 +4077,41 @@ createApp({
             } else {
                 remaining = 10 * 3600 * 1000;
             }
-            scheduleLetterReplies(p.letterId, p.replies, remaining);
+            scheduleLetterReplies(p.letterId, p.replies, remaining, startIndex);
         };
+
+        // ===== 回到前台修复：iOS 上切后台（尤其是接电话）返回时，
+        //      WebView 经常会"画面冻结"——底层数据其实已经更新，但屏幕停留在
+        //      切走前那一刻的截图，看起来就像"时间没变、新消息没加载"，
+        //      直到用户手动点一下/滑一下才会刷新。
+        //      这里在回到前台时做三件事：
+        //      1. 强制触发一次浏览器重排（reflow），逼着 WebView 重新绘制
+        //      2. 补一次 restorePendingLetter / restoreNoteReminders —— 万一
+        //         页面在后台被系统整个杀死重启，定时器全部丢失，这里能接上
+        //         （上面已加锁，不会和仍存活的定时器重复调度）
+        //      3. 滚动到底部，把等待中的新消息带入可视区域
+        const forceUIRefresh = () => {
+            restorePendingLetter();
+            restoreNoteReminders();
+            scrollToBottom();
+            nextTick(() => {
+                // 强制重排：短暂隐藏再显示，触发 WebKit 重新绘制整棵树
+                const el = document.getElementById('app') || document.body;
+                const prevDisplay = el.style.display;
+                el.style.display = 'none';
+                void el.offsetHeight; // 读取一次布局属性，强制回流
+                el.style.display = prevDisplay || '';
+                lucide.createIcons();
+            });
+        };
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') forceUIRefresh();
+        });
+        // bfcache（前进后退缓存）恢复场景：visibilitychange 不一定会触发，
+        // 但 pageshow 的 event.persisted 会告诉我们页面是从缓存恢复的
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) forceUIRefresh();
+        });
 
         // ===== 表情包操作 =====
         const batchImportStickers = (e) => {
@@ -4095,20 +4409,13 @@ createApp({
 
         // ===== 全局导出 / 导入 =====
         const globalExport = () => {
-            const data = {
-                _version: 'lorstar41_backup_v1',
-                _exportedAt: new Date().toISOString(),
-                messages: JSON.parse(JSON.stringify(messages.value)),
-                profiles: JSON.parse(JSON.stringify(profiles)),
-                settings: JSON.parse(JSON.stringify(settings)),
-                ungroupedReplies: JSON.parse(JSON.stringify(ungroupedReplies.value)),
-                replyGroups: JSON.parse(JSON.stringify(replyGroups.value)),
-                stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
-                letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
-                pendingLetter: pendingLetter.value,
-                notes: JSON.parse(JSON.stringify(notes.value)),
-                emojiPoolText: emojiPoolText.value
-            };
+            // 复用 buildSavePayload，不用每个字段再手写一遍 JSON.parse(JSON.stringify(...))
+            const data = buildSavePayload();
+            data._version = 'lorstar41_backup_v1';
+            data._exportedAt = new Date().toISOString();
+            // ⚠️ 导出的 JSON 文件很容易被分享/上传到别处，所以把 GitHub Token 抹掉，避免密钥泄露。
+            // buildSavePayload 已经深拷贝过 settings，这里改的是导出副本，不影响本机继续自动备份用的真实 Token。
+            data.settings.githubToken = '';
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -4212,16 +4519,16 @@ createApp({
             }
         };
         watch(() => [settings.activeMsg, settings.activeInterval], restartActiveMsgTimer);
+        // 自动备份开关/间隔改变时，实时重启定时器
+        watch(() => [settings.autoBackupEnabled, settings.autoBackupIntervalHours], restartAutoBackupTimer);
 
         // ===== 生命周期 =====
-        onMounted(() => {
-            // ... 原有逻辑 ...
-            // 请求系统通知权限
-            if ("Notification" in window && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            }
-        });
-            onMounted(async () => {
+        onMounted(async () => {
+        // 请求系统通知权限（原生兜底，OneSignal 就绪后 initNotification 里还会走一次正式流程）
+        if ("Notification" in window && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+
         let idbData = null;
             let lsData = null;
 
@@ -4319,6 +4626,7 @@ createApp({
                 restorePendingLetter();
                 restoreNoteReminders();
                 restartActiveMsgTimer();
+                restartAutoBackupTimer();
                 setTimeout(() => initNotification(), 3200);
                 scheduleStatusRefresh();
                 scheduleRandomCall();
@@ -4354,6 +4662,7 @@ createApp({
             toggleTheme, quotingMsg, quoteMsg, forceBotReply, scrollToMsg,
             renderContent,
             uploadBg, applyBgUrl, globalExport, globalImport,
+            manualBackupNow, backupToGitHub,
             // 视频通话
             callState, formatCallDuration,
             initiateCall, acceptCall, declineCall, hangupCall,
