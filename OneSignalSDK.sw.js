@@ -1,238 +1,71 @@
-// ╔══════════════════════════════════════════════════════════════╗
-// ║     OneSignalSDK.sw.js — 合并版 Service Worker  v5          ║
-// ║                                                              ║
-// ║  放在 GitHub 仓库根目录，与 index.html 同级                  ║
-// ║  Netlify 部署后地址为 /OneSignalSDK.sw.js                    ║
-// ╚══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+// 这个文件必须放在网站【根目录】，和 index.html 同一层级，
+// 文件名必须叫 OneSignalSDK.sw.js —— 一个字都不能改，
+// 因为 index.html 里 OneSignal.init() 传的
+// serviceWorkerPath: "/OneSignalSDK.sw.js" 就是按这个文件名+路径去找它的，
+// 名字或路径对不上，Service Worker 会注册失败，推送和后台保活都会失效。
+//
+// 如果你的仓库根目录已经有一个 OneSignalSDK.sw.js
+// （比如之前从 OneSignal 后台下载的），可以直接用这份替换掉——
+// 第一行原样保留了 OneSignal 官方要求的 importScripts，
+// 不会影响"时光信箱回信 / 日历回复"这些推送通知的正常工作，
+// 只是在后面追加了这个 app 自己需要的保活/通知逻辑。
+// ═══════════════════════════════════════════════════════════════
 
-// ── 导入 OneSignal 官方 SW（处理服务端 push 订阅）───────────────
-importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-// ── 保活常量 ────────────────────────────────────────────────────
-const SW_VERSION   = 'v5';
-const CACHE_NAME   = 'jingyu-v5';
-// 超过此时间未收到 ping，认为页面已挂起，SW 主动触发 Background Sync
-const PING_TIMEOUT_MS = 45000;
+// ───────────────────────────────────────────────────────────────
+// 以下是给 app 自定义追加的部分，OneSignal 的推送逻辑不受影响
+// ───────────────────────────────────────────────────────────────
 
-// ── SW 内部状态 ─────────────────────────────────────────────────
-let lastPingAt = Date.now();
-let selfHealTimer = null;
-
-// 自愈定时器：每 20s 检查一次 ping 是否超时
-// 若超时（页面被挂起/Worker 被节流），SW 自行注册 Background Sync
-// 这是在页面完全沉默时 SW 保持存活的"心跳"
-const startSelfHeal = () => {
-    if (selfHealTimer) return;
-    selfHealTimer = setInterval(() => {
-        const silent = Date.now() - lastPingAt;
-        if (silent > PING_TIMEOUT_MS) {
-            // 超时：页面可能已挂起，主动注册 Background Sync 唤醒
-            self.registration.sync?.register('keep-alive').catch(() => {});
-            console.log(`[SW ${SW_VERSION}] 自愈触发，静默 ${Math.round(silent/1000)}s`);
-        }
-    }, 20000);
-};
-
-// ── install ──────────────────────────────────────────────────────
-self.addEventListener('install', (event) => {
-    console.log(`[SW ${SW_VERSION}] install`);
-    // skipWaiting：新版本 SW 立刻激活，不等旧页面关闭
-    event.waitUntil(self.skipWaiting());
-});
-
-// ── activate ────────────────────────────────────────────────────
-self.addEventListener('activate', (event) => {
-    console.log(`[SW ${SW_VERSION}] activated`);
-    event.waitUntil(
-        Promise.all([
-            self.clients.claim(),                   // 立刻接管所有已打开的页面
-            // 清理旧版本缓存
-            caches.keys().then(keys =>
-                Promise.all(
-                    keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-                )
-            ),
-            // 激活即注册 Background Sync，确保后台唤醒能力
-            self.registration.sync?.register('keep-alive').catch(() => {})
-        ]).then(() => {
-            startSelfHeal(); // 启动自愈定时器
-        })
-    );
-});
-
-// ── fetch ────────────────────────────────────────────────────────
-// 注意：OneSignal importScripts 后可能已注册了 fetch handler。
-// 为避免冲突，我们用 try-catch 包裹 respondWith，
-// 并只处理 OneSignal 不会处理的请求（同源 HTML / 保活 ping）。
-self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-
-    // 只处理同源请求
-    if (url.origin !== self.location.origin) return;
-
-    // 保活 ping（HEAD /favicon.ico?_ka=...）
-    if (url.pathname === '/favicon.ico' && url.searchParams.has('_ka')) {
-        event.respondWith(
-            fetch(event.request, { cache: 'no-store' })
-                .catch(() => new Response('', { status: 204 }))
-        );
-        return;
-    }
-
-    // HTML 入口：永远走网络，不读缓存（保证 GitHub push 后立刻生效）
-    if (url.pathname === '/' || url.pathname.endsWith('.html')) {
-        event.respondWith(
-            fetch(event.request, { cache: 'no-store' })
-                .catch(() => caches.match(event.request))
-        );
-        return;
-    }
-
-    // 其他同源静态资源：网络优先 + 缓存备用
-    event.respondWith(
-        fetch(event.request)
-            .then(res => {
-                if (event.request.method === 'GET' && res.ok) {
-                    caches.open(CACHE_NAME)
-                          .then(c => c.put(event.request, res.clone()))
-                          .catch(() => {});
-                }
-                return res;
-            })
-            .catch(() => caches.match(event.request))
-    );
-});
-
-// ── message：接收页面的消息 ──────────────────────────────────────
-// 每个分支都必须调用 event.waitUntil()，否则 SW 会在 handler 执行完后被杀死
+// 页面 ⇄ SW 消息通道：
+//   ping      → 页面用来检测 SW 是否还活着（心跳）
+//   show-notification → 页面切到后台时，让 SW 代为弹出系统通知
+//                        （SW 级别的 showNotification 比页面里直接
+//                        new Notification() 更不容易被系统吞掉/延迟）
+//   page-hidden → 记录一下页面隐藏的时间戳，目前仅供调试用
 self.addEventListener('message', (event) => {
     const data = event.data;
-    if (!data?.type) return;
+    if (!data || !data.type) return;
 
-    // 更新最后心跳时间
-    lastPingAt = Date.now();
-
-    // ── ping ─────────────────────────────────────────────────────
     if (data.type === 'ping') {
-        if (!selfHealTimer) startSelfHeal(); // 确保自愈定时器在运行
-        event.waitUntil(
-            self.clients
-                .matchAll({ type: 'window', includeUncontrolled: true })
-                .then(clients => {
-                    clients.forEach(c => c.postMessage({
-                        type: 'pong',
-                        ts: Date.now(),
-                        version: SW_VERSION
-                    }));
-                    // 每次 ping 同时重新注册 Background Sync
-                    return self.registration.sync?.register('keep-alive').catch(() => {});
-                })
-        );
+        event.source?.postMessage({ type: 'pong', ts: Date.now() });
         return;
     }
 
-    // ── 页面进入后台 ─────────────────────────────────────────────
-    if (data.type === 'page-hidden') {
-        event.waitUntil(
-            self.registration.sync?.register('keep-alive').catch(() => Promise.resolve())
-        );
-        return;
-    }
-
-    // ── 显示通知（最可靠路径：由 SW 在 waitUntil 内发出）────────
     if (data.type === 'show-notification') {
-        const { title = '新消息', body = '', icon, tag } = data;
-        event.waitUntil(
-            self.registration.showNotification(title, {
-                body: body || '',
-                icon: icon || '/icon-192.png',
-                badge: '/icon-192.png',
-                tag: tag || ('chat-' + Date.now()),
-                renotify: true,     // 同 tag 也重新弹出（确保每条消息都可见）
-                silent: false,
-                data: { type: 'chat', origin: self.location.origin }
-            })
-        );
+        self.registration.showNotification(data.title || '消息提醒', {
+            body: data.body || '',
+            icon: data.icon || '/icon-192.png',
+            badge: data.badge || '/icon-192.png',
+            tag: data.tag || 'app-message',       // 有 tag 就用页面给的（比如每条消息独立 tag），没有就用默认值
+            renotify: data.renotify !== undefined ? data.renotify : true,
+            silent: data.silent || false,
+            // __appCustom 标记这是本 app 自己发的通知，供下面 notificationclick 区分，
+            // 不去跟 OneSignal 自己推送的通知抢点击事件
+            data: { ...(data.data || {}), __appCustom: true },
+        }).catch(() => {});
         return;
     }
 
-    // ── Watchdog 节流通知 ────────────────────────────────────────
-    if (data.type === 'wakeup') {
-        event.waitUntil(
-            self.registration.sync?.register('keep-alive').catch(() => Promise.resolve())
-        );
+    if (data.type === 'page-hidden') {
+        self.__pageHiddenAt = data.ts || Date.now();
         return;
     }
 });
 
-// ── Background Sync ──────────────────────────────────────────────
-// 浏览器在有网络时会唤醒 SW 执行此任务
-// 即使页面被完全挂起，Chrome Android 也能通过这个路径触发消息
-self.addEventListener('sync', (event) => {
-    if (event.tag !== 'keep-alive') return;
+// 点击上面这个自定义通知时，把已经打开的窗口切到前台；
+// 没有已打开的窗口就开一个新的。
+// 只处理带 __appCustom 标记的通知——OneSignal 自己推送的通知
+// 由上面 importScripts 进来的官方逻辑处理，这里不会跟它抢点击事件。
+self.addEventListener('notificationclick', (event) => {
+    if (!event.notification.data || !event.notification.data.__appCustom) return;
+    event.notification.close();
     event.waitUntil(
-        self.clients
-            .matchAll({ type: 'window', includeUncontrolled: true })
-            .then(clients => {
-                if (clients.length === 0) {
-                    // 没有打开的页面：SW 独立运行（真正的后台）
-                    // 此时只能依赖 OneSignal 的服务端推送
-                    console.log(`[SW ${SW_VERSION}] 后台独立运行，无活跃页面`);
-                    return;
-                }
-                // 通知页面触发一次自动回复
-                clients.forEach(c => c.postMessage({
-                    type: 'trigger-reply',
-                    source: 'background-sync'
-                }));
-            })
-    );
-});
-
-// ── Periodic Background Sync（Chrome Android 支持）───────────────
-self.addEventListener('periodicsync', (event) => {
-    if (event.tag === 'periodic-heartbeat') {
-        event.waitUntil(
-            self.clients.matchAll({ type: 'window' }).then(clients => {
-                clients.forEach(c => c.postMessage({ type: 'trigger-reply', source: 'periodic-sync' }));
-            })
-        );
-    }
-});
-
-// ── push：服务端推送（OneSignal REST API）───────────────────────
-self.addEventListener('push', (event) => {
-    // OneSignal 的 push 由 importScripts 里的代码处理
-    // 这里处理自定义 VAPID push（如果有）
-    if (!event.data) return;
-    let payload;
-    try { payload = event.data.json(); }
-    catch { payload = { title: '新消息', body: event.data.text() }; }
-    const { title = '新消息', body = '', icon = '/icon-192.png' } = payload;
-    event.waitUntil(
-        self.registration.showNotification(title, {
-            body, icon, badge: '/icon-192.png',
-            tag: 'push-' + Date.now(), renotify: true,
-            data: { type: 'chat', origin: self.location.origin }
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+            const existing = list.find(c => 'focus' in c);
+            if (existing) return existing.focus();
+            if (self.clients.openWindow) return self.clients.openWindow('/');
         })
     );
 });
-
-// ── notificationclick ───────────────────────────────────────────
-self.addEventListener('notificationclick', (event) => {
-    const d = event.notification.data;
-    if (!d || d.type !== 'chat') return;    // 只处理我们自己发的通知
-    event.notification.close();
-    event.waitUntil(
-        self.clients
-            .matchAll({ type: 'window', includeUncontrolled: true })
-            .then(clients => {
-                const origin = d.origin || self.location.origin;
-                const existing = clients.find(c => c.url.startsWith(origin));
-                if (existing) return existing.focus();
-                return self.clients.openWindow('/');
-            })
-    );
-});
-
-console.log(`[SW ${SW_VERSION}] loaded`);
