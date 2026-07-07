@@ -1314,9 +1314,72 @@
 
     <div v-show="!showSplash" class="w-full md:max-w-md h-full flex flex-col glass-panel md:shadow-2xl transition-all relative overflow-hidden rounded-none md:rounded-[2.5rem]">
 
+        <!-- ===== 桌面主页面 ===== -->
+        <div v-show="currentScreen === 'home'" class="h-full w-full flex flex-col overflow-y-auto relative bg-cover bg-center"
+             :style="settings.homeWallpaper ? { backgroundImage: `url(${settings.homeWallpaper})` } : {}">
+            <div class="flex-1 flex flex-col px-5 pt-12 pb-8 gap-9">
+                <!-- 情侣卡片 -->
+                <div class="bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl rounded-[2rem] pt-10 pb-6 px-6 text-center shadow-lg border border-white/60 dark:border-slate-600/40 relative mt-8 shrink-0">
+                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 flex">
+                        <div class="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-md -mr-3 relative z-10">
+                            <img v-if="profiles.me.avatar" :src="profiles.me.avatar" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-lg">{{ profiles.me.name.charAt(0) }}</div>
+                        </div>
+                        <div class="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-md relative">
+                            <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-lg">{{ profiles.them.name.charAt(0) }}</div>
+                        </div>
+                    </div>
+                    <h1 class="text-xl font-bold text-slate-700 dark:text-slate-100 mt-2">{{ coupleTitle }}</h1>
+                    <p v-if="settings.coupleTagline" class="text-xs text-muted mt-1.5">{{ settings.coupleTagline }}</p>
+                </div>
+
+                <!-- 时钟 -->
+                <div class="text-center shrink-0">
+                    <div class="text-[2.75rem] leading-none font-bold text-slate-700 dark:text-slate-100 tracking-wide" style="font-variant-numeric: tabular-nums;">{{ homeTimeText }}</div>
+                    <div class="text-xs text-muted mt-2">{{ homeDateText }}</div>
+                </div>
+
+                <!-- 应用图标网格 -->
+                <div class="grid grid-cols-3 gap-y-7 gap-x-2">
+                    <button @click="openChat" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">聊天</span>
+                    </button>
+                    <button @click="modals.letterHistory = true" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition relative">
+                            <i data-lucide="mail" class="w-6 h-6"></i>
+                            <span v-if="pendingLetter" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-400 border-2 border-white rounded-full"></span>
+                        </div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">信笺</span>
+                    </button>
+                    <button @click="modals.replyManager = true" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="library" class="w-6 h-6"></i></div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">语料库</span>
+                    </button>
+                    <button @click="modals.notebook = true" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">日历</span>
+                    </button>
+                    <button @click="modals.favorites = true" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="star" class="w-6 h-6"></i></div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">收藏</span>
+                    </button>
+                    <button @click="modals.settings = true" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="sliders-horizontal" class="w-6 h-6"></i></div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">设置</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 聊天界面（header + 消息列表 + 输入区），用 display:contents 包裹，
+             这样 v-show 切换时不影响 header/main/footer 作为 flex 子元素的布局 ===== -->
+        <div v-show="currentScreen === 'chat'" class="contents">
         <!-- ===== 顶栏 Header ===== -->
         <header class="h-16 flex items-center justify-between px-4 shrink-0 border-b border-white/60 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl z-30 rounded-t-[2.5rem]">
             <div class="flex items-center gap-3 min-w-0 flex-1">
+                <button @click="goHome" class="jelly-btn shrink-0 mr-0.5" title="返回主页面"><i data-lucide="home" class="w-4 h-4"></i></button>
                 <div class="relative cursor-pointer group shrink-0" @click="editProfile('them')">
                     <div class="w-9 h-9 rounded-2xl overflow-hidden border-2 border-white shadow-md transition-transform group-active:scale-95" :style="{ borderRadius: settings.avatarRadius + '%' }">
                         <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
@@ -1352,17 +1415,10 @@
                 <button @click="restoreCall" v-if="callState.status === 'minimized'" class="jelly-btn text-green-400 animate-pulse" title="恢复通话">
                     <i data-lucide="phone-call" class="w-4 h-4"></i>
                 </button>
-                <button @click="modals.notebook = true" class="jelly-btn relative"><i data-lucide="calendar-days" class="w-4 h-4"></i></button>
-                <button @click="modals.letterHistory = true" class="jelly-btn relative">
-                    <i data-lucide="mail" class="w-4 h-4"></i>
-                    <span v-if="pendingLetter" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-400 border-2 border-white rounded-full"></span>
-                </button>
                 <button @click="modals.replyManager = true" class="jelly-btn"><i data-lucide="library" class="w-4 h-4"></i></button>
-                <button @click="modals.favorites = true" class="jelly-btn relative" title="收藏">
+                <button @click="modals.favorites = true" class="jelly-btn" title="收藏">
                     <i data-lucide="star" class="w-4 h-4"></i>
-                    <span v-if="favorites.length" class="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-0.5 bg-amber-400 border-2 border-white rounded-full text-[8px] text-white flex items-center justify-center leading-none">{{ favorites.length > 99 ? '99+' : favorites.length }}</span>
                 </button>
-                <button @click="modals.settings = true" class="jelly-btn"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
             </div>
         </header>
 
@@ -1503,7 +1559,7 @@
                         </select>
                     </div>
                     <div class="flex gap-1">
-                        <button @click="modals.stickerManager = true" class="text-[10px] bg-accent/10 px-3 py-1 rounded-full text-accent hover:bg-accent/20 transition font-medium">管理</button>
+                        <button @click="modals.replyManager = true; corpusTab = 'stickers'" class="text-[10px] bg-accent/10 px-3 py-1 rounded-full text-accent hover:bg-accent/20 transition font-medium">管理</button>
                         <button @click="modals.stickerPicker = false" class="text-muted p-1 hover:text-accent transition bg-white/50 rounded-full"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
                     </div>
                 </div>
@@ -1542,9 +1598,6 @@
                 <button @click="triggerImageUpload" class="p-2.5 text-muted hover:text-accent hover:bg-white/60 rounded-xl transition-all">
                     <i data-lucide="image" class="w-5 h-5"></i>
                 </button>
-                <button @click="modals.letter = true" class="p-2.5 text-muted hover:text-accent hover:bg-white/60 rounded-xl transition-all">
-                    <i data-lucide="feather" class="w-5 h-5"></i>
-                </button>
                 <button @click="showPokePicker" class="p-2.5 text-muted hover:text-purple-500 hover:bg-purple-50/60 rounded-xl transition-all" title="拍一拍">
                     <i data-lucide="hand" class="w-5 h-5"></i>
                 </button>
@@ -1561,6 +1614,10 @@
                 </button>
             </div>
         </footer>
+        </div>
+        <!-- ↑ 聊天界面(header+消息列表+输入区)包裹结束。
+             下面这些 Modal（设置/语料库/信箱/收藏/日历等）是全局的，
+             不管当前在主页面还是聊天页面，都可以被对应的图标/按钮打开。 -->
 
         <!-- ===== 偏好设置 Modal ===== -->
         <transition name="fade">
@@ -1614,14 +1671,7 @@
                                 </div>
                             </div>
                             <div class="bg-white/60 dark:bg-slate-700/40 p-3 rounded-2xl border border-white/50 space-y-2">
-                                <div>
-                                    <span class="text-[10px] text-muted">💬 随机状态预设 <span class="opacity-60">(逗号分隔)</span></span>
-                                    <input v-model="profiles.them.statusPresets" class="w-full bg-white/90 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                                </div>
-                                <div>
-                                    <span class="text-[10px] text-muted"> 🫳🏻 拍一拍预设 <span class="opacity-60">(逗号分隔)</span></span>
-                                    <input v-model="settings.pokePresets" placeholder="{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋" class="w-full bg-white/90 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2 text-xs mt-1 outline-none focus:ring-1 focus:ring-accent shadow-inner">
-                                </div>
+                                <p class="text-[10px] text-muted leading-relaxed">💡 状态预设 / 拍一拍预设已经搬到「语料库」里对应的分栏了，这里不用重复填。</p>
                             </div>
                         </section>
 
@@ -1787,6 +1837,40 @@
                             </div>
                         </section>
 
+                        <!-- 主页面壁纸与标题 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-pink-50/70 to-rose-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">🏠</span>
+                                <label class="text-[11px] font-bold text-rose-500 dark:text-rose-300 uppercase tracking-wider">桌面主页面</label>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 cursor-pointer bg-white/70 dark:bg-slate-700/50 border border-accent/20 rounded-2xl px-4 py-2.5 hover:bg-white/90 transition text-sm font-medium text-accent">
+                                    <i data-lucide="image-plus" class="w-4 h-4"></i>
+                                    <span>选择主页面壁纸</span>
+                                    <input type="file" accept="image/*" class="hidden" @change="uploadHomeWallpaper">
+                                </label>
+                                <div class="flex gap-2">
+                                    <input v-model="settings.homeWallpaperUrl" placeholder="或输入图片 URL..." class="flex-1 bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                    <button @click="applyHomeWallpaperUrl" class="bg-accent text-white px-4 rounded-xl text-xs font-medium shadow-md hover:bg-opacity-90 transition shrink-0">应用</button>
+                                </div>
+                                <div v-if="settings.homeWallpaper" class="flex items-center gap-3 bg-white/60 p-2 rounded-xl">
+                                    <img :src="settings.homeWallpaper" class="w-12 h-9 object-cover rounded-lg border border-white/60 shadow-sm">
+                                    <div class="flex-1">
+                                        <p class="text-[10px] text-muted">当前主页面壁纸已设置</p>
+                                        <button @click="settings.homeWallpaper = ''; settings.homeWallpaperUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">✕ 清除壁纸</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted block mb-1">主页面标题（留空则自动显示"{{ profiles.me.name }} & {{ profiles.them.name }}"）</span>
+                                    <input v-model="settings.coupleName" placeholder="例如：我 & 哥哥" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted block mb-1">副标题</span>
+                                    <input v-model="settings.coupleTagline" placeholder="例如：夏意 永不凋谢" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                </div>
+                            </div>
+                        </section>
+
                         <!-- 通话背景 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-slate-50/70 to-gray-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
@@ -1886,6 +1970,32 @@
                                     class="w-full py-2 bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-300 rounded-xl text-xs font-medium hover:bg-sky-500/20 transition flex items-center justify-center gap-1.5">
                                 <i data-lucide="upload" class="w-3.5 h-3.5"></i>立即备份一次
                             </button>
+                            <div class="text-[10px] text-muted px-1 pt-1 border-t border-white/50 dark:border-slate-600/30 leading-relaxed">
+                                💡 这个云备份会自动保存，但只是"这台设备"的安全网——防止你清缓存/重装丢数据。<b>换新手机不会自动带过去</b>，需要用下面的"换设备恢复"，或者用"全量导出/导入"手动搬家。
+                            </div>
+                        </section>
+
+                        <!-- 换设备恢复 -->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-emerald-50/60 to-teal-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base">📲</span>
+                                <label class="text-[11px] font-bold text-emerald-600 dark:text-emerald-300 uppercase tracking-wider">换设备恢复</label>
+                            </div>
+                            <div class="text-[10px] text-muted px-1 leading-relaxed">
+                                每台设备都有一个专属"设备ID"。想把旧手机的聊天记录搬到新手机上：先在<b>旧手机</b>这里复制设备ID，再在<b>新手机</b>打开这个 app，把ID粘贴到下面输入框，点"恢复"。
+                            </div>
+                            <div class="flex items-center gap-2 bg-white/60 dark:bg-slate-700/40 rounded-xl px-3 py-2">
+                                <span class="text-[10px] text-muted shrink-0">本机设备ID</span>
+                                <code class="text-[10px] text-slate-600 dark:text-slate-300 truncate flex-1">{{ CLOUD_DEVICE_ID }}</code>
+                                <button @click="copyDeviceId" class="text-emerald-600 dark:text-emerald-300 shrink-0"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                            </div>
+                            <div class="flex gap-2">
+                                <input v-model="restoreFromDeviceId" placeholder="粘贴旧设备的ID..." class="flex-1 bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                <button @click="restoreFromOtherDevice" :disabled="restoringFromDevice"
+                                        class="bg-emerald-500 text-white px-4 rounded-xl text-xs font-medium shadow-md hover:bg-opacity-90 disabled:opacity-50 transition shrink-0">
+                                    {{ restoringFromDevice ? '恢复中...' : '恢复' }}
+                                </button>
+                            </div>
                         </section>
 
                         <!-- GitHub 直传备份 -->
@@ -1974,6 +2084,18 @@
                 </div>
               </div>
 
+              <!-- ── 分栏 Tab：回复语料 / 表情包 / 状态预设 / 拍一拍预设 ──────── -->
+              <div class="flex bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 shrink-0 px-2">
+                <button v-for="t in [{k:'replies',label:'回复语料'},{k:'stickers',label:'表情包'},{k:'status',label:'状态预设'},{k:'poke',label:'拍一拍'}]" :key="t.k"
+                        @click="corpusTab = t.k"
+                        class="flex-1 py-2.5 text-[12px] font-bold text-center transition border-b-2"
+                        :class="corpusTab === t.k ? 'text-accent border-accent' : 'text-muted border-transparent'">
+                  {{ t.label }}
+                </button>
+              </div>
+
+              <!-- ── 回复语料面板 ─────────────────────────────────────── -->
+              <div v-show="corpusTab === 'replies'" class="contents">
               <!-- ── 搜索 + 工具栏 ─────────────────────────────────── -->
               <div class="bg-white dark:bg-slate-800 px-3 pb-3 flex gap-2 shrink-0 border-b border-slate-100 dark:border-slate-700">
                 <div class="relative flex-1">
@@ -2157,6 +2279,51 @@
               </transition>
               <div v-if="showMovePanel" class="absolute inset-0 z-20 bg-black/10 rounded-t-[2rem]" @click="showMovePanel=false"></div>
 
+              </div>
+              <!-- ↑ 回复语料面板结束 -->
+
+              <!-- ── 表情包面板（原"表情管理"弹窗的内容搬过来，不再重复一份）──── -->
+              <div v-show="corpusTab === 'stickers'" class="flex-1 flex flex-col overflow-hidden">
+                <div class="flex border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-x-auto shrink-0">
+                  <div v-for="g in stickerGroups" :key="g.id" @click="currentStickerGroupId = g.id"
+                       :class="currentStickerGroupId===g.id ? 'text-accent border-b-2 border-accent bg-slate-50 dark:bg-slate-700/50' : 'text-muted'"
+                       class="shrink-0 py-2.5 px-4 text-xs font-bold text-center cursor-pointer transition">{{ g.name }}</div>
+                </div>
+                <div class="p-3 flex gap-2 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 shrink-0">
+                  <button @click="addStickerGroup" class="text-xs border border-slate-200 dark:border-slate-600 px-4 py-1.5 rounded-full bg-white dark:bg-slate-700 hover:bg-slate-50 shadow-sm">+ 新建分组</button>
+                  <label class="text-xs border border-accent/30 px-4 py-1.5 rounded-full bg-accent/10 text-accent font-medium hover:bg-accent/20 shadow-sm cursor-pointer">
+                    批量上传<input type="file" accept="image/*" multiple class="hidden" @change="batchImportStickers">
+                  </label>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 grid grid-cols-4 auto-rows-max gap-4 bg-slate-50 dark:bg-slate-900/30 content-start">
+                  <div v-for="(s,idx) in currentStickerGroup.stickers" :key="idx" class="relative group aspect-square rounded-2xl overflow-hidden border border-white dark:border-slate-700 shadow-sm bg-white dark:bg-slate-700 flex items-center justify-center p-1">
+                    <img :src="s.dataURL" class="w-full h-full object-contain rounded-xl">
+                    <button @click="deleteSticker(s)" class="absolute top-1 right-1 bg-red-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-md"><i data-lucide="x" class="w-3 h-3"></i></button>
+                  </div>
+                  <div v-if="!currentStickerGroup.stickers.length" class="col-span-4 text-center text-xs text-muted mt-10 opacity-60">这个分组还没有表情包~</div>
+                </div>
+              </div>
+
+              <!-- ── 状态预设面板 ─────────────────────────────────────── -->
+              <div v-show="corpusTab === 'status'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
+                  <span class="text-xs font-bold text-slate-600 dark:text-slate-300">💬 随机状态预设</span>
+                  <p class="text-[10.5px] text-muted leading-relaxed">对方主页那句"✨ 星光漫游"之类的小状态，会不定时从这里随机换一条。用逗号分隔多条。</p>
+                  <textarea v-model="profiles.them.statusPresets" rows="4" placeholder="✨ 星光漫游, 在摸鱼, 今天也很想你"
+                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-xs outline-none focus:border-accent resize-none leading-relaxed"></textarea>
+                </div>
+              </div>
+
+              <!-- ── 拍一拍预设面板 ─────────────────────────────────────── -->
+              <div v-show="corpusTab === 'poke'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
+                  <span class="text-xs font-bold text-slate-600 dark:text-slate-300">🫳🏻 拍一拍预设</span>
+                  <p class="text-[10.5px] text-muted leading-relaxed">用 <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">{me}</code> / <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">{them}</code> 代表双方昵称，逗号分隔多条，拍一拍时随机挑一条。</p>
+                  <textarea v-model="settings.pokePresets" rows="4" placeholder="{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋"
+                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-xs outline-none focus:border-accent resize-none leading-relaxed"></textarea>
+                </div>
+              </div>
+
             </div>
           </div>
         </transition>
@@ -2298,40 +2465,26 @@
             </div>
         </transition>
 
-        <!-- ===== 表情管理 Modal ===== -->
-        <transition name="fade">
-            <div v-if="modals.stickerManager" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[110] flex items-center justify-center p-4" @click.self="modals.stickerManager = false">
-                <div class="bg-white/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[75vh] backdrop-blur-xl border border-white/70">
-                    <div class="p-5 border-b border-white/60 flex justify-between items-center">
-                        <h3 class="font-bold text-lg text-slate-700">🖼️ 表情管理</h3>
-                        <button @click="modals.stickerManager = false" class="bg-white/60 p-1.5 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-                    </div>
-                    <div class="flex border-b border-white/60 bg-white/40 overflow-x-auto">
-                        <div v-for="g in stickerGroups" @click="currentStickerGroupId = g.id" :class="currentStickerGroupId===g.id?'text-accent border-b-2 border-accent bg-white/70':'text-muted'" class="flex-1 py-3 px-4 text-xs font-bold text-center cursor-pointer transition">{{g.name}}</div>
-                    </div>
-                    <div class="p-3 flex gap-2 bg-white/50 border-b border-white/60 shadow-inner">
-                        <button @click="addStickerGroup" class="text-xs border border-white/70 px-4 py-1.5 rounded-full bg-white/80 hover:bg-white shadow-sm">+ 新建分组</button>
-                        <label class="text-xs border border-accent/30 px-4 py-1.5 rounded-full bg-accent/10 text-accent font-medium hover:bg-accent/20 shadow-sm cursor-pointer">
-                            批量上传<input type="file" accept="image/*" multiple class="hidden" @change="batchImportStickers">
-                        </label>
-                    </div>
-                    <div class="flex-1 overflow-y-auto p-4 grid grid-cols-4 auto-rows-max gap-4 bg-white/30 content-start">
-                        <div v-for="(s,idx) in currentStickerGroup.stickers" :key="idx" class="relative group aspect-square rounded-2xl overflow-hidden border border-white/60 shadow-sm bg-white/60 flex items-center justify-center p-1">
-                            <img :src="s.dataURL" class="w-full h-full object-contain rounded-xl">
-                            <button @click="deleteSticker(s)" class="absolute top-1 right-1 bg-red-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-md"><i data-lucide="x" class="w-3 h-3"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </transition>
-
-        <!-- ===== 时光信箱历史 Modal ===== -->
+        <!-- ===== 信笺 Modal（信箱历史 + 写信 合并）===== -->
         <transition name="fade">
             <div v-if="modals.letterHistory" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.letterHistory = false">
                 <div class="bg-white/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl h-[75vh] flex flex-col backdrop-blur-xl border border-white/70">
-                    <div class="p-5 border-b border-white/60 flex justify-between items-center">
-                        <h3 class="font-bold text-lg text-slate-700">📬 时光信箱</h3>
-                        <button @click="modals.letterHistory = false" class="bg-white/60 p-1.5 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <div class="p-5 border-b border-white/60 flex justify-between items-center shrink-0">
+                        <h3 class="font-bold text-lg text-slate-700">📬 信笺</h3>
+                        <div class="flex items-center gap-2">
+                            <button @click="showLetterCompose = !showLetterCompose" class="text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1 transition" :class="showLetterCompose ? 'bg-accent text-white' : 'bg-accent/10 text-accent'">
+                                <i data-lucide="feather" class="w-3.5 h-3.5"></i>写信
+                            </button>
+                            <button @click="modals.letterHistory = false" class="bg-white/60 p-1.5 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+                    <!-- 写信展开区：默认收起，点右上角"写信"展开 -->
+                    <div v-if="showLetterCompose" class="p-5 border-b border-white/60 bg-white/40 shrink-0">
+                        <textarea v-model="letterContent" rows="4" placeholder="写下你想对TA说的话，这封信将在未来得到回复..." class="w-full bg-white/70 border border-white/70 rounded-2xl p-3 text-sm outline-none focus:ring-1 focus:ring-accent shadow-inner resize-none leading-relaxed"></textarea>
+                        <div class="flex gap-2 mt-3">
+                            <button @click="showLetterCompose = false; letterContent = ''" class="flex-1 py-2 bg-white/70 border border-white/70 rounded-2xl text-sm font-medium shadow-sm hover:bg-slate-50">取消</button>
+                            <button @click="sendLetter" :disabled="!letterContent.trim()" class="flex-1 py-2 bg-accent text-white rounded-2xl text-sm font-medium shadow-md hover:bg-opacity-90 disabled:opacity-50 transition">寄出 · 等待回音</button>
+                        </div>
                     </div>
                     <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-white/30">
                         <div v-for="l in letterHistory" :key="l.id" class="bg-white/80 p-5 rounded-[1.5rem] border border-white/70 shadow-sm">
@@ -2344,7 +2497,7 @@
                                 <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap"><span class="text-xl mr-1">📩</span>{{l.reply}}</p>
                             </div>
                         </div>
-                        <div v-if="letterHistory.length === 0" class="text-center text-xs text-muted mt-10 opacity-60">还没有寄出过信件哦~</div>
+                        <div v-if="letterHistory.length === 0" class="text-center text-xs text-muted mt-10 opacity-60">还没有寄出过信件哦~<br>点右上角"写信"寄出第一封信</div>
                     </div>
                 </div>
             </div>
@@ -2355,7 +2508,7 @@
             <div v-if="modals.favorites" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.favorites = false">
                 <div class="bg-white/90 dark:bg-slate-800/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl h-[75vh] flex flex-col backdrop-blur-xl border border-white/70 dark:border-slate-600/40">
                     <div class="p-5 border-b border-white/60 dark:border-slate-600/40 flex justify-between items-center">
-                        <h3 class="font-bold text-lg text-slate-700 dark:text-slate-200">⭐ 收藏</h3>
+                        <h3 class="font-bold text-lg text-slate-700 dark:text-slate-200">⭐ 收藏 <span class="text-xs font-normal text-muted">共 {{ favorites.length }} 条</span></h3>
                         <button @click="modals.favorites = false" class="bg-white/60 dark:bg-slate-700/60 p-1.5 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
                     </div>
                     <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-white/30 dark:bg-transparent">
@@ -2376,20 +2529,6 @@
                             </div>
                         </div>
                         <div v-if="favorites.length === 0" class="text-center text-xs text-muted mt-10 opacity-60">还没有收藏任何消息~<br>双击消息试试看</div>
-                    </div>
-                </div>
-            </div>
-        </transition>
-
-        <!-- ===== 书写长信 Modal ===== -->
-        <transition name="fade">
-            <div v-if="modals.letter" class="fixed inset-0 bg-slate-900/30 backdrop-blur-md z-[120] flex items-center justify-center p-6" @click.self="modals.letter = false">
-                <div class="bg-white/95 w-full max-w-sm rounded-[2.5rem] p-6 backdrop-blur-xl border border-white/70 shadow-2xl">
-                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-700"><i data-lucide="feather" class="text-accent"></i>书写长信</h3>
-                    <textarea v-model="letterContent" rows="6" placeholder="写下你想对TA说的话，这封信将在未来得到回复..." class="w-full bg-white/70 border border-white/70 rounded-2xl p-4 text-sm outline-none focus:ring-1 focus:ring-accent shadow-inner resize-none leading-relaxed"></textarea>
-                    <div class="flex gap-3 mt-5">
-                        <button @click="modals.letter = false" class="flex-1 py-3 bg-white border border-white/70 rounded-2xl font-medium shadow-sm hover:bg-slate-50">取消</button>
-                        <button @click="sendLetter" :disabled="!letterContent.trim()" class="flex-1 py-3 bg-accent text-white rounded-2xl font-medium shadow-md hover:bg-opacity-90 disabled:opacity-50 transition">寄出 · 等待回音</button>
                     </div>
                 </div>
             </div>
@@ -3297,6 +3436,10 @@ createApp({
             fragmentReplyChance: 0, // 随机把1~3条语料拼在一起组合成一句话发出的概率（0~100，0=关闭）
             noReplyChance: 0, // 已读不回的概率（0~100，0=关闭：消息照常已读+回复）
             avatarRadius: 40, bgImage: '', bgImageUrl: '', customCSS: '',
+            // ===== 桌面主页面 =====
+            homeWallpaper: '', homeWallpaperUrl: '', // 主页面壁纸（跟聊天背景 bgImage 是分开的两张图）
+            coupleName: '', // 主页面标题，例如"我 & 哥哥"；留空则自动用 me/them 的名字拼
+            coupleTagline: '夏意 永不凋谢', // 主页面标题下方的小字副标题
             customFontUrl: '', fontFamily: "'Quicksand', 'Noto Serif SC', sans-serif", fontSize: 15,
             soundUrl: '', sendSoundUrl: '', soundVolume: 100,
             callBgImage: '', callBgUrl: '',
@@ -3319,8 +3462,23 @@ createApp({
 
         const modals = reactive({
             settings: false, replyManager: false, stickerPicker: false,
-            stickerManager: false, letter: false, letterHistory: false,
+            letterHistory: false,
             notebook: false, batchInput: false, selectiveExport: false, favorites: false
+        });
+        const showLetterCompose = ref(false); // 信笺面板里"写信"展开区是否打开
+        // 桌面主页面 / 聊天界面 —— 'home' | 'chat'
+        const currentScreen = ref('home');
+        const goHome = () => { currentScreen.value = 'home'; };
+        const openChat = () => { currentScreen.value = 'chat'; };
+        const coupleTitle = computed(() => settings.coupleName?.trim() || `${profiles.me.name} & ${profiles.them.name}`);
+        // 主页面顶部的实时时钟：每 15 秒刷新一次就够了，没必要按秒刷新增加开销
+        const homeClockNow = ref(Date.now());
+        let homeClockTimer = null;
+        const homeTimeText = computed(() => new Date(homeClockNow.value).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }));
+        const homeDateText = computed(() => {
+            const d = new Date(homeClockNow.value);
+            const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+            return `${d.getMonth() + 1}月${d.getDate()}日 ${weekdays[d.getDay()]}`;
         });
         const selectiveExportMode = ref('export'); // 'export' | 'import'
         const selectiveItems = reactive({ messages: true, corpus: true, stickers: false, notes: false });
@@ -3340,6 +3498,8 @@ createApp({
         const currentStickerGroupId = ref('sg1');
 
         const corpusEditing = ref(false);   // 管理模式（显示重命名/删除）
+        // 语料库分栏：回复语料 / 表情包 / 状态预设 / 拍一拍预设，四个板块合并到一个入口里
+        const corpusTab = ref('replies');
         const collapsedGroups = ref([]);    // 已折叠的分组 id 列表
 
         // 用户分组（即 replyGroups 本身，保持语义一致）
@@ -3419,6 +3579,48 @@ createApp({
     }
     // OneSignal 推送订阅ID，OneSignal 就绪并订阅成功后会被写入（见 initNotification）
     const cloudSubId = ref('');
+
+    // 把云端备份数据写入本地各个 ref —— 抽成一个函数，
+    // 这样"本地无数据时自动兜底恢复"和"手动输入其他设备ID恢复"可以共用同一套逻辑，不用写两遍
+    const applyCloudBackup = (cloud) => {
+        if (!cloud) return;
+        if (cloud.messages) messages.value = cloud.messages;
+        if (cloud.profiles) Object.assign(profiles, cloud.profiles);
+        if (cloud.settings) Object.assign(settings, cloud.settings);
+        if (cloud.ungroupedReplies) ungroupedReplies.value = cloud.ungroupedReplies;
+        if (cloud.replyGroups) replyGroups.value = cloud.replyGroups;
+        if (cloud.stickerGroups) stickerGroups.value = cloud.stickerGroups;
+        if (cloud.letterHistory) letterHistory.value = cloud.letterHistory;
+        if (cloud.pendingLetter !== undefined) pendingLetter.value = cloud.pendingLetter;
+        if (cloud.notes) notes.value = cloud.notes;
+        if (cloud.favorites) favorites.value = cloud.favorites;
+        if (cloud.emojiPoolText !== undefined) emojiPoolText.value = cloud.emojiPoolText;
+    };
+
+    // ===== 换设备手动恢复：在设置里输入"旧设备的ID"，从云端把那台设备的存档拉过来 =====
+    const restoreFromDeviceId = ref(''); // 用户输入的、要恢复的那台旧设备的ID
+    const restoringFromDevice = ref(false);
+    const restoreFromOtherDevice = async () => {
+        const targetId = restoreFromDeviceId.value.trim();
+        if (!targetId) { alert('请先填写要恢复的设备ID'); return; }
+        if (!confirm('这会用那台设备的云端存档覆盖当前手机上的聊天记录/设置，确定要继续吗？建议先在"全量导出"里备份一下当前数据。')) return;
+        restoringFromDevice.value = true;
+        try {
+            const res = await fetch('/.netlify/functions/sync-load?deviceId=' + encodeURIComponent(targetId));
+            if (!res.ok) { alert('没有找到这个设备ID对应的云端备份，请检查ID是否输入正确'); return; }
+            const cloud = await res.json();
+            if (!cloud || !cloud.messages) { alert('这个设备ID还没有云端备份数据'); return; }
+            applyCloudBackup(cloud);
+            alert('✅ 已从设备 ' + targetId + ' 恢复数据');
+        } catch (e) {
+            alert('恢复失败：' + (e?.message || e));
+        } finally {
+            restoringFromDevice.value = false;
+        }
+    };
+    const copyDeviceId = () => {
+        navigator.clipboard?.writeText(CLOUD_DEVICE_ID).then(() => alert('已复制本机设备ID')).catch(() => {});
+    };
 
     const buildSavePayload = () => ({
         _version: 'lorstar41_backup_v2',
@@ -4140,7 +4342,7 @@ createApp({
                                 } while (choice === picked[picked.length - 1] && tries < 5);
                                 picked.push(choice);
                             }
-                            t = picked.join('');
+                            t = picked.join(' '); // 用空格分隔不同语料，便于区分是拼出来的几条话
                         } else {
                             t = textPool[Math.floor(Math.random() * textPool.length)].text;
                         }
@@ -4287,7 +4489,7 @@ createApp({
             scheduleOfflinePush("时光信箱", "我收到你的信了，这是我的回信。", totalDelay);
             scheduleLetterReplies(id, replies, totalDelay);
             letterContent.value = '';
-            modals.letter = false;
+            showLetterCompose.value = false;
         };
 
         // 修复：使用 targetAt 精确计算剩余等待时间，避免每次刷新重新随机延迟
@@ -4559,6 +4761,20 @@ createApp({
             settings.bgImage = url;
         };
 
+        // ===== 主页面壁纸（跟上面的聊天背景是两张独立的图）=====
+        const uploadHomeWallpaper = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => { settings.homeWallpaper = ev.target.result; settings.homeWallpaperUrl = ''; };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        };
+        const applyHomeWallpaperUrl = () => {
+            const url = settings.homeWallpaperUrl.trim();
+            if (!url) { alert('请先输入图片链接'); return; }
+            settings.homeWallpaper = url;
+        };
+
         // ===== 分类导出 / 导入 =====
         const doSelectiveExport = () => {
             const items = selectiveItems;
@@ -4822,16 +5038,7 @@ createApp({
 
                 // 本地完全没有数据时（换设备/清过缓存），用云端备份兜底恢复一次
                 if (!data && cloud && cloud.messages) {
-                    if (cloud.messages) messages.value = cloud.messages;
-                    if (cloud.profiles) Object.assign(profiles, cloud.profiles);
-                    if (cloud.settings) Object.assign(settings, cloud.settings);
-                    if (cloud.ungroupedReplies) ungroupedReplies.value = cloud.ungroupedReplies;
-                    if (cloud.replyGroups) replyGroups.value = cloud.replyGroups;
-                    if (cloud.stickerGroups) stickerGroups.value = cloud.stickerGroups;
-                    if (cloud.letterHistory) letterHistory.value = cloud.letterHistory;
-                    if (cloud.notes) notes.value = cloud.notes;
-                    if (cloud.favorites) favorites.value = cloud.favorites;
-                    if (cloud.emojiPoolText !== undefined) emojiPoolText.value = cloud.emojiPoolText;
+                    applyCloudBackup(cloud);
                     console.log('[云端同步] 本地无数据，已从云端恢复备份');
                 }
 
@@ -4867,6 +5074,8 @@ createApp({
                 restoreNoteReminders();
                 restartActiveMsgTimer();
                 restartAutoBackupTimer();
+                // 主页面时钟：每15秒刷新一次
+                homeClockTimer = safeSetInterval(() => { homeClockNow.value = Date.now(); }, 15000);
                 setTimeout(() => initNotification(), 3200);
                 scheduleStatusRefresh();
                 scheduleRandomCall();
@@ -4882,7 +5091,7 @@ createApp({
             profiles, settings, modals,
             notifPermStatus, isIOS, isInstalledPWA, initNotification,
             selectiveExportMode, selectiveItems, expandedNotes, doSelectiveExport, doSelectiveImport,
-            ungroupedReplies, replyGroups, userGroups, corpusEditing,
+            ungroupedReplies, replyGroups, userGroups, corpusEditing, corpusTab,
             collapsedGroups, toggleCollapse, searchQuery, newReplyText, newReplyGroupId, filteredReplies,
             showMovePanel,
             stickerGroups, currentStickerGroupId, currentStickerGroup,
@@ -4896,13 +5105,16 @@ createApp({
             sendMsg, triggerImageUpload, onImageUpload,
             batchImportStickers, sendSticker, deleteSticker, addStickerGroup,
             addGroup, addReply, removeReply, renameGroup, deleteGroup,
-            sendLetter, editProfile, clearChat, exportChat,
+            sendLetter, showLetterCompose, editProfile, clearChat, exportChat,
             refreshStatus, applyFontSettings, applyCSS, testSound,
             shouldShowDate, formatDateSeparator, formatTime, shouldShowAvatar,
             toggleTheme, quotingMsg, quoteMsg, forceBotReply, scrollToMsg,
             renderContent,
             uploadBg, applyBgUrl, globalExport, globalImport,
+            uploadHomeWallpaper, applyHomeWallpaperUrl,
+            currentScreen, goHome, openChat, coupleTitle, homeTimeText, homeDateText,
             manualBackupNow, backupToGitHub,
+            CLOUD_DEVICE_ID, restoreFromDeviceId, restoringFromDevice, restoreFromOtherDevice, copyDeviceId,
             // 视频通话
             callState, formatCallDuration,
             initiateCall, acceptCall, declineCall, hangupCall,
