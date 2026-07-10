@@ -255,6 +255,11 @@
 
         .fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(8px); }
+        /* 全屏页面切换：iOS 风格从底部滑入，用于主页面各功能入口 */
+        .page-slide-enter-active { transition: transform 0.34s cubic-bezier(0.32,0.72,0,1), opacity 0.28s ease; }
+        .page-slide-leave-active { transition: transform 0.26s cubic-bezier(0.4,0,1,1), opacity 0.22s ease; }
+        .page-slide-enter-from { transform: translateY(6%); opacity: 0; }
+        .page-slide-leave-to { transform: translateY(3%); opacity: 0; }
 
         .jelly-btn {
             transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
@@ -480,6 +485,9 @@
         .calendar-cell.has-note:not(.active) { background: rgba(131,157,235,0.1); }
         .note-dot { position: absolute; bottom: 2px; width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 5px rgba(131,157,235,0.7); }
         .calendar-cell.active .note-dot { background: white; box-shadow: none; }
+        /* 潮汐日历：有记录的日子实心高亮，预测范围内的日子用虚线圈出 */
+        .calendar-cell.has-record:not(.active) { background: rgba(244,114,182,0.18); }
+        .calendar-cell.is-predicted:not(.active):not(.has-record) { border: 1.5px dashed rgba(244,114,182,0.5); }
 
         .typing-bubble {
             display: flex; align-items: center; gap: 6px; padding: 10px 16px;
@@ -1361,6 +1369,13 @@
                         <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">日历</span>
                     </button>
+                    <button @click="modals.periodTracker = true" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition relative">
+                            <i data-lucide="waves" class="w-6 h-6"></i>
+                            <span v-if="periodDaysUntilNext !== null && periodDaysUntilNext <= (settings.periodReminderDaysBefore||2) && periodDaysUntilNext >= 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-400 border-2 border-white rounded-full"></span>
+                        </div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">潮汐</span>
+                    </button>
                     <button @click="modals.favorites = true" class="flex flex-col items-center gap-1.5">
                         <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="star" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">收藏</span>
@@ -1619,17 +1634,17 @@
              下面这些 Modal（设置/语料库/信箱/收藏/日历等）是全局的，
              不管当前在主页面还是聊天页面，都可以被对应的图标/按钮打开。 -->
 
-        <!-- ===== 偏好设置 Modal ===== -->
-        <transition name="fade">
-            <div v-if="modals.settings" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.settings = false">
-                <div class="bg-white/92 dark:bg-slate-800/92 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh] backdrop-blur-xl border border-white/80">
+        <!-- ===== 偏好设置（全屏页面）===== -->
+        <transition name="page-slide">
+            <div v-if="modals.settings" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+                <div class="w-full h-full flex flex-col overflow-hidden">
                     <!-- 标题栏 -->
-                    <div class="px-6 py-5 border-b border-white/50 flex justify-between items-center bg-gradient-to-r from-blue-50/60 to-purple-50/40 dark:from-slate-800/60 dark:to-slate-700/40 shrink-0">
+                    <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-3 shrink-0">
+                        <button @click="modals.settings = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                         <div>
-                            <h3 class="font-bold text-lg text-slate-700 dark:text-white flex items-center gap-2">🫐 偏好实验室</h3>
+                            <h3 class="font-bold text-base text-slate-700 dark:text-white">设置</h3>
                             <p class="text-[10px] text-muted mt-0.5">在这里定制你的专属体验</p>
                         </div>
-                        <button @click="modals.settings = false" class="text-muted hover:text-slate-700 bg-white/70 p-2 rounded-full shadow-sm transition"><i data-lucide="x" class="w-4 h-4"></i></button>
                     </div>
 
                     <div class="flex-1 overflow-y-auto p-5 space-y-4">
@@ -1637,7 +1652,7 @@
                         <!-- 我的身份 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">👤</span>
+                                <i data-lucide="user" class="w-4 h-4 text-indigo-500 dark:text-indigo-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">我的身份</label>
                             </div>
                             <div class="flex items-center gap-4 bg-white/70 dark:bg-slate-700/60 p-3 rounded-2xl border border-white/60">
@@ -1656,7 +1671,7 @@
                         <!-- 对方设置 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-pink-50/70 to-rose-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">💌</span>
+                                <i data-lucide="heart" class="w-4 h-4 text-rose-400 dark:text-rose-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-rose-400 dark:text-rose-300 uppercase tracking-wider">对方设置</label>
                             </div>
                             <div class="flex items-center gap-4 bg-white/70 dark:bg-slate-700/60 p-3 rounded-2xl border border-white/60">
@@ -1678,7 +1693,7 @@
                         <!-- 字体定制 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-violet-50/70 to-purple-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">🔤</span>
+                                <i data-lucide="type" class="w-4 h-4 text-violet-500 dark:text-violet-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-violet-500 dark:text-violet-300 uppercase tracking-wider">字体定制</label>
                             </div>
                             <div class="space-y-2">
@@ -1703,7 +1718,7 @@
                         <!-- 显示与行为 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-sky-50/70 to-cyan-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-1">
                             <div class="flex items-center gap-2 mb-3">
-                                <span class="text-base">✨</span>
+                                <i data-lucide="sparkles" class="w-4 h-4 text-sky-500 dark:text-sky-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">显示与行为</label>
                             </div>
                             <!-- Toggle rows -->
@@ -1780,7 +1795,7 @@
                         <!-- 提示音 & 音量 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-amber-50/70 to-yellow-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">🔊</span>
+                                <i data-lucide="volume-2" class="w-4 h-4 text-amber-500 dark:text-amber-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-amber-500 dark:text-amber-300 uppercase tracking-wider">提示音与音量</label>
                             </div>
                             <!-- 音量滑块 -->
@@ -1814,7 +1829,7 @@
                         <!-- 聊天背景图 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-emerald-50/70 to-green-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">🖼️</span>
+                                <i data-lucide="image" class="w-4 h-4 text-emerald-500 dark:text-emerald-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-emerald-500 dark:text-emerald-300 uppercase tracking-wider">聊天背景图</label>
                             </div>
                             <div class="space-y-2">
@@ -1840,7 +1855,7 @@
                         <!-- 主页面壁纸与标题 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-pink-50/70 to-rose-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">🏠</span>
+                                <i data-lucide="home" class="w-4 h-4 text-rose-500 dark:text-rose-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-rose-500 dark:text-rose-300 uppercase tracking-wider">桌面主页面</label>
                             </div>
                             <div class="space-y-2">
@@ -1874,7 +1889,7 @@
                         <!-- 通话背景 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-slate-50/70 to-gray-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">📞</span>
+                                <i data-lucide="phone" class="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">通话界面背景</label>
                             </div>
                             <div class="space-y-2">
@@ -1900,7 +1915,7 @@
                         <!-- 自定义CSS -->
                         <section class="rounded-[1.5rem] bg-white/50 dark:bg-slate-700/30 border border-white/60 p-4 shadow-sm space-y-2">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">🎨</span>
+                                <i data-lucide="palette" class="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">自定义气泡 CSS</label>
                             </div>
                             <textarea v-model="settings.customCSS" rows="2" class="w-full bg-white/80 dark:bg-slate-700/50 border border-white/70 dark:border-slate-600 rounded-xl px-3 py-2 text-[10px] font-mono resize-none outline-none focus:ring-1 focus:ring-accent" placeholder=".bubble-custom-class { }"></textarea>
@@ -1910,7 +1925,7 @@
                         <!-- 全局备份 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-blue-50/60 to-indigo-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">💾</span>
+                                <i data-lucide="save" class="w-4 h-4 text-indigo-500 dark:text-indigo-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">备份与恢复</label>
                             </div>
                             <!-- 分类导出/导入 -->
@@ -1940,7 +1955,7 @@
                         <!-- 云端自动备份 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-sky-50/60 to-cyan-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">☁️</span>
+                                <i data-lucide="cloud" class="w-4 h-4 text-sky-500 dark:text-sky-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">云端自动备份</label>
                             </div>
                             <div class="flex justify-between items-center py-1 px-1">
@@ -1978,11 +1993,14 @@
                         <!-- 换设备恢复 -->
                         <section class="rounded-[1.5rem] bg-gradient-to-br from-emerald-50/60 to-teal-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">📲</span>
+                                <i data-lucide="smartphone" class="w-4 h-4 text-emerald-600 dark:text-emerald-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-emerald-600 dark:text-emerald-300 uppercase tracking-wider">换设备恢复</label>
                             </div>
                             <div class="text-[10px] text-muted px-1 leading-relaxed">
                                 每台设备都有一个专属"设备ID"。想把旧手机的聊天记录搬到新手机上：先在<b>旧手机</b>这里复制设备ID，再在<b>新手机</b>打开这个 app，把ID粘贴到下面输入框，点"恢复"。
+                            </div>
+                            <div class="text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 rounded-lg px-2.5 py-1.5 leading-relaxed">
+                                💡 个人自己用的话，这一个功能就够了——不需要再去研究下面的 GitHub 备份，那个是给想要额外再存一份的人用的可选项。
                             </div>
                             <div class="flex items-center gap-2 bg-white/60 dark:bg-slate-700/40 rounded-xl px-3 py-2">
                                 <span class="text-[10px] text-muted shrink-0">本机设备ID</span>
@@ -1998,43 +2016,55 @@
                             </div>
                         </section>
 
-                        <!-- GitHub 直传备份 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-slate-100/70 to-gray-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-base">🐙</span>
-                                <label class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">GitHub 直传备份</label>
-                            </div>
-                            <div class="flex justify-between items-center py-1 px-1">
-                                <div>
-                                    <span class="text-sm block text-slate-600 dark:text-slate-300">备份到我的 GitHub 仓库</span>
-                                    <span class="text-[10px] text-muted">按上面设置的周期，把存档 JSON 直接提交进你的 GitHub 仓库</span>
+                        <!-- GitHub 直传备份（可选，进阶功能，默认收起）-->
+                        <section class="rounded-[1.5rem] bg-gradient-to-br from-slate-100/70 to-gray-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-2">
+                            <button @click="githubBackupExpanded = !githubBackupExpanded" class="w-full flex items-center justify-between text-left">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="database" class="w-4 h-4 text-slate-600 dark:text-slate-300 shrink-0"></i>
+                                    <div>
+                                        <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider block">GitHub 备份（进阶，可跳过）</span>
+                                        <span class="text-[10px] text-muted font-normal normal-case">个人用不需要这个，上面"换设备恢复"就够了</span>
+                                    </div>
                                 </div>
-                                <input type="checkbox" v-model="settings.githubBackupEnabled" class="reply-checkbox">
-                            </div>
-                            <div v-if="settings.githubBackupEnabled" class="space-y-2 pt-1 border-t border-white/50 dark:border-slate-600/40">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input v-model="settings.githubOwner" placeholder="用户名 / 组织名"
-                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
-                                    <input v-model="settings.githubRepo" placeholder="仓库名"
-                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-muted transition shrink-0" :class="githubBackupExpanded ? 'rotate-180' : ''"></i>
+                            </button>
+                            <div v-if="githubBackupExpanded" class="space-y-2 pt-2 border-t border-white/50 dark:border-slate-600/40">
+                                <p class="text-[10px] text-muted leading-relaxed px-1">
+                                    这是给想再额外存一份、自己懂 GitHub 的人用的，跟"换设备恢复"完全是两回事、互不影响。需要自己去 GitHub 生成一个 Token 才能用；看不懂可以直接关掉下面这个开关，不影响其它任何功能。
+                                </p>
+                                <div class="flex justify-between items-center py-1 px-1">
+                                    <div>
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">备份到我的 GitHub 仓库</span>
+                                        <span class="text-[10px] text-muted">按上面设置的周期，把存档 JSON 直接提交进你的 GitHub 仓库</span>
+                                    </div>
+                                    <input type="checkbox" v-model="settings.githubBackupEnabled" class="reply-checkbox">
                                 </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input v-model="settings.githubBranch" placeholder="分支（默认 main）"
-                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
-                                    <input v-model="settings.githubPath" placeholder="文件路径，如 backup/latest.json"
-                                        class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                <div v-if="settings.githubBackupEnabled" class="space-y-2 pt-1 border-t border-white/50 dark:border-slate-600/40">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input v-model="settings.githubOwner" placeholder="用户名 / 组织名"
+                                            class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                        <input v-model="settings.githubRepo" placeholder="仓库名"
+                                            class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input v-model="settings.githubBranch" placeholder="分支（默认 main）"
+                                            class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                        <input v-model="settings.githubPath" placeholder="文件路径，如 backup/latest.json"
+                                            class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                    </div>
+                                    <input v-model="settings.githubToken" type="password" placeholder="GitHub Token（建议用 Fine-grained token，只授权这一个仓库的 Contents 读写权限）"
+                                        class="w-full bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
+                                    <div class="text-[10px] text-amber-500 leading-relaxed">
+                                        ⚠️ Token 保存在你这台设备本地，用于直接调用 GitHub API 提交文件。
+                                    </div>
+                                    <div class="text-[10px] text-muted" v-if="settings.lastGithubBackupAt">
+                                        上次 GitHub 备份：{{ new Date(settings.lastGithubBackupAt).toLocaleString('zh-CN') }}
+                                    </div>
+                                    <button @click="backupToGitHub().then(r => alert(r.ok ? '✅ 已提交到 GitHub' : ('❌ ' + r.error)))"
+                                            class="w-full py-2 bg-slate-700/10 dark:bg-slate-600/40 border border-slate-400/30 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-medium hover:bg-slate-700/20 transition flex items-center justify-center gap-1.5">
+                                        <i data-lucide="database" class="w-3.5 h-3.5"></i>立即备份到 GitHub
+                                    </button>
                                 </div>
-                                <input v-model="settings.githubToken" type="password" placeholder="GitHub Token（建议用 Fine-grained token，只授权这一个仓库的 Contents 读写权限）"
-                                    class="w-full bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
-                                <div class="text-[10px] text-amber-500 leading-relaxed">
-                                    ⚠️ Token 保存在你这台设备本地，用于直接调用 GitHub API 提交文件。                                </div>
-                                <div class="text-[10px] text-muted" v-if="settings.lastGithubBackupAt">
-                                    上次 GitHub 备份：{{ new Date(settings.lastGithubBackupAt).toLocaleString('zh-CN') }}
-                                </div>
-                                <button @click="backupToGitHub().then(r => alert(r.ok ? '✅ 已提交到 GitHub' : ('❌ ' + r.error)))"
-                                        class="w-full py-2 bg-slate-700/10 dark:bg-slate-600/40 border border-slate-400/30 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-medium hover:bg-slate-700/20 transition flex items-center justify-center gap-1.5">
-                                    <i data-lucide="database" class="w-3.5 h-3.5"></i>立即备份到 GitHub
-                                </button>
                             </div>
                         </section>
 
@@ -2049,15 +2079,16 @@
             </div>
         </transition>
 
-        <!-- ===== 语料库 Modal ===== -->
-        <transition name="fade">
-          <div v-if="modals.replyManager" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center" @click.self="modals.replyManager=false">
-            <div class="bg-slate-50 dark:bg-slate-900 w-full max-w-sm rounded-t-[2rem] sm:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col h-[92vh] sm:h-[88vh] relative">
+        <!-- ===== 语料库（全屏页面）===== -->
+        <transition name="page-slide">
+          <div v-if="modals.replyManager" class="fixed inset-0 z-[100] bg-slate-50 dark:bg-slate-900 flex flex-col">
+            <div class="w-full h-full flex flex-col overflow-hidden relative">
 
               <!-- ── 标题栏 ────────────────────────────────────────── -->
-              <div class="bg-white dark:bg-slate-800 px-4 pt-4 pb-3 shrink-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <h3 class="font-bold text-[16px] text-slate-700 dark:text-white flex-1">📚 语料库</h3>
+              <div class="bg-white dark:bg-slate-800 px-3 pt-4 pb-3 shrink-0">
+                <div class="flex items-center gap-1 mb-1">
+                  <button @click="modals.replyManager=false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-full transition shrink-0"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                  <h3 class="font-bold text-[16px] text-slate-700 dark:text-white flex-1">语料库</h3>
                   <!-- 管理按钮：切换是否显示分组的重命名/删除 -->
                   <button @click="corpusEditing=!corpusEditing"
                           class="text-[11.5px] font-bold px-3 py-1.5 rounded-full transition"
@@ -2066,11 +2097,8 @@
                             : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300'">
                     {{ corpusEditing ? '完成' : '管理' }}
                   </button>
-                  <button @click="modals.replyManager=false" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
-                    <i data-lucide="x" style="width:15px;height:15px;" class="text-slate-500"></i>
-                  </button>
                 </div>
-                <p class="text-[10.5px] text-muted">
+                <p class="text-[10.5px] text-muted pl-9">
                   共 {{ ungroupedReplies.length + replyGroups.reduce((a,g)=>a+g.replies.length,0) }} 条
                   · {{ replyGroups.length }} 个分组
                   <span v-if="selectedReplies.length" class="text-accent font-bold ml-1">· 已选 {{ selectedReplies.length }}</span>
@@ -2466,35 +2494,36 @@
         </transition>
 
         <!-- ===== 信笺 Modal（信箱历史 + 写信 合并）===== -->
-        <transition name="fade">
-            <div v-if="modals.letterHistory" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.letterHistory = false">
-                <div class="bg-white/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl h-[75vh] flex flex-col backdrop-blur-xl border border-white/70">
-                    <div class="p-5 border-b border-white/60 flex justify-between items-center shrink-0">
-                        <h3 class="font-bold text-lg text-slate-700">📬 信笺</h3>
+        <!-- ===== 信笺（信箱历史 + 写信 合并，全屏页面）===== -->
+        <transition name="page-slide">
+            <div v-if="modals.letterHistory" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+                <div class="w-full h-full flex flex-col overflow-hidden">
+                    <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-2">
-                            <button @click="showLetterCompose = !showLetterCompose" class="text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1 transition" :class="showLetterCompose ? 'bg-accent text-white' : 'bg-accent/10 text-accent'">
-                                <i data-lucide="feather" class="w-3.5 h-3.5"></i>写信
-                            </button>
-                            <button @click="modals.letterHistory = false" class="bg-white/60 p-1.5 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                            <button @click="modals.letterHistory = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                            <h3 class="font-bold text-base text-slate-700 dark:text-white">信笺</h3>
                         </div>
+                        <button @click="showLetterCompose = !showLetterCompose" class="text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1 transition" :class="showLetterCompose ? 'bg-accent text-white' : 'bg-accent/10 text-accent'">
+                            <i data-lucide="feather" class="w-3.5 h-3.5"></i>写信
+                        </button>
                     </div>
                     <!-- 写信展开区：默认收起，点右上角"写信"展开 -->
-                    <div v-if="showLetterCompose" class="p-5 border-b border-white/60 bg-white/40 shrink-0">
-                        <textarea v-model="letterContent" rows="4" placeholder="写下你想对TA说的话，这封信将在未来得到回复..." class="w-full bg-white/70 border border-white/70 rounded-2xl p-3 text-sm outline-none focus:ring-1 focus:ring-accent shadow-inner resize-none leading-relaxed"></textarea>
+                    <div v-if="showLetterCompose" class="p-5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/60 dark:bg-slate-800/40 shrink-0">
+                        <textarea v-model="letterContent" rows="4" placeholder="写下你想对TA说的话，这封信将在未来得到回复..." class="w-full bg-white dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-2xl p-3 text-sm outline-none focus:ring-1 focus:ring-accent resize-none leading-relaxed"></textarea>
                         <div class="flex gap-2 mt-3">
-                            <button @click="showLetterCompose = false; letterContent = ''" class="flex-1 py-2 bg-white/70 border border-white/70 rounded-2xl text-sm font-medium shadow-sm hover:bg-slate-50">取消</button>
+                            <button @click="showLetterCompose = false; letterContent = ''" class="flex-1 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl text-sm font-medium shadow-sm hover:bg-slate-50">取消</button>
                             <button @click="sendLetter" :disabled="!letterContent.trim()" class="flex-1 py-2 bg-accent text-white rounded-2xl text-sm font-medium shadow-md hover:bg-opacity-90 disabled:opacity-50 transition">寄出 · 等待回音</button>
                         </div>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-white/30">
-                        <div v-for="l in letterHistory" :key="l.id" class="bg-white/80 p-5 rounded-[1.5rem] border border-white/70 shadow-sm">
+                    <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/40 dark:bg-transparent">
+                        <div v-for="l in letterHistory" :key="l.id" class="bg-white dark:bg-slate-800/60 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-700/50 shadow-sm">
                             <div class="flex justify-between text-xs mb-3">
                                 <span class="text-muted">{{formatDateSeparator(l.timestamp)}} {{formatTime(l.timestamp)}}</span>
                                 <span :class="l.status==='已回信'?'text-accent font-bold':'text-orange-400 font-medium'">{{l.status}}</span>
                             </div>
-                            <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap"><span class="text-xl mr-1">✉️</span>{{l.content}}</p>
-                            <div v-if="l.reply" class="mt-4 pt-3 border-t border-white/60">
-                                <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap"><span class="text-xl mr-1">📩</span>{{l.reply}}</p>
+                            <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">{{l.content}}</p>
+                            <div v-if="l.reply" class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50">
+                                <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{{l.reply}}</p>
                             </div>
                         </div>
                         <div v-if="letterHistory.length === 0" class="text-center text-xs text-muted mt-10 opacity-60">还没有寄出过信件哦~<br>点右上角"写信"寄出第一封信</div>
@@ -2503,13 +2532,13 @@
             </div>
         </transition>
 
-        <!-- ===== 消息收藏 Modal ===== -->
-        <transition name="fade">
-            <div v-if="modals.favorites" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.favorites = false">
-                <div class="bg-white/90 dark:bg-slate-800/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl h-[75vh] flex flex-col backdrop-blur-xl border border-white/70 dark:border-slate-600/40">
-                    <div class="p-5 border-b border-white/60 dark:border-slate-600/40 flex justify-between items-center">
-                        <h3 class="font-bold text-lg text-slate-700 dark:text-slate-200">⭐ 收藏 <span class="text-xs font-normal text-muted">共 {{ favorites.length }} 条</span></h3>
-                        <button @click="modals.favorites = false" class="bg-white/60 dark:bg-slate-700/60 p-1.5 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <!-- ===== 消息收藏（全屏页面）===== -->
+        <transition name="page-slide">
+            <div v-if="modals.favorites" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+                <div class="w-full h-full flex flex-col overflow-hidden">
+                    <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
+                        <button @click="modals.favorites = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <h3 class="font-bold text-base text-slate-700 dark:text-white">收藏 <span class="text-xs font-normal text-muted">共 {{ favorites.length }} 条</span></h3>
                     </div>
                     <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-white/30 dark:bg-transparent">
                         <div v-for="fav in favorites" :key="fav.id" class="bg-white/80 dark:bg-slate-700/50 p-4 rounded-[1.5rem] border border-white/70 dark:border-slate-600/40 shadow-sm">
@@ -2534,23 +2563,23 @@
             </div>
         </transition>
 
-        <!-- ===== 记忆日历 Modal ===== -->
-        <transition name="fade">
-            <div v-if="modals.notebook" class="fixed inset-0 bg-slate-900/20 backdrop-blur-md z-[100] flex items-center justify-center p-4" @click.self="modals.notebook = false">
-                <div class="bg-white/90 w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[90vh] backdrop-blur-xl border border-white/70">
+        <!-- ===== 记忆日历（全屏页面）===== -->
+        <transition name="page-slide">
+            <div v-if="modals.notebook" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+                <div class="w-full h-full flex flex-col overflow-hidden">
                     <!-- 标题 -->
-                    <div class="px-5 py-4 border-b border-white/60 flex justify-between items-center shrink-0 bg-gradient-to-r from-blue-50/60 to-purple-50/40">
-                        <h3 class="font-bold text-lg flex items-center gap-2 text-slate-700"><i data-lucide="calendar-heart" class="text-accent w-5 h-5"></i>记忆日历</h3>
-                        <button @click="modals.notebook = false" class="bg-white/70 p-1.5 rounded-full shadow-sm"><i data-lucide="x" class="w-4 h-4 text-slate-500"></i></button>
+                    <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
+                        <button @click="modals.notebook = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <h3 class="font-bold text-base text-slate-700 dark:text-white">日历</h3>
                     </div>
                     <!-- 月份导航 (紧凑) -->
-                    <div class="py-2 px-6 bg-white/50 border-b border-white/60 flex items-center justify-between shrink-0">
+                    <div class="py-2 px-6 bg-slate-50/60 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between shrink-0">
                         <button @click="prevMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                        <span class="font-bold text-sm text-slate-600">{{ currentMonthYearText }}</span>
+                        <span class="font-bold text-sm text-slate-600 dark:text-slate-300">{{ currentMonthYearText }}</span>
                         <button @click="nextMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     </div>
                     <!-- 日历格 (紧凑版) -->
-                    <div class="px-3 pt-2 pb-2 bg-white/40 border-b border-white/60 shrink-0">
+                    <div class="px-3 pt-2 pb-2 bg-white dark:bg-transparent border-b border-slate-100 dark:border-slate-700/60 shrink-0">
                         <div class="calendar-grid mb-1 text-[9px] text-muted font-bold">
                             <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
                         </div>
@@ -2643,6 +2672,119 @@
                     <!-- 底部提示 -->
                     <div class="px-4 py-2.5 text-[10px] text-accent/80 font-medium border-t border-white/60 bg-white/50 text-center shrink-0">
                         💡 记录生活后，角色会在 3~5 小时后随机留言回复
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- ===== 潮汐（月经记录，全屏页面）===== -->
+        <transition name="page-slide">
+            <div v-if="modals.periodTracker" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+                <div class="w-full h-full flex flex-col overflow-hidden">
+                    <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
+                        <button @click="modals.periodTracker = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <h3 class="font-bold text-base text-slate-700 dark:text-white">潮汐</h3>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                        <!-- 预测卡片 -->
+                        <div class="bg-slate-50 dark:bg-slate-800/60 rounded-[1.5rem] p-5 border border-slate-100 dark:border-slate-700/50 text-center">
+                            <template v-if="periodNextPredicted">
+                                <p class="text-[11px] text-muted">预计下次开始</p>
+                                <p class="text-2xl font-bold text-slate-700 dark:text-slate-100 mt-1">{{ new Date(periodNextPredicted).getMonth()+1 }}月{{ new Date(periodNextPredicted).getDate() }}日</p>
+                                <p class="text-xs mt-1.5" :class="periodDaysUntilNext < 0 ? 'text-red-400' : 'text-accent'">
+                                    {{ periodDaysUntilNext === 0 ? '就是今天' : (periodDaysUntilNext > 0 ? `还有 ${periodDaysUntilNext} 天` : `已经过了 ${-periodDaysUntilNext} 天，去记一笔吧`) }}
+                                </p>
+                                <p class="text-[10px] text-muted mt-2">平均周期 {{ periodAvgCycleLength }} 天 · 已记录 {{ periodStarts.length }} 次</p>
+                            </template>
+                            <template v-else>
+                                <p class="text-sm text-muted">还没有记录，先记一笔吧</p>
+                            </template>
+                        </div>
+
+                        <!-- 潮汐日历：点任意一天可以记录/查看那天 -->
+                        <div class="bg-slate-50 dark:bg-slate-800/60 rounded-[1.5rem] p-4 border border-slate-100 dark:border-slate-700/50">
+                            <div class="flex items-center justify-between mb-2">
+                                <button @click="periodCalPrevMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                                <span class="font-bold text-sm text-slate-600 dark:text-slate-300">{{ periodCalMonthYearText }}</span>
+                                <button @click="periodCalNextMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                            </div>
+                            <div class="calendar-grid mb-1 text-[9px] text-muted font-bold">
+                                <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                            </div>
+                            <div class="calendar-grid" style="gap:2px;">
+                                <div v-for="(day, idx) in periodCalDays" :key="idx" @click="day && selectPeriodDay(day.date)"
+                                     class="calendar-cell" style="font-size:11px;"
+                                     :class="{'invisible': !day, 'active': day && isPeriodSelectedDay(day.date), 'has-record': day && day.record, 'is-predicted': day && day.isPredicted}">
+                                    <span v-if="day">{{ day.number }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 mt-2 justify-center">
+                                <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full" style="background:rgba(244,114,182,0.5);"></div><span>已记录</span></div>
+                                <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full border border-dashed" style="border-color:rgba(244,114,182,0.7);"></div><span>预测范围</span></div>
+                            </div>
+                        </div>
+
+                        <!-- 记录表单：点日历某一天后在这里出现 -->
+                        <div v-if="!showPeriodForm">
+                            <button @click="openPeriodForm" class="w-full py-3 bg-accent/10 text-accent rounded-2xl text-sm font-medium hover:bg-accent/20 transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="plus" class="w-4 h-4"></i>记录今天
+                            </button>
+                        </div>
+                        <div v-else class="bg-slate-50 dark:bg-slate-800/60 rounded-[1.5rem] p-4 border border-slate-100 dark:border-slate-700/50 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-accent">{{ periodFormDate ? `${Number(periodFormDate.slice(5,7))}月${Number(periodFormDate.slice(8,10))}日` : '' }} 的记录</span>
+                                <button v-if="periodRecords.some(r => r.timestamp === new Date(periodFormDate + 'T00:00:00').getTime())"
+                                        @click="deletePeriodRecord(periodRecords.find(r => r.timestamp === new Date(periodFormDate + 'T00:00:00').getTime()).id); showPeriodForm = false"
+                                        class="text-[10px] text-red-400 hover:text-red-500 font-medium flex items-center gap-1">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i>删除这天的记录
+                                </button>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-muted block mb-1">血量</span>
+                                <div class="flex gap-2">
+                                    <button v-for="f in periodFlowOptions" :key="f.key" @click="periodFormFlow = f.key"
+                                            class="flex-1 py-2 rounded-xl text-xs font-medium transition"
+                                            :class="periodFormFlow === f.key ? 'bg-accent text-white' : 'bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-600'">
+                                        {{ f.label }}
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-muted block mb-1">心情</span>
+                                <div class="flex flex-wrap gap-2">
+                                    <button v-for="m in periodMoodOptions" :key="m" @click="periodFormMood = (periodFormMood === m ? '' : m)"
+                                            class="px-3 py-1.5 rounded-full text-xs transition"
+                                            :class="periodFormMood === m ? 'bg-accent text-white' : 'bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-600'">
+                                        {{ m }}
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-muted block mb-1">备注（可不填）</span>
+                                <input v-model="periodFormNote" placeholder="今天感觉..." class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-2.5 text-sm outline-none">
+                            </div>
+                            <div class="flex gap-2 pt-1">
+                                <button @click="showPeriodForm = false" class="flex-1 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium">取消</button>
+                                <button @click="savePeriodRecord" class="flex-1 py-2 bg-accent text-white rounded-xl text-sm font-medium">保存</button>
+                            </div>
+                        </div>
+
+                        <!-- 设置 -->
+                        <div class="bg-slate-50 dark:bg-slate-800/60 rounded-[1.5rem] p-4 border border-slate-100 dark:border-slate-700/50 space-y-2.5">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-600 dark:text-slate-300">提前提醒</span>
+                                <input type="checkbox" v-model="settings.periodReminderEnabled" class="reply-checkbox">
+                            </div>
+                            <div v-if="settings.periodReminderEnabled" class="flex justify-between items-center">
+                                <span class="text-xs text-muted">提前几天</span>
+                                <input type="number" v-model.number="settings.periodReminderDaysBefore" min="0" max="14" class="w-16 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1.5 text-center text-xs outline-none">
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-muted">默认周期天数（记录不足两次时使用）</span>
+                                <input type="number" v-model.number="settings.periodCycleLength" min="15" max="60" class="w-16 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1.5 text-center text-xs outline-none">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3134,6 +3276,21 @@ createApp({
         };
         const notes = ref([]);
         const favorites = ref([]); // 消息收藏区：{id, type:'single'|'clip', items:[消息快照...], createdAt}
+
+        // ===== 潮汐（月经记录）=====
+        // 每条记录：{id, date:'YYYY-MM-DD', flow:'light'|'medium'|'heavy', mood:string, note:string}
+        const periodRecords = ref([]);
+        const periodFormDate = ref('');
+        const periodFormFlow = ref('medium');
+        const periodFormMood = ref('');
+        const periodFormNote = ref('');
+        const showPeriodForm = ref(false);
+        const periodMoodOptions = ['平静', '还好', '低落', '烦躁', '疲惫', '愉快'];
+        const periodFlowOptions = [
+            { key: 'light', label: '量少' },
+            { key: 'medium', label: '量中' },
+            { key: 'heavy', label: '量多' },
+        ];
         const selectMode = ref(false); // 是否处于"多选收藏"模式
         const selectedMsgIds = ref([]); // 多选模式下已勾选的消息 id 列表（保持勾选顺序）
         const editingMsgId = ref(null); // 正在编辑哪条消息（null = 没有在编辑）
@@ -3348,6 +3505,142 @@ createApp({
             if (idx > -1) favorites.value.splice(idx, 1);
         };
 
+        // ===== 潮汐（月经记录）=====
+        const ONE_DAY_MS = 24 * 3600 * 1000;
+        // 把记录按"连续天数"分组成一次次"周期"，取每次周期最早的一天当作"周期起始日"
+        // （比如连续记录了 5 天，只有第一天算作这次周期的起点，后面 4 天不重复计入）
+        const periodStarts = computed(() => {
+            if (!periodRecords.value.length) return [];
+            const sorted = [...periodRecords.value].sort((a, b) => a.timestamp - b.timestamp);
+            const starts = [sorted[0].timestamp];
+            for (let i = 1; i < sorted.length; i++) {
+                const gapDays = Math.round((sorted[i].timestamp - sorted[i - 1].timestamp) / ONE_DAY_MS);
+                if (gapDays > 1) starts.push(sorted[i].timestamp); // 间隔超过1天，算作新一次周期开始
+            }
+            return starts;
+        });
+        // 有 ≥2 次周期记录时，用实际平均值；否则用设置里的默认值
+        const periodAvgCycleLength = computed(() => {
+            const starts = periodStarts.value;
+            if (starts.length < 2) return settings.periodCycleLength || 28;
+            let totalDays = 0;
+            for (let i = 1; i < starts.length; i++) {
+                totalDays += Math.round((starts[i] - starts[i - 1]) / ONE_DAY_MS);
+            }
+            const avg = Math.round(totalDays / (starts.length - 1));
+            return avg > 0 ? avg : (settings.periodCycleLength || 28);
+        });
+        const periodNextPredicted = computed(() => {
+            const starts = periodStarts.value;
+            if (!starts.length) return null;
+            return starts[starts.length - 1] + periodAvgCycleLength.value * ONE_DAY_MS;
+        });
+        const periodDaysUntilNext = computed(() => {
+            if (!periodNextPredicted.value) return null;
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            return Math.round((periodNextPredicted.value - today.getTime()) / ONE_DAY_MS);
+        });
+        // 平均每次持续几天（从实际记录里算连续天数；数据不够就先按5天估）
+        const periodAvgDuration = computed(() => {
+            if (!periodRecords.value.length) return 5;
+            const sorted = [...periodRecords.value].sort((a, b) => a.timestamp - b.timestamp);
+            const runs = [];
+            let runLen = 1;
+            for (let i = 1; i < sorted.length; i++) {
+                const gapDays = Math.round((sorted[i].timestamp - sorted[i - 1].timestamp) / ONE_DAY_MS);
+                if (gapDays <= 1) { runLen++; } else { runs.push(runLen); runLen = 1; }
+            }
+            runs.push(runLen);
+            const avg = Math.round(runs.reduce((a, b) => a + b, 0) / runs.length);
+            return avg > 0 ? avg : 5;
+        });
+
+        // ── 潮汐日历：用月历方式查看/记录，跟"记忆日历"是各自独立的一套月份导航 ──
+        const periodCalDate = ref(new Date());
+        const periodCalMonthYearText = computed(() => `${periodCalDate.value.getFullYear()}年 ${periodCalDate.value.getMonth() + 1}月`);
+        const periodCalDays = computed(() => {
+            const year = periodCalDate.value.getFullYear();
+            const month = periodCalDate.value.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const predictedStart = periodNextPredicted.value;
+            const predictedEnd = predictedStart !== null ? predictedStart + (periodAvgDuration.value - 1) * ONE_DAY_MS : null;
+            const days = [];
+            for (let i = 0; i < firstDay; i++) days.push(null);
+            for (let i = 1; i <= daysInMonth; i++) {
+                const date = new Date(year, month, i);
+                const ts = date.getTime();
+                const record = periodRecords.value.find(r => new Date(r.timestamp).toDateString() === date.toDateString());
+                const isPredicted = predictedStart !== null && ts >= predictedStart && ts <= predictedEnd;
+                days.push({ date, number: i, record: record || null, isPredicted });
+            }
+            return days;
+        });
+        const periodCalPrevMonth = () => { periodCalDate.value = new Date(periodCalDate.value.getFullYear(), periodCalDate.value.getMonth() - 1, 1); };
+        const periodCalNextMonth = () => { periodCalDate.value = new Date(periodCalDate.value.getFullYear(), periodCalDate.value.getMonth() + 1, 1); };
+        const periodSelectedDay = ref(null); // 当前点选、正在查看/编辑的那一天（Date对象）
+        const isPeriodSelectedDay = (date) => periodSelectedDay.value && date.toDateString() === periodSelectedDay.value.toDateString();
+        // 点一天：有记录就填进表单准备编辑，没有就直接开一个新表单，日期定死是点的这天
+        const selectPeriodDay = (date) => {
+            periodSelectedDay.value = date;
+            const existing = periodRecords.value.find(r => new Date(r.timestamp).toDateString() === date.toDateString());
+            periodFormDate.value = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+            if (existing) {
+                periodFormFlow.value = existing.flow;
+                periodFormMood.value = existing.mood;
+                periodFormNote.value = existing.note;
+            } else {
+                periodFormFlow.value = 'medium';
+                periodFormMood.value = '';
+                periodFormNote.value = '';
+            }
+            showPeriodForm.value = true;
+        };
+
+        const openPeriodForm = () => {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            periodSelectedDay.value = today;
+            periodFormDate.value = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+            periodFormFlow.value = 'medium';
+            periodFormMood.value = '';
+            periodFormNote.value = '';
+            showPeriodForm.value = true;
+        };
+        const savePeriodRecord = () => {
+            if (!periodFormDate.value) return;
+            const ts = new Date(periodFormDate.value + 'T00:00:00').getTime();
+            const existing = periodRecords.value.find(r => r.timestamp === ts);
+            if (existing) {
+                existing.flow = periodFormFlow.value;
+                existing.mood = periodFormMood.value;
+                existing.note = periodFormNote.value;
+            } else {
+                periodRecords.value.push({
+                    id: 'pr_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                    timestamp: ts, flow: periodFormFlow.value, mood: periodFormMood.value, note: periodFormNote.value
+                });
+            }
+            showPeriodForm.value = false;
+        };
+        const deletePeriodRecord = (id) => {
+            const idx = periodRecords.value.findIndex(r => r.id === id);
+            if (idx > -1) periodRecords.value.splice(idx, 1);
+        };
+        // 提前 N 天提醒一次；用 periodLastRemindedFor 记住"已经为这次预测提醒过"，
+        // 避免每次打开 app 都重复弹通知
+        const checkPeriodReminder = () => {
+            if (!settings.periodReminderEnabled) return;
+            const predicted = periodNextPredicted.value;
+            if (!predicted) return;
+            const daysLeft = periodDaysUntilNext.value;
+            const predictedKey = String(predicted);
+            if (daysLeft !== null && daysLeft >= 0 && daysLeft <= (settings.periodReminderDaysBefore || 2)
+                && settings.periodLastRemindedFor !== predictedKey) {
+                showNotification('潮汐提醒', daysLeft === 0 ? '预计今天是下次周期的开始' : `预计还有 ${daysLeft} 天，记得留意身体状态`);
+                settings.periodLastRemindedFor = predictedKey;
+            }
+        };
+
         // ===== 拍一拍 =====
         const pokeToast = reactive({ show: false, text: '' });
         let pokeToastTimer = null;
@@ -3440,6 +3733,11 @@ createApp({
             homeWallpaper: '', homeWallpaperUrl: '', // 主页面壁纸（跟聊天背景 bgImage 是分开的两张图）
             coupleName: '', // 主页面标题，例如"我 & 哥哥"；留空则自动用 me/them 的名字拼
             coupleTagline: '夏意 永不凋谢', // 主页面标题下方的小字副标题
+            // ===== 潮汐（月经记录）=====
+            periodCycleLength: 28, // 默认平均周期天数，记录多了之后会用实际平均值
+            periodReminderEnabled: true,
+            periodReminderDaysBefore: 2, // 提前几天提醒
+            periodLastRemindedFor: '', // 记录"已经为哪一次预测提醒过"，避免同一次预测反复提醒
             customFontUrl: '', fontFamily: "'Quicksand', 'Noto Serif SC', sans-serif", fontSize: 15,
             soundUrl: '', sendSoundUrl: '', soundVolume: 100,
             callBgImage: '', callBgUrl: '',
@@ -3463,7 +3761,7 @@ createApp({
         const modals = reactive({
             settings: false, replyManager: false, stickerPicker: false,
             letterHistory: false,
-            notebook: false, batchInput: false, selectiveExport: false, favorites: false
+            notebook: false, batchInput: false, selectiveExport: false, favorites: false, periodTracker: false
         });
         const showLetterCompose = ref(false); // 信笺面板里"写信"展开区是否打开
         // 桌面主页面 / 聊天界面 —— 'home' | 'chat'
@@ -3594,12 +3892,14 @@ createApp({
         if (cloud.pendingLetter !== undefined) pendingLetter.value = cloud.pendingLetter;
         if (cloud.notes) notes.value = cloud.notes;
         if (cloud.favorites) favorites.value = cloud.favorites;
+                    if (cloud.periodRecords) periodRecords.value = cloud.periodRecords;
         if (cloud.emojiPoolText !== undefined) emojiPoolText.value = cloud.emojiPoolText;
     };
 
     // ===== 换设备手动恢复：在设置里输入"旧设备的ID"，从云端把那台设备的存档拉过来 =====
     const restoreFromDeviceId = ref(''); // 用户输入的、要恢复的那台旧设备的ID
     const restoringFromDevice = ref(false);
+    const githubBackupExpanded = ref(false); // GitHub 备份区块默认收起，个人用户大多用不到
     const restoreFromOtherDevice = async () => {
         const targetId = restoreFromDeviceId.value.trim();
         if (!targetId) { alert('请先填写要恢复的设备ID'); return; }
@@ -3635,6 +3935,7 @@ createApp({
         pendingLetter: pendingLetter.value ? JSON.parse(JSON.stringify(pendingLetter.value)) : null,
         notes: JSON.parse(JSON.stringify(notes.value)),
         favorites: JSON.parse(JSON.stringify(favorites.value)),
+        periodRecords: JSON.parse(JSON.stringify(periodRecords.value)),
         emojiPoolText: emojiPoolText.value
 });
 
@@ -3800,7 +4101,7 @@ createApp({
     };
 
     watch(
-        [messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, favorites, emojiPoolText],
+        [messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, favorites, periodRecords, emojiPoolText],
         () => { saveData(); },
         { deep: true }
     );
@@ -4078,15 +4379,8 @@ createApp({
                 quote: null,
             };
             messages.value.push(msg);
-            if (document.hidden &&
-            navigator.serviceWorker.controller) {
-
-            navigator.serviceWorker.controller.postMessage({
-                type: "show-notification",
-                title: profiles.them.name,
-                body: msg.content || msg.text || ""
-            });
-        }
+            // ✅ 未接/拒接来电也弹通知，跟其他消息一样走统一的 showNotification（不再自己重复写一遍 SW 推送逻辑）
+            showNotification(profiles.them.name, msg.content);
             callState.status = 'idle';
             scrollToBottom();
             nextTick(() => lucide.createIcons());
@@ -4120,6 +4414,8 @@ createApp({
                 };
                 messages.value.push(msg);
                 scrollToBottom();
+                // ✅ 通话结束也弹通知——比如挂断那一下手机正好切到别的 app 了，回来才看到时长
+                showNotification(profiles.them.name, msg.content);
             }
             nextTick(() => lucide.createIcons());
         };
@@ -4836,6 +5132,7 @@ createApp({
                     if (shouldImport.messages) {
                         messages.value = data.messages;
                         if (data.favorites) favorites.value = data.favorites;
+                        if (data.periodRecords) periodRecords.value = data.periodRecords;
                     }
                     if (shouldImport.corpus) {
                         if (data.ungroupedReplies) ungroupedReplies.value = data.ungroupedReplies;
@@ -4896,6 +5193,7 @@ createApp({
                     if (data.pendingLetter !== undefined) pendingLetter.value = data.pendingLetter;
                     if (data.notes) notes.value = data.notes;
                     if (data.favorites) favorites.value = data.favorites;
+                    if (data.periodRecords) periodRecords.value = data.periodRecords;
                     if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
                     applyFontSettings(); toggleTheme(); applyCSS();
                     modals.settings = false;
@@ -5021,6 +5319,7 @@ createApp({
             if (data.pendingLetter !== undefined) pendingLetter.value = data.pendingLetter;
             if (data.notes) notes.value = data.notes;
             if (data.favorites) favorites.value = data.favorites;
+            if (data.periodRecords) periodRecords.value = data.periodRecords;
             if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
 
             const oldUngroup = replyGroups.value.find(g => g.id === '__ungroup__');
@@ -5072,6 +5371,7 @@ createApp({
                 if (window.formkit && chatList.value) formkit.autoAnimate(chatList.value);
                 restorePendingLetter();
                 restoreNoteReminders();
+                checkPeriodReminder();
                 restartActiveMsgTimer();
                 restartAutoBackupTimer();
                 // 主页面时钟：每15秒刷新一次
@@ -5114,7 +5414,7 @@ createApp({
             uploadHomeWallpaper, applyHomeWallpaperUrl,
             currentScreen, goHome, openChat, coupleTitle, homeTimeText, homeDateText,
             manualBackupNow, backupToGitHub,
-            CLOUD_DEVICE_ID, restoreFromDeviceId, restoringFromDevice, restoreFromOtherDevice, copyDeviceId,
+            CLOUD_DEVICE_ID, restoreFromDeviceId, restoringFromDevice, restoreFromOtherDevice, copyDeviceId, githubBackupExpanded,
             // 视频通话
             callState, formatCallDuration,
             initiateCall, acceptCall, declineCall, hangupCall,
@@ -5128,6 +5428,12 @@ createApp({
             startLongPress, cancelLongPress,
             // 消息收藏 / 多选 / 编辑 / 撤回
             favorites, favoriteSingleMsg, favoriteSelected, removeFavorite,
+            // 潮汐（月经记录）
+            periodRecords, periodFormDate, periodFormFlow, periodFormMood, periodFormNote, showPeriodForm,
+            periodMoodOptions, periodFlowOptions, periodStarts, periodAvgCycleLength, periodNextPredicted,
+            periodDaysUntilNext, openPeriodForm, savePeriodRecord, deletePeriodRecord,
+            periodAvgDuration, periodCalDate, periodCalMonthYearText, periodCalDays,
+            periodCalPrevMonth, periodCalNextMonth, periodSelectedDay, isPeriodSelectedDay, selectPeriodDay,
             selectMode, selectedMsgIds, enterSelectMode, exitSelectMode, toggleSelectMsg, isMsgSelected, onMsgRowClick,
             editingMsgId, editingText, startEditMsg, confirmEditMsg, cancelEditMsg,
             canRecallMsg, recallMsg,
