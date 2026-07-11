@@ -1,11 +1,11 @@
 // netlify/functions/push.js
-// 前端 scheduleOfflinePush() 已经在调用 /.netlify/functions/push，
-// 但这个文件此前在项目里并不存在，所以请求一直是 404、静默失败——
-// 这就是"信箱回复""日记提醒"经常收不到通知的根本原因。
+// 前端 scheduleOfflinePush() 调用 /.netlify/functions/push，
+// 登记一条未来发送的通知，真正的等待和发送交给 OneSignal 的 send_after 参数完成
+// （Netlify 函数最多跑几秒到几十秒，没法自己 sleep 几分钟）。
 //
-// 用法：前端 POST { title, body, delayMinutes, subscriptionId }
-// 本函数只负责"登记"一条未来发送的通知，真正的等待和发送交给 OneSignal
-// 的 send_after 参数完成（Netlify 函数最多跑几秒到几十秒，没法自己 sleep 几分钟）。
+// ✅ 这次加了 url 字段：点击这条通知时，OneSignal 会打开/聚焦这个地址，
+//    带上 ?openChat=1 参数，主程序启动/恢复时检测到这个参数就会直接跳转到聊天界面。
+//    process.env.URL 是 Netlify 自动注入的"这个站点自己的部署地址"，不用手动写死域名。
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
@@ -28,6 +28,7 @@ exports.handler = async (event) => {
     }
 
     const sendAfter = new Date(Date.now() + Math.max(1, delayMinutes || 1) * 60000).toISOString();
+    const siteUrl = process.env.URL || process.env.DEPLOY_URL || '';
 
     try {
         const r = await fetch('https://onesignal.com/api/v1/notifications', {
@@ -41,7 +42,8 @@ exports.handler = async (event) => {
                 include_subscription_ids: [subscriptionId],
                 headings: { en: title || '新消息' },
                 contents: { en: content || '你有一条新消息' },
-                send_after: sendAfter
+                send_after: sendAfter,
+                ...(siteUrl ? { url: `${siteUrl}/?openChat=1` } : {})
             })
         });
         const data = await r.json();
