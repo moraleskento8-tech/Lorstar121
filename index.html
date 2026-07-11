@@ -60,10 +60,10 @@
                         border: 'var(--color-border)',
                         bubbleSend: 'var(--color-bubble-send)',
                         bubbleReceive: 'var(--color-bubble-receive)',
-                        accent: '#839deb',
+                        accent: '#6d8fe0',
                         jelly: {
                             light: 'rgba(242, 246, 255, 0.8)',
-                            deep: 'rgba(131, 157, 235, 0.5)'
+                            deep: 'rgba(109,143,224, 0.5)'
                         }
                     }
                 }
@@ -80,7 +80,7 @@
             --color-border: rgba(200, 215, 245, 0.5);
             --color-bubble-send: #dce6f8;
             --color-bubble-receive: rgba(255, 255, 255, 0.95);
-            --color-accent: #8fa7e8;
+            --color-accent: #6d8fe0;
             --font-family-base: 'Quicksand', 'Noto Serif SC', sans-serif;
             --font-size-base: 15px;
             font-family: var(--font-family-base);
@@ -137,7 +137,7 @@
             backdrop-filter: blur(30px) saturate(180%);
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255, 255, 255, 0.75);
-            box-shadow: 0 4px 12px rgba(131, 157, 235, 0.06);
+            box-shadow: 0 4px 12px rgba(109,143,224, 0.06);
             text-align: left;
             word-wrap: break-word;
             word-break: break-word;
@@ -164,13 +164,13 @@
             width: 22px; height: 22px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);
-            border: 1px solid rgba(131, 157, 235, 0.3); color: var(--color-muted);
+            border: 1px solid rgba(109,143,224, 0.3); color: var(--color-muted);
             cursor: pointer; opacity: 0; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2;
         }
         .msg-bubble:hover .quote-inline-btn, .msg-bubble:focus-within .quote-inline-btn { opacity: 1; }
-        .quote-inline-btn:hover { background: rgba(131, 157, 235, 0.25); color: #839deb; transform: scale(1.1); box-shadow: 0 4px 12px rgba(131, 157, 235, 0.3); }
+        .quote-inline-btn:hover { background: rgba(109,143,224, 0.25); color: #839deb; transform: scale(1.1); box-shadow: 0 4px 12px rgba(109,143,224, 0.3); }
         .quote-inline-btn:active { transform: scale(0.95); }
-        .dark .quote-inline-btn { background: rgba(255, 255, 255, 0.12); border-color: rgba(131, 157, 235, 0.25); }
+        .dark .quote-inline-btn { background: rgba(255, 255, 255, 0.12); border-color: rgba(109,143,224, 0.25); }
 
         /* ===== 背景透明 + 玻璃效果（统一版）===== */
         body { background-color: var(--color-bg) !important; }
@@ -212,14 +212,14 @@
         .msg-bubble {
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
-            box-shadow: 0 4px 12px rgba(131, 157, 235, 0.10), 0 1px 3px rgba(0,0,0,0.04) !important;
+            box-shadow: 0 4px 12px rgba(109,143,224, 0.10), 0 1px 3px rgba(0,0,0,0.04) !important;
             border: 0.5px solid rgba(255, 255, 255, 0.8) !important;
         }
         .bg-bubbleSend { background: rgba(185, 205, 248, 0.55) !important; border-color: rgba(255, 255, 255, 0.65) !important; }
         .bg-bubbleReceive { background: rgba(255, 255, 255, 0.48) !important; border-color: rgba(255, 255, 255, 0.55) !important; }
         .dark .bg-bubbleSend { background: rgba(108, 116, 161, 0.6) !important; }
         .dark .bg-bubbleReceive { background: rgba(45, 50, 70, 0.65) !important; }
-        .quote-block { background: rgba(230, 240, 255, 0.75) !important; backdrop-filter: blur(12px) !important; border-left-color: rgba(131, 157, 235, 0.5) !important; }
+        .quote-block { background: rgba(230, 240, 255, 0.75) !important; backdrop-filter: blur(12px) !important; border-left-color: rgba(109,143,224, 0.5) !important; }
         .dark .quote-block { background: rgba(30, 35, 55, 0.5) !important; }
         .bg-white\/70 { background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(10px) !important; }
         .dark .bg-slate-800\/60 { background: rgba(30, 41, 59, 0.55) !important; backdrop-filter: blur(8px) !important; }
@@ -232,12 +232,12 @@
             width: 26px; height: 26px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px);
-            border: 1px solid rgba(131, 157, 235, 0.35); color: #839deb;
+            border: 1px solid rgba(109,143,224, 0.35); color: #839deb;
             cursor: pointer; opacity: 0; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
         .img-msg-wrapper:hover .img-quote-btn { opacity: 1; }
-        .img-quote-btn:hover { transform: scale(1.15); box-shadow: 0 6px 20px rgba(131, 157, 235, 0.4); }
+        .img-quote-btn:hover { transform: scale(1.15); box-shadow: 0 6px 20px rgba(109,143,224, 0.4); }
         .img-quote-btn:active { transform: scale(0.95); }
         .bubble-img { max-width: 140px; border-radius: 16px; box-shadow: 0 4px 16px rgba(100, 120, 200, 0.15); display: block; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .bubble-img:active { transform: scale(0.97); }
@@ -246,12 +246,12 @@
 
         .quoted-msg {
             padding: 8px 12px; border-radius: 14px; margin-bottom: 6px; font-size: 0.88em;
-            background: rgba(131, 157, 235, 0.08); backdrop-filter: blur(10px);
-            border-left: 3px solid rgba(131, 157, 235, 0.5); color: var(--color-muted);
+            background: rgba(109,143,224, 0.08); backdrop-filter: blur(10px);
+            border-left: 3px solid rgba(109,143,224, 0.5); color: var(--color-muted);
             max-width: 100%; overflow: hidden; text-overflow: ellipsis;
-            box-shadow: 0 2px 8px rgba(131, 157, 235, 0.06);
+            box-shadow: 0 2px 8px rgba(109,143,224, 0.06);
         }
-        .dark .quoted-msg { background: rgba(131, 157, 235, 0.12); border-left-color: rgba(155, 180, 245, 0.4); }
+        .dark .quoted-msg { background: rgba(109,143,224, 0.12); border-left-color: rgba(155, 180, 245, 0.4); }
 
         .fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(8px); }
@@ -267,8 +267,8 @@
             background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.5);
             box-shadow: 0 2px 6px rgba(120,140,230,0.05);
         }
-        .jelly-btn:hover { background: rgba(255,255,255,0.7); box-shadow: 0 4px 12px rgba(131,157,235,0.15); transform: translateY(-1px); }
-        .jelly-btn:active { transform: scale(0.92); background: rgba(131,157,235,0.2); }
+        .jelly-btn:hover { background: rgba(255,255,255,0.7); box-shadow: 0 4px 12px rgba(109,143,224,0.15); transform: translateY(-1px); }
+        .jelly-btn:active { transform: scale(0.92); background: rgba(109,143,224,0.2); }
         .dark .jelly-btn { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
         .dark .jelly-btn:hover { background: rgba(255,255,255,0.12); }
 
@@ -285,7 +285,7 @@
         }
         .header-typing-badge {
             display: inline-flex; align-items: center; gap: 3px;
-            background: rgba(131,157,235,0.12); border-radius: 20px;
+            background: rgba(109,143,224,0.12); border-radius: 20px;
             padding: 2px 8px; color: #839deb; font-style: italic;
             white-space: nowrap; font-size: 10px;
         }
@@ -300,7 +300,7 @@
             -webkit-appearance: none; appearance: none;
             width: 16px; height: 16px; border-radius: 50%;
             background: #839deb; border: 2px solid white;
-            box-shadow: 0 2px 6px rgba(131,157,235,0.4); cursor: pointer;
+            box-shadow: 0 2px 6px rgba(109,143,224,0.4); cursor: pointer;
         }
         /* 聊天气泡中的表情包（双方一致，90×90px 显示）*/
         .sticker-bubble { width:90px;height:90px;border-radius:14px;display:block;object-fit:contain;
@@ -342,7 +342,7 @@
 
         .corpus-section-count {
             font-size: 11px; color: #839deb; font-weight: 600;
-            background: rgba(131,157,235,0.15); padding: 1px 8px;
+            background: rgba(109,143,224,0.15); padding: 1px 8px;
             border-radius: 999px;
         }
 
@@ -363,7 +363,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         .corpus-section-action.rename { color: #839deb; }
-        .corpus-section-action.rename:active { background: rgba(131,157,235,0.2); }
+        .corpus-section-action.rename:active { background: rgba(109,143,224,0.2); }
         .corpus-section-action.del { color: #ef4444; }
         .corpus-section-action.del:active { background: rgba(239,68,68,0.1); }
 
@@ -377,10 +377,10 @@
         }
         .reply-row:last-child { border-bottom: none; }
         .reply-row:active { background: #f8f9ff; }
-        .reply-row.is-selected { background: rgba(131,157,235,0.06); }
+        .reply-row.is-selected { background: rgba(109,143,224,0.06); }
         .dark .reply-row { background: rgba(28,34,58,0.9); border-color: rgba(60,75,110,0.4); }
         .dark .reply-row:active { background: rgba(38,46,78,0.9); }
-        .dark .reply-row.is-selected { background: rgba(131,157,235,0.1); }
+        .dark .reply-row.is-selected { background: rgba(109,143,224,0.1); }
 
         /* 分区容器（包住该分区的所有条目）*/
         .corpus-section-body {
@@ -449,7 +449,7 @@
             position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
             background: #fff; border-radius: 22px 22px 0 0;
             padding: 16px 16px 28px;
-            box-shadow: 0 -6px 32px rgba(131,157,235,0.15);
+            box-shadow: 0 -6px 32px rgba(109,143,224,0.15);
             border-top: 1px solid #e8edf8;
         }
         .dark .move-sheet { background: rgba(22,28,52,0.99); border-color: rgba(80,100,150,0.3); }
@@ -457,14 +457,14 @@
             display: inline-flex; align-items: center; gap: 5px;
             padding: 8px 14px; border-radius: 999px;
             font-size: 12.5px; font-weight: 700;
-            background: rgba(131,157,235,0.09);
-            border: 1.5px solid rgba(131,157,235,0.22);
+            background: rgba(109,143,224,0.09);
+            border: 1.5px solid rgba(109,143,224,0.22);
             color: #6a85d0; cursor: pointer; transition: all 0.15s;
             -webkit-tap-highlight-color: transparent;
         }
-        .move-sheet-tag:active { transform: scale(0.92); background: rgba(131,157,235,0.18); }
+        .move-sheet-tag:active { transform: scale(0.92); background: rgba(109,143,224,0.18); }
         .move-sheet-tag.new-group { border-style: dashed; color: #839deb; }
-        .dark .move-sheet-tag { color: #a29bfe; background: rgba(131,157,235,0.12); }
+        .dark .move-sheet-tag { color: #a29bfe; background: rgba(109,143,224,0.12); }
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .slide-up-enter-active, .slide-up-leave-active { transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; }
         .slide-up-enter-from, .slide-up-leave-to { transform: translateY(20px); opacity: 0; }
@@ -480,14 +480,18 @@
 
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
         .calendar-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 12px; cursor: pointer; transition: all 0.2s; position: relative; }
-        .calendar-cell:hover { background: rgba(131,157,235,0.18); }
-        .calendar-cell.active { background: var(--color-accent); color: white; box-shadow: 0 4px 10px rgba(131,157,235,0.35); }
-        .calendar-cell.has-note:not(.active) { background: rgba(131,157,235,0.1); }
-        .note-dot { position: absolute; bottom: 2px; width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 5px rgba(131,157,235,0.7); }
+        .calendar-cell:hover { background: rgba(109,143,224,0.18); }
+        .calendar-cell.active { background: var(--color-accent); color: white; box-shadow: 0 4px 10px rgba(109,143,224,0.35); }
+        .calendar-cell.has-note:not(.active) { background: rgba(109,143,224,0.1); }
+        .note-dot { position: absolute; bottom: 2px; width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 5px rgba(109,143,224,0.7); }
         .calendar-cell.active .note-dot { background: white; box-shadow: none; }
+        .period-dot { position: absolute; top: 2px; width: 5px; height: 5px; border-radius: 50%; background: rgb(244,114,182); box-shadow: 0 0 5px rgba(244,114,182,0.6); }
+        .calendar-cell.active .period-dot { background: white; box-shadow: none; }
         /* 潮汐日历：有记录的日子实心高亮，预测范围内的日子用虚线圈出 */
         .calendar-cell.has-record:not(.active) { background: rgba(244,114,182,0.18); }
         .calendar-cell.is-predicted:not(.active):not(.has-record) { border: 1.5px dashed rgba(244,114,182,0.5); }
+        .calendar-cell.is-ovulation:not(.active) { background: rgba(251,146,60,0.35); box-shadow: inset 0 0 0 1.5px rgba(251,146,60,0.6); }
+        .calendar-cell.is-luteal:not(.active):not(.is-ovulation):not(.has-record) { background: rgba(251,191,36,0.14); }
 
         .typing-bubble {
             display: flex; align-items: center; gap: 6px; padding: 10px 16px;
@@ -527,7 +531,7 @@
             height: 48vh !important; /* 固定高度 */
             border-radius: 32px !important;
             overflow: hidden !important;
-            box-shadow: 0 20px 50px rgba(131,157,235,0.3) !important;
+            box-shadow: 0 20px 50px rgba(109,143,224,0.3) !important;
             border: 2px solid rgba(255,255,255,0.8) !important;
             touch-action: none; /* 必须保留，防止拖拽时屏幕滚动 */
             position: fixed !important;
@@ -562,9 +566,9 @@
         .call-window-medium .call-content.mb-10 { margin-bottom: 6px !important; gap: 10px !important; padding: 0 8px !important; }
         /* 来电振铃动画 */
         @keyframes ringPulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(131,157,235,0.6); }
-            50% { transform: scale(1.04); box-shadow: 0 0 0 22px rgba(131,157,235,0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(131,157,235,0); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(109,143,224,0.6); }
+            50% { transform: scale(1.04); box-shadow: 0 0 0 22px rgba(109,143,224,0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(109,143,224,0); }
         }
         .call-ring-anim { animation: ringPulse 1.5s ease-out infinite; }
 
@@ -602,7 +606,7 @@
             position: fixed; bottom: 110px; right: 16px; z-index: 400;
             background: rgba(25, 30, 50, 0.92);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(131,157,235,0.4);
+            border: 1px solid rgba(109,143,224,0.4);
             border-radius: 50px; padding: 10px 16px;
             display: flex; align-items: center; gap: 10px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.5);
@@ -679,8 +683,8 @@
             border-bottom: 1px solid rgba(0,0,0,0.045);
         }
         .msg-ctx-item:last-child { border-bottom: none; }
-        .msg-ctx-item:hover { background: rgba(131,157,235,0.10); }
-        .msg-ctx-item:active { background: rgba(131,157,235,0.18); }
+        .msg-ctx-item:hover { background: rgba(109,143,224,0.10); }
+        .msg-ctx-item:active { background: rgba(109,143,224,0.18); }
         .msg-ctx-item.danger { color: #ef4444; }
         .msg-ctx-item.danger:hover { background: rgba(239,68,68,0.08); }
         .ctx-enter-active { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -697,7 +701,7 @@
             font-size: 12.5px; font-weight: 500;
             backdrop-filter: blur(12px);
             border: 0.5px solid rgba(255,255,255,0.75);
-            box-shadow: 0 4px 12px rgba(131,157,235,0.08);
+            box-shadow: 0 4px 12px rgba(109,143,224,0.08);
         }
         .call-record-me {
             background: rgba(190,210,250,0.78);
@@ -721,19 +725,19 @@
         .call-record-btn {
             font-size: 10.5px; font-weight: 600; color: var(--color-accent);
             padding: 3px 9px; border-radius: 20px;
-            background: rgba(131,157,235,0.14); flex-shrink: 0;
+            background: rgba(109,143,224,0.14); flex-shrink: 0;
             cursor: pointer; transition: background 0.2s;
-            border: 1px solid rgba(131,157,235,0.2);
+            border: 1px solid rgba(109,143,224,0.2);
         }
-        .call-record-btn:hover { background: rgba(131,157,235,0.26); }
+        .call-record-btn:hover { background: rgba(109,143,224,0.26); }
 
         /* ===== 拍一拍消息 ===== */
         .poke-system-msg {
             display: flex; align-items: center; justify-content: center;
             padding: 5px 18px; border-radius: 50px;
             font-size: 12px; color: var(--color-muted);
-            background: rgba(131,157,235,0.07);
-            border: 1px dashed rgba(131,157,235,0.28);
+            background: rgba(109,143,224,0.07);
+            border: 1px dashed rgba(109,143,224,0.28);
             backdrop-filter: blur(8px);
         }
         /* ===== 拍一拍选择器 ===== */
@@ -758,13 +762,13 @@
         }
         .poke-option {
             display: inline-block; padding: 6px 14px;
-            background: rgba(131,157,235,0.10);
-            border: 1px solid rgba(131,157,235,0.25);
+            background: rgba(109,143,224,0.10);
+            border: 1px solid rgba(109,143,224,0.25);
             border-radius: 20px; margin: 3px; font-size: 13px;
             color: var(--color-text); cursor: pointer;
             transition: all 0.15s;
         }
-        .poke-option:hover, .poke-option.selected { background: rgba(131,157,235,0.25); color: #5b79d4; }
+        .poke-option:hover, .poke-option.selected { background: rgba(109,143,224,0.25); color: #5b79d4; }
         .poke-picker-enter-active { transition: all 0.22s cubic-bezier(0.175,0.885,0.32,1.275); }
         .poke-picker-leave-active { transition: all 0.15s ease; }
         .poke-picker-enter-from { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.95); }
@@ -1636,7 +1640,7 @@
 
         <!-- ===== 偏好设置（全屏页面）===== -->
         <transition name="page-slide">
-            <div v-if="modals.settings" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+            <div v-if="modals.settings" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
                     <!-- 标题栏 -->
                     <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-3 shrink-0">
@@ -1647,10 +1651,20 @@
                         </div>
                     </div>
 
+                    <!-- 分栏 Tab：聊天 / 美化 / 数据 -->
+                    <div class="flex bg-white/60 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-700/60 shrink-0 px-2">
+                        <button v-for="t in [{k:'chat',label:'聊天'},{k:'beauty',label:'美化'},{k:'data',label:'数据'}]" :key="t.k"
+                                @click="settingsTab = t.k"
+                                class="flex-1 py-2.5 text-[12.5px] font-bold text-center transition border-b-2"
+                                :class="settingsTab === t.k ? 'text-accent border-accent' : 'text-muted border-transparent'">
+                            {{ t.label }}
+                        </button>
+                    </div>
+
                     <div class="flex-1 overflow-y-auto p-5 space-y-4">
 
                         <!-- 我的身份 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="user" class="w-4 h-4 text-indigo-500 dark:text-indigo-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">我的身份</label>
@@ -1669,7 +1683,7 @@
                         </section>
 
                         <!-- 对方设置 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-pink-50/70 to-rose-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="heart" class="w-4 h-4 text-rose-400 dark:text-rose-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-rose-400 dark:text-rose-300 uppercase tracking-wider">对方设置</label>
@@ -1691,7 +1705,7 @@
                         </section>
 
                         <!-- 字体定制 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-violet-50/70 to-purple-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="type" class="w-4 h-4 text-violet-500 dark:text-violet-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-violet-500 dark:text-violet-300 uppercase tracking-wider">字体定制</label>
@@ -1716,7 +1730,7 @@
                         </section>
 
                         <!-- 显示与行为 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-sky-50/70 to-cyan-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-1">
+                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-1">
                             <div class="flex items-center gap-2 mb-3">
                                 <i data-lucide="sparkles" class="w-4 h-4 text-sky-500 dark:text-sky-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">显示与行为</label>
@@ -1793,7 +1807,7 @@
                         </section>
 
                         <!-- 提示音 & 音量 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-amber-50/70 to-yellow-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="volume-2" class="w-4 h-4 text-amber-500 dark:text-amber-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-amber-500 dark:text-amber-300 uppercase tracking-wider">提示音与音量</label>
@@ -1827,7 +1841,7 @@
                         </section>
 
                         <!-- 聊天背景图 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-emerald-50/70 to-green-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="image" class="w-4 h-4 text-emerald-500 dark:text-emerald-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-emerald-500 dark:text-emerald-300 uppercase tracking-wider">聊天背景图</label>
@@ -1853,7 +1867,7 @@
                         </section>
 
                         <!-- 主页面壁纸与标题 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-pink-50/70 to-rose-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="home" class="w-4 h-4 text-rose-500 dark:text-rose-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-rose-500 dark:text-rose-300 uppercase tracking-wider">桌面主页面</label>
@@ -1887,7 +1901,7 @@
                         </section>
 
                         <!-- 通话背景 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-slate-50/70 to-gray-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="phone" class="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">通话界面背景</label>
@@ -1913,7 +1927,7 @@
                         </section>
 
                         <!-- 自定义CSS -->
-                        <section class="rounded-[1.5rem] bg-white/50 dark:bg-slate-700/30 border border-white/60 p-4 shadow-sm space-y-2">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-2">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="palette" class="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">自定义气泡 CSS</label>
@@ -1923,7 +1937,7 @@
                         </section>
 
                         <!-- 全局备份 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-blue-50/60 to-indigo-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="save" class="w-4 h-4 text-indigo-500 dark:text-indigo-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">备份与恢复</label>
@@ -1953,7 +1967,7 @@
                         </section>
 
                         <!-- 云端自动备份 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-sky-50/60 to-cyan-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="cloud" class="w-4 h-4 text-sky-500 dark:text-sky-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">云端自动备份</label>
@@ -1991,7 +2005,7 @@
                         </section>
 
                         <!-- 换设备恢复 -->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-emerald-50/60 to-teal-50/40 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-3">
+                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="smartphone" class="w-4 h-4 text-emerald-600 dark:text-emerald-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-emerald-600 dark:text-emerald-300 uppercase tracking-wider">换设备恢复</label>
@@ -2017,7 +2031,7 @@
                         </section>
 
                         <!-- GitHub 直传备份（可选，进阶功能，默认收起）-->
-                        <section class="rounded-[1.5rem] bg-gradient-to-br from-slate-100/70 to-gray-50/50 dark:from-slate-700/50 dark:to-slate-800/40 border border-white/70 dark:border-slate-600/40 p-4 shadow-sm space-y-2">
+                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-2">
                             <button @click="githubBackupExpanded = !githubBackupExpanded" class="w-full flex items-center justify-between text-left">
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="database" class="w-4 h-4 text-slate-600 dark:text-slate-300 shrink-0"></i>
@@ -2081,7 +2095,7 @@
 
         <!-- ===== 语料库（全屏页面）===== -->
         <transition name="page-slide">
-          <div v-if="modals.replyManager" class="fixed inset-0 z-[100] bg-slate-50 dark:bg-slate-900 flex flex-col">
+          <div v-if="modals.replyManager" class="fixed inset-0 z-[100] bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
             <div class="w-full h-full flex flex-col overflow-hidden relative">
 
               <!-- ── 标题栏 ────────────────────────────────────────── -->
@@ -2496,7 +2510,7 @@
         <!-- ===== 信笺 Modal（信箱历史 + 写信 合并）===== -->
         <!-- ===== 信笺（信箱历史 + 写信 合并，全屏页面）===== -->
         <transition name="page-slide">
-            <div v-if="modals.letterHistory" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+            <div v-if="modals.letterHistory" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
                     <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-2">
@@ -2534,7 +2548,7 @@
 
         <!-- ===== 消息收藏（全屏页面）===== -->
         <transition name="page-slide">
-            <div v-if="modals.favorites" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+            <div v-if="modals.favorites" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
                     <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
                         <button @click="modals.favorites = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
@@ -2565,7 +2579,7 @@
 
         <!-- ===== 记忆日历（全屏页面）===== -->
         <transition name="page-slide">
-            <div v-if="modals.notebook" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+            <div v-if="modals.notebook" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
                     <!-- 标题 -->
                     <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
@@ -2589,17 +2603,19 @@
                                 :class="{'invisible': !day, 'active': day && isSelectedDate(day.date), 'has-note': day && day.hasNote}">
                                 <span v-if="day">{{ day.number }}</span>
                                 <div v-if="day && day.hasNote" class="note-dot"></div>
+                                <div v-if="day && day.isPeriodDay" class="period-dot"></div>
                             </div>
                         </div>
                         <div class="flex items-center gap-3 mt-1.5 justify-center">
                             <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full bg-accent/20 border border-accent/30"></div><span>有记录</span></div>
+                            <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full" style="background:rgb(244,114,182);"></div><span>经期</span></div>
                             <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full bg-accent"></div><span>选中</span></div>
                         </div>
                     </div>
                     <!-- 记录输入区 -->
                     <div class="px-4 py-3 bg-white/50 border-b border-white/60 shadow-inner shrink-0">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-accent">📝 {{ selectedDateText }} 的记录</span>
+                            <span class="text-xs font-bold text-accent">{{ selectedDateText }} 的记录</span>
                             <button @click="notebookInputExpanded = !notebookInputExpanded" class="text-[10px] flex items-center gap-1 text-muted hover:text-accent transition bg-white/60 px-2 py-1 rounded-full border border-white/60">
                                 <i :data-lucide="notebookInputExpanded ? 'chevron-up' : 'expand'" style="width:10px;height:10px;"></i>
                                 {{ notebookInputExpanded ? '收起' : '展开' }}
@@ -2679,7 +2695,7 @@
 
         <!-- ===== 潮汐（月经记录，全屏页面）===== -->
         <transition name="page-slide">
-            <div v-if="modals.periodTracker" class="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex flex-col">
+            <div v-if="modals.periodTracker" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
                     <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
                         <button @click="modals.periodTracker = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
@@ -2696,6 +2712,7 @@
                                     {{ periodDaysUntilNext === 0 ? '就是今天' : (periodDaysUntilNext > 0 ? `还有 ${periodDaysUntilNext} 天` : `已经过了 ${-periodDaysUntilNext} 天，去记一笔吧`) }}
                                 </p>
                                 <p class="text-[10px] text-muted mt-2">平均周期 {{ periodAvgCycleLength }} 天 · 已记录 {{ periodStarts.length }} 次</p>
+                                <p v-if="periodOvulationDay" class="text-[10px] text-orange-400 mt-1">预计排卵日 {{ new Date(periodOvulationDay).getMonth()+1 }}月{{ new Date(periodOvulationDay).getDate() }}日</p>
                             </template>
                             <template v-else>
                                 <p class="text-sm text-muted">还没有记录，先记一笔吧</p>
@@ -2715,13 +2732,15 @@
                             <div class="calendar-grid" style="gap:2px;">
                                 <div v-for="(day, idx) in periodCalDays" :key="idx" @click="day && selectPeriodDay(day.date)"
                                      class="calendar-cell" style="font-size:11px;"
-                                     :class="{'invisible': !day, 'active': day && isPeriodSelectedDay(day.date), 'has-record': day && day.record, 'is-predicted': day && day.isPredicted}">
+                                     :class="{'invisible': !day, 'active': day && isPeriodSelectedDay(day.date), 'has-record': day && day.record, 'is-predicted': day && day.isPredicted, 'is-ovulation': day && day.isOvulation, 'is-luteal': day && day.isLuteal}">
                                     <span v-if="day">{{ day.number }}</span>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3 mt-2 justify-center">
-                                <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full" style="background:rgba(244,114,182,0.5);"></div><span>已记录</span></div>
-                                <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full border border-dashed" style="border-color:rgba(244,114,182,0.7);"></div><span>预测范围</span></div>
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-2 justify-center">
+                                <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full" style="background:rgba(244,114,182,0.5);"></div><span>经期</span></div>
+                                <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full border border-dashed" style="border-color:rgba(244,114,182,0.7);"></div><span>预测经期</span></div>
+                                <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full" style="background:rgba(251,146,60,0.7);"></div><span>排卵日</span></div>
+                                <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full" style="background:rgba(251,191,36,0.35);"></div><span>黄体期</span></div>
                             </div>
                         </div>
 
@@ -2783,6 +2802,10 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-xs text-muted">默认周期天数（记录不足两次时使用）</span>
                                 <input type="number" v-model.number="settings.periodCycleLength" min="15" max="60" class="w-16 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1.5 text-center text-xs outline-none">
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-muted">黄体期天数（用来倒推排卵日，因人而异，医学平均约14天）</span>
+                                <input type="number" v-model.number="settings.lutealPhaseLength" min="10" max="18" class="w-16 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1.5 text-center text-xs outline-none">
                             </div>
                         </div>
                     </div>
@@ -2907,7 +2930,7 @@
             </div>
             <!-- 扬声器 -->
             <div class="call-ctrl-btn" @click="callState.speakerOn = !callState.speakerOn">
-                <div class="call-ctrl-circle" :style="callState.speakerOn ? 'background:rgba(131,157,235,0.35)' : 'background:rgba(255,255,255,0.12)'">
+                <div class="call-ctrl-circle" :style="callState.speakerOn ? 'background:rgba(109,143,224,0.35)' : 'background:rgba(255,255,255,0.12)'">
                     <i :data-lucide="callState.speakerOn ? 'volume-2' : 'volume-x'" class="w-5 h-5 text-white"></i>
                 </div>
                 <span class="call-ctrl-label">{{ callState.speakerOn ? '扬声器' : '听筒' }}</span>
@@ -3554,6 +3577,17 @@ createApp({
             const avg = Math.round(runs.reduce((a, b) => a + b, 0) / runs.length);
             return avg > 0 ? avg : 5;
         });
+        // 排卵日 = 下次预测经期开始日，往前推"黄体期天数"（黄体期长度因人而异但相对固定，
+        // 不像卵泡期那样会因为周期长短而大幅波动，所以从"下次经期"倒推比从"上次经期"顺推更准）
+        // 黄体期 = 排卵日次日 ~ 下次经期开始前一天，这段时间整体标出来
+        const periodOvulationDay = computed(() => {
+            if (!periodNextPredicted.value) return null;
+            return periodNextPredicted.value - (settings.lutealPhaseLength || 14) * ONE_DAY_MS;
+        });
+        const periodLutealRange = computed(() => {
+            if (!periodOvulationDay.value || !periodNextPredicted.value) return null;
+            return { start: periodOvulationDay.value + ONE_DAY_MS, end: periodNextPredicted.value - ONE_DAY_MS };
+        });
 
         // ── 潮汐日历：用月历方式查看/记录，跟"记忆日历"是各自独立的一套月份导航 ──
         const periodCalDate = ref(new Date());
@@ -3565,6 +3599,8 @@ createApp({
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const predictedStart = periodNextPredicted.value;
             const predictedEnd = predictedStart !== null ? predictedStart + (periodAvgDuration.value - 1) * ONE_DAY_MS : null;
+            const ovulationTs = periodOvulationDay.value;
+            const luteal = periodLutealRange.value;
             const days = [];
             for (let i = 0; i < firstDay; i++) days.push(null);
             for (let i = 1; i <= daysInMonth; i++) {
@@ -3572,7 +3608,9 @@ createApp({
                 const ts = date.getTime();
                 const record = periodRecords.value.find(r => new Date(r.timestamp).toDateString() === date.toDateString());
                 const isPredicted = predictedStart !== null && ts >= predictedStart && ts <= predictedEnd;
-                days.push({ date, number: i, record: record || null, isPredicted });
+                const isOvulation = ovulationTs !== null && date.toDateString() === new Date(ovulationTs).toDateString();
+                const isLuteal = !isOvulation && luteal !== null && ts >= luteal.start && ts <= luteal.end;
+                days.push({ date, number: i, record: record || null, isPredicted, isOvulation, isLuteal });
             }
             return days;
         });
@@ -3738,6 +3776,7 @@ createApp({
             periodReminderEnabled: true,
             periodReminderDaysBefore: 2, // 提前几天提醒
             periodLastRemindedFor: '', // 记录"已经为哪一次预测提醒过"，避免同一次预测反复提醒
+            lutealPhaseLength: 14, // 黄体期天数，用来从"下次预测经期"倒推排卵日
             customFontUrl: '', fontFamily: "'Quicksand', 'Noto Serif SC', sans-serif", fontSize: 15,
             soundUrl: '', sendSoundUrl: '', soundVolume: 100,
             callBgImage: '', callBgUrl: '',
@@ -3767,7 +3806,15 @@ createApp({
         // 桌面主页面 / 聊天界面 —— 'home' | 'chat'
         const currentScreen = ref('home');
         const goHome = () => { currentScreen.value = 'home'; };
-        const openChat = () => { currentScreen.value = 'chat'; };
+        // ✅ 修复"重启/进入聊天后停在最顶部"的问题：
+        //   聊天容器在主页面时是 display:none（v-show 隐藏），这时候读 scrollHeight
+        //   算出来的高度是不准的（隐藏元素不参与布局），所以 App 刚打开时执行的那次
+        //   scrollToBottom() 实际上是无效的。真正需要滚动到底部的时机，是"切换到聊天
+        //   界面、容器变为可见的那一刻"，所以在这里重新滚一次。
+        const openChat = () => {
+            currentScreen.value = 'chat';
+            nextTick(() => scrollToBottom());
+        };
         const coupleTitle = computed(() => settings.coupleName?.trim() || `${profiles.me.name} & ${profiles.them.name}`);
         // 主页面顶部的实时时钟：每 15 秒刷新一次就够了，没必要按秒刷新增加开销
         const homeClockNow = ref(Date.now());
@@ -3795,6 +3842,8 @@ createApp({
         const stickerGroups = ref([{ id: 'sg1', name: '默认', stickers: [] }]);
         const currentStickerGroupId = ref('sg1');
 
+        // 设置面板分栏：聊天 / 美化 / 数据
+        const settingsTab = ref('chat');
         const corpusEditing = ref(false);   // 管理模式（显示重命名/删除）
         // 语料库分栏：回复语料 / 表情包 / 状态预设 / 拍一拍预设，四个板块合并到一个入口里
         const corpusTab = ref('replies');
@@ -3853,7 +3902,9 @@ createApp({
             for (let i = 1; i <= daysInMonth; i++) {
                 const date = new Date(year, month, i);
                 const hasNote = notes.value.some(n => new Date(n.timestamp).toDateString() === date.toDateString());
-                days.push({ date, number: i, hasNote });
+                // ✅ 跟"潮汐"联动：这一天有没有记录经期，主日历上也用一个小圆点标出来
+                const isPeriodDay = periodRecords.value.some(r => new Date(r.timestamp).toDateString() === date.toDateString());
+                days.push({ date, number: i, hasNote, isPeriodDay });
             }
             return days;
         });
@@ -4092,12 +4143,12 @@ createApp({
     const saveData = async (force = false) => {
         if (!force && showSplash.value) return;
         if (force) {
-            if (localSaveTimer) { clearTimeout(localSaveTimer); localSaveTimer = null; }
+            if (localSaveTimer) { safeClearTimeout(localSaveTimer); localSaveTimer = null; }
             await writeLocalSave();
             return;
         }
-        if (localSaveTimer) clearTimeout(localSaveTimer);
-        localSaveTimer = setTimeout(writeLocalSave, 500);
+        if (localSaveTimer) safeClearTimeout(localSaveTimer);
+        localSaveTimer = safeSetTimeout(writeLocalSave, 500);
     };
 
     watch(
@@ -4141,7 +4192,7 @@ createApp({
             if(el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 el.style.transition = 'background-color 0.6s';
-                el.style.backgroundColor = 'rgba(131, 157, 235, 0.2)';
+                el.style.backgroundColor = 'rgba(109,143,224, 0.2)';
                 setTimeout(() => { el.style.backgroundColor = ''; }, 800);
             }
         };
@@ -4552,6 +4603,9 @@ createApp({
 
         messages.value.push(msg);
         playSound(sender === 'me' ? 'send' : 'receive');
+        // ✅ 消息是用户最不能接受丢失的数据，这里不等 500ms 防抖，直接强制落盘一次。
+        //   （防抖仍然用于设置里的高频编辑场景，两者不冲突）
+        saveData(true);
 
         // ✅ 正确的后台通知（使用已有的 showNotification）
         if (sender === 'them') {
@@ -5281,6 +5335,23 @@ createApp({
             Notification.requestPermission();
         }
 
+        // ✅ 请求"持久化存储"：默认情况下，浏览器在设备存储紧张时，
+        //    可能会静默清掉不常用网站的 localStorage / IndexedDB（这大概率是
+        //    "重启后聊天记录回到最开始"的根本原因之一，而不是代码逻辑本身的问题）。
+        //    申请下来之后，浏览器就不会再无提示地清空这个网站的数据。
+        //    大多数浏览器会自动准予（不弹窗），部分浏览器需要用户已经"添加到主屏幕"过。
+        try {
+            if (navigator.storage?.persist) {
+                const already = await navigator.storage.persisted?.();
+                if (!already) {
+                    const granted = await navigator.storage.persist();
+                    console.log('[存储] 持久化存储申请结果：', granted);
+                }
+            }
+        } catch (e) {
+            console.warn('[存储] 持久化存储申请失败（不影响正常使用）', e);
+        }
+
         let idbData = null;
             let lsData = null;
 
@@ -5308,6 +5379,11 @@ createApp({
         } else {
             data = idbData || lsData;
         }
+        // 诊断日志：如果以后又出现"重启丢失聊天记录"，打开浏览器控制台看这一行，
+        // 能立刻知道问题出在哪一层——是两边storage都读到null（说明数据真的被清了），
+        // 还是读到了但messages是空数组（说明是保存时的问题）。
+        console.log('[存储诊断] IndexedDB:', idbData ? `有数据(${idbData.messages?.length||0}条消息)` : '无数据',
+                    '| localStorage:', lsData ? `有数据(${lsData.messages?.length||0}条消息)` : '无数据');
         if (data) {
             if (data.messages) messages.value = data.messages;
             if (data.profiles) Object.assign(profiles, data.profiles);
@@ -5391,7 +5467,7 @@ createApp({
             profiles, settings, modals,
             notifPermStatus, isIOS, isInstalledPWA, initNotification,
             selectiveExportMode, selectiveItems, expandedNotes, doSelectiveExport, doSelectiveImport,
-            ungroupedReplies, replyGroups, userGroups, corpusEditing, corpusTab,
+            ungroupedReplies, replyGroups, userGroups, corpusEditing, corpusTab, settingsTab,
             collapsedGroups, toggleCollapse, searchQuery, newReplyText, newReplyGroupId, filteredReplies,
             showMovePanel,
             stickerGroups, currentStickerGroupId, currentStickerGroup,
@@ -5432,7 +5508,7 @@ createApp({
             periodRecords, periodFormDate, periodFormFlow, periodFormMood, periodFormNote, showPeriodForm,
             periodMoodOptions, periodFlowOptions, periodStarts, periodAvgCycleLength, periodNextPredicted,
             periodDaysUntilNext, openPeriodForm, savePeriodRecord, deletePeriodRecord,
-            periodAvgDuration, periodCalDate, periodCalMonthYearText, periodCalDays,
+            periodAvgDuration, periodOvulationDay, periodLutealRange, periodCalDate, periodCalMonthYearText, periodCalDays,
             periodCalPrevMonth, periodCalNextMonth, periodSelectedDay, isPeriodSelectedDay, selectPeriodDay,
             selectMode, selectedMsgIds, enterSelectMode, exitSelectMode, toggleSelectMsg, isMsgSelected, onMsgRowClick,
             editingMsgId, editingText, startEditMsg, confirmEditMsg, cancelEditMsg,
