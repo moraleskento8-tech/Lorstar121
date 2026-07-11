@@ -45,6 +45,9 @@
           notifyButton: { enable: false },
         });
         window.__oneSignalReady = true;
+        // 用自定义事件通知 Vue 那边"OneSignal 真的就绪了"，
+        // 不用再靠"等 3.2 秒后再调一次碰碰运气"这种猜时间的重复调用
+        window.dispatchEvent(new Event('onesignal-ready'));
       });
     </script>
     <script>
@@ -1326,12 +1329,30 @@
 
     <div v-show="!showSplash" class="w-full md:max-w-md h-full flex flex-col glass-panel md:shadow-2xl transition-all relative overflow-hidden rounded-none md:rounded-[2.5rem]">
 
+        <!-- ===== 应用内消息横幅：不管现在在主页面/设置/语料库...哪个页面，
+             有新消息时都会从顶部飘一条下来，点一下直接跳回聊天 ===== -->
+        <transition name="fade">
+            <div v-if="inAppBanner.show" @click="openInAppBannerTarget"
+                 class="absolute top-3 left-3 right-3 z-[200] bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl rounded-2xl shadow-[0_4px_16px_rgba(109,143,224,0.18),0_1px_3px_rgba(0,0,0,0.06)] border border-white/70 dark:border-slate-600/40 px-4 py-3 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition">
+                <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-accent/15 flex items-center justify-center">
+                    <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
+                    <i v-else data-lucide="message-circle" class="w-4 h-4 text-accent"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100 truncate">{{ inAppBanner.title }}</p>
+                    <p class="text-[12px] text-muted truncate">{{ inAppBanner.body }}</p>
+                </div>
+                <button @click.stop="dismissInAppBanner" class="text-slate-300 hover:text-slate-500 shrink-0 p-1"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+            </div>
+        </transition>
+
         <!-- ===== 桌面主页面 ===== -->
-        <div v-show="currentScreen === 'home'" class="h-full w-full flex flex-col overflow-y-auto relative bg-cover bg-center"
+        <transition name="page-slide">
+        <div v-show="currentScreen === 'home'" class="absolute inset-0 flex flex-col overflow-y-auto bg-cover bg-center"
              :style="settings.homeWallpaper ? { backgroundImage: `url(${settings.homeWallpaper})` } : {}">
             <div class="flex-1 flex flex-col px-5 pt-12 pb-8 gap-9">
                 <!-- 情侣卡片 -->
-                <div class="bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl rounded-[2rem] pt-10 pb-6 px-6 text-center shadow-lg border border-white/60 dark:border-slate-600/40 relative mt-8 shrink-0">
+                <div class="bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl rounded-[2rem] pt-10 pb-6 px-6 text-center shadow-[0_2px_8px_rgba(109,143,224,0.1),0_16px_40px_-12px_rgba(109,143,224,0.35)] border border-white/60 dark:border-slate-600/40 relative mt-8 shrink-0">
                     <div class="absolute -top-8 left-1/2 -translate-x-1/2 flex">
                         <div class="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-md -mr-3 relative z-10">
                             <img v-if="profiles.me.avatar" :src="profiles.me.avatar" class="w-full h-full object-cover">
@@ -1355,46 +1376,52 @@
                 <!-- 应用图标网格 -->
                 <div class="grid grid-cols-3 gap-y-7 gap-x-2">
                     <button @click="openChat" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">聊天</span>
                     </button>
                     <button @click="modals.letterHistory = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition relative">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
                             <i data-lucide="mail" class="w-6 h-6"></i>
                             <span v-if="pendingLetter" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-400 border-2 border-white rounded-full"></span>
                         </div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">信笺</span>
                     </button>
                     <button @click="modals.replyManager = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="library" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="library" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">语料库</span>
                     </button>
                     <button @click="modals.notebook = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">日历</span>
                     </button>
                     <button @click="modals.periodTracker = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition relative">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
                             <i data-lucide="waves" class="w-6 h-6"></i>
                             <span v-if="periodDaysUntilNext !== null && periodDaysUntilNext <= (settings.periodReminderDaysBefore||2) && periodDaysUntilNext >= 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-400 border-2 border-white rounded-full"></span>
                         </div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">潮汐</span>
                     </button>
                     <button @click="modals.favorites = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="star" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="star" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">收藏</span>
                     </button>
                     <button @click="modals.settings = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/65 dark:bg-slate-700/55 shadow-sm flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="sliders-horizontal" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="sliders-horizontal" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">设置</span>
                     </button>
                 </div>
             </div>
         </div>
+        </transition>
 
-        <!-- ===== 聊天界面（header + 消息列表 + 输入区），用 display:contents 包裹，
-             这样 v-show 切换时不影响 header/main/footer 作为 flex 子元素的布局 ===== -->
-        <div v-show="currentScreen === 'chat'" class="contents">
+        <!-- ===== 聊天界面（header + 消息列表 + 输入区）。
+             之前用 display:contents 包裹是为了让 header/main/footer 直接作为
+             phone-frame 的 flex 子元素；但 display:contents 的元素没法做动画
+             （没有自己的盒子可以transform/fade），所以"进入聊天没有动画"。
+             现在改成 absolute inset-0 的独立层，本身是一个完整的 flex 容器，
+             这样才能配合 transition 组件做滑入动画，跟其他页面手感一致。 ===== -->
+        <transition name="page-slide">
+        <div v-show="currentScreen === 'chat'" class="absolute inset-0 flex flex-col overflow-hidden">
         <!-- ===== 顶栏 Header ===== -->
         <header class="h-16 flex items-center justify-between px-4 shrink-0 border-b border-white/60 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl z-30 rounded-t-[2.5rem]">
             <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -1634,6 +1661,7 @@
             </div>
         </footer>
         </div>
+        </transition>
         <!-- ↑ 聊天界面(header+消息列表+输入区)包裹结束。
              下面这些 Modal（设置/语料库/信箱/收藏/日历等）是全局的，
              不管当前在主页面还是聊天页面，都可以被对应的图标/按钮打开。 -->
@@ -3704,7 +3732,7 @@ createApp({
                 timestamp: Date.now(), status: 'read', quote: null,
             });
             playSound('send');
-            scrollToBottom();
+            scrollToBottom(true);
             pokeToast.text = msgText;
             pokeToast.show = true;
             if (pokeToastTimer) clearTimeout(pokeToastTimer);
@@ -3738,7 +3766,7 @@ createApp({
                     timestamp: Date.now(), status: 'read', quote: null,
                 });
                 playSound('receive');
-                scrollToBottom();
+                scrollToBottom(true);
                 showNotification(profiles.them.name, theirMsg);
                 pokeToast.text = theirMsg;
                 pokeToast.show = true;
@@ -4182,9 +4210,15 @@ createApp({
             }
         }, { immediate: true });
 
-        const scrollToBottom = async () => {
+        // smooth=false（默认）：直接跳到底部，不做平滑滚动动画——
+        //   聊天记录一多，从顶部平滑滚到底部本身就要跑很久，看起来就像卡顿。
+        //   只有"已经在聊天里、新消息到达"这种"就差一小段"的场景才传 smooth=true，
+        //   让新消息的出现显得连贯，而不是硬跳。
+        const scrollToBottom = async (smooth = false) => {
             await nextTick();
-            document.getElementById('chat-container')?.scrollTo({ top: document.getElementById('chat-container').scrollHeight, behavior: 'smooth' });
+            const el = document.getElementById('chat-container');
+            if (!el) return;
+            el.scrollTo({ top: el.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
         };
 
         const scrollToMsg = (id) => {
@@ -4245,12 +4279,48 @@ createApp({
             }
         };
 
+        // OneSignal 真正就绪时触发一次通知初始化——这个监听器在这里（setup 同步阶段）
+        // 就立刻注册好，不会错过 OneSignal 提前就绪时派发的事件。
+        // 比"固定等 3.2 秒再赌一把 OneSignal 是不是好了"要准确，也不会重复调用。
+        window.addEventListener('onesignal-ready', () => initNotification());
+
+        // ===== 应用内消息横幅：page可见、但用户不在聊天页面（主页面/设置/语料库...）时用这个提醒 =====
+        // 系统通知（下面的 showNotification）只在页面被切到后台时才会弹，
+        // 页面明明开着、只是用户在主页面或者别的功能页里，之前是完全没有提示的——
+        // 这里补上应用内横幅，点一下就直接跳回聊天。
+        const inAppBanner = reactive({ show: false, title: '', body: '' });
+        let inAppBannerTimer = null;
+        const showInAppBanner = (title, body) => {
+            inAppBanner.title = title;
+            inAppBanner.body = body;
+            inAppBanner.show = true;
+            if (inAppBannerTimer) safeClearTimeout(inAppBannerTimer);
+            inAppBannerTimer = safeSetTimeout(() => { inAppBanner.show = false; }, 4500);
+        };
+        const dismissInAppBanner = () => {
+            inAppBanner.show = false;
+            if (inAppBannerTimer) { safeClearTimeout(inAppBannerTimer); inAppBannerTimer = null; }
+        };
+        // 点横幅：关掉可能挡在前面的功能面板，切到聊天，滚动到最新消息
+        const openInAppBannerTarget = () => {
+            dismissInAppBanner();
+            modals.settings = false; modals.replyManager = false; modals.letterHistory = false;
+            modals.favorites = false; modals.notebook = false; modals.periodTracker = false;
+            modals.selectiveExport = false; modals.batchInput = false;
+            openChat();
+        };
+
         // showNotification：弹出系统通知
         // 三路径容错：ctrl.postMessage → reg.showNotification → native Notification
         const showNotification = async (title, body) => {
             if (!settings.pushNotify) return;
+            if (document.visibilityState === 'visible') {
+                // 页面是开着的，但如果人不在聊天页面（比如在主页面、设置里），
+                // 系统通知不会弹，这时候改用应用内横幅提醒一下，点了直接跳转聊天
+                if (currentScreen.value !== 'chat') showInAppBanner(title, body);
+                return;
+            }
             if (!('Notification' in window)) return;
-            if (document.visibilityState === 'visible') return; // 用户正在看，不打扰
             if (Notification.permission !== 'granted') {
                 if (Notification.permission !== 'denied') initNotification();
                 return;
@@ -4433,7 +4503,7 @@ createApp({
             // ✅ 未接/拒接来电也弹通知，跟其他消息一样走统一的 showNotification（不再自己重复写一遍 SW 推送逻辑）
             showNotification(profiles.them.name, msg.content);
             callState.status = 'idle';
-            scrollToBottom();
+            scrollToBottom(true);
             nextTick(() => lucide.createIcons());
         };
 
@@ -4464,7 +4534,7 @@ createApp({
                     quote: null,
                 };
                 messages.value.push(msg);
-                scrollToBottom();
+                scrollToBottom(true);
                 // ✅ 通话结束也弹通知——比如挂断那一下手机正好切到别的 app 了，回来才看到时长
                 showNotification(profiles.them.name, msg.content);
             }
@@ -4613,7 +4683,7 @@ createApp({
              showNotification(profiles.them.name, notifyBody);
     }
 
-         scrollToBottom();
+         scrollToBottom(true);
 
         if (sender === 'me') {
              // ✅ 更新已读状态
@@ -4637,7 +4707,7 @@ createApp({
         const triggerAutoReply = (force = false) => {
             if(isTyping.value) return;
             isTyping.value = true;
-            scrollToBottom();
+            scrollToBottom(true);
             const baseDelay = force ? 400 : (Math.random()*(settings.delayMax-settings.delayMin)+settings.delayMin)*1000;
             safeSetTimeout(()=>{
                 const textPool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g=>g.replies)];
@@ -4663,7 +4733,7 @@ createApp({
                         currentIndex++;
                         if (currentIndex < replyCount) {
                             isTyping.value = true;
-                            scrollToBottom();
+                            scrollToBottom(true);
                             safeSetTimeout(sendNext, (Math.random() * 2 + 1) * 1000);
                         }
                     };
@@ -4884,7 +4954,9 @@ createApp({
                 el.style.display = 'none';
                 void el.offsetHeight; // 读取一次布局属性，强制回流
                 el.style.display = prevDisplay || '';
-                lucide.createIcons();
+                // 注：这里不再重复调用 lucide.createIcons() ——
+                // 图标的创建已经由下面 messages.length / modals 的 watch 统一负责，
+                // 每次切后台/切回来都再扫一遍全 DOM 属于重复劳动，删掉能省一点开销。
             });
         };
         document.addEventListener('visibilitychange', () => {
@@ -5452,7 +5524,6 @@ createApp({
                 restartAutoBackupTimer();
                 // 主页面时钟：每15秒刷新一次
                 homeClockTimer = safeSetInterval(() => { homeClockNow.value = Date.now(); }, 15000);
-                setTimeout(() => initNotification(), 3200);
                 scheduleStatusRefresh();
                 scheduleRandomCall();
                 initNotification();
@@ -5460,7 +5531,13 @@ createApp({
             });
         }, 5500);
     });
-        watch([messages, modals], () => nextTick(() => lucide.createIcons()), { deep: true });
+        // ⚠️ 性能修复：这里之前是 deep:true 深度监听整个 messages 数组，
+        //   意味着"任何一条消息的任何属性变化"（标记已读、编辑、撤回...）
+        //   都会触发一次全 DOM 的图标重建扫描——聊天记录越长，这个扫描越贵，
+        //   这是"聊天记录一多就卡"的主要原因之一。
+        //   实际上只有"新增/删除消息"时才需要重建图标（新气泡上有新图标），
+        //   消息内部属性变化不需要。改成只监听数组长度，开销降低一个数量级。
+        watch([() => messages.value.length, modals], () => nextTick(() => lucide.createIcons()), { deep: true });
 
         return {
             showSplash, chatList, imgInput, globalImportInput, messages, inputText, isTyping, previewImg,
@@ -5516,6 +5593,8 @@ createApp({
             // 拍一拍
             pokeToast, sendPoke, showPokePicker, confirmPoke,
             pokePickerShow, pokePickerSelected, pokeOptions,
+            // 应用内消息横幅
+            inAppBanner, dismissInAppBanner, openInAppBannerTarget,
         };
     }
 }).mount('#app');
