@@ -1448,7 +1448,7 @@
                             </span>
                         </template>
                         <template v-else>
-                            <span class="truncate">{{ profiles.them.status || '✨ 星光漫游' }}</span>
+                            <span class="truncate">{{ profiles.them.status || '星光漫游' }}</span>
                         </template>
                     </div>
                 </div>
@@ -1558,13 +1558,13 @@
                                     </div>
                                 </div>
                                 <div class="call-record-footer">
-                                    <span class="call-record-dur">{{ msg.callAccepted ? (msg.content.replace('📹 视频通话已结束 · ','') || '已结束') : (msg.callAccepted === false ? '未接通' : '') }}</span>
+                                    <span class="call-record-dur">{{ msg.callAccepted ? (msg.content.replace('视频通话已结束 · ','') || '已结束') : (msg.callAccepted === false ? '未接通' : '') }}</span>
                                     <button v-if="msg.callAccepted || msg.sender==='them'" @click.stop="initiateCall('me')" class="call-record-rebtn">再次拨打</button>
                                 </div>
                             </div>
                             <!-- 拍一拍消息 (居中系统消息风格) -->
                             <div v-else-if="msg.type === 'poke'" class="poke-system-msg">
-                                🫳🏻 {{ msg.content }}
+                                {{ msg.content }}
                             </div>
                             <!-- 时间戳 -->
                             <div class="flex items-center gap-1.5 mt-1 px-1 text-[10px] text-muted tracking-tight font-sans opacity-70" :class="msg.sender === 'me' ? 'justify-end' : 'justify-start'">
@@ -1599,7 +1599,7 @@
             <div v-if="modals.stickerPicker" class="absolute bottom-20 left-4 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-3xl rounded-3xl p-4 shadow-2xl z-40 border border-white/70 max-h-80 overflow-hidden flex flex-col">
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-accent">🍬 表情包</span>
+                        <span class="text-xs font-bold text-accent">表情包</span>
                         <select v-model="currentStickerGroupId" class="text-xs bg-white/60 border border-white/70 rounded-full px-2 py-1 outline-none focus:ring-1 focus:ring-accent">
                             <option v-for="g in stickerGroups" :value="g.id">{{ g.name }}</option>
                         </select>
@@ -1728,7 +1728,7 @@
                                 </div>
                             </div>
                             <div class="bg-white/60 dark:bg-slate-700/40 p-3 rounded-2xl border border-white/50 space-y-2">
-                                <p class="text-[10px] text-muted leading-relaxed">💡 状态预设 / 拍一拍预设已经搬到「语料库」里对应的分栏了，这里不用重复填。</p>
+                                <p class="text-[10px] text-muted leading-relaxed">状态预设 / 拍一拍预设已经搬到「语料库」里对应的分栏了，这里不用重复填。</p>
                             </div>
                         </section>
 
@@ -1766,37 +1766,45 @@
                             <!-- Toggle rows -->
                             <div class="space-y-0.5">
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">🖼️ 显示头像</span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">显示头像</span>
                                     <input type="checkbox" v-model="settings.showAvatar" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">🏷️ 显示昵称</span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">显示昵称</span>
                                     <input type="checkbox" v-model="settings.showNickname" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">🔔 提示音效</span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">提示音效</span>
                                     <input type="checkbox" v-model="settings.sound" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
                                     <div>
-                                        <span class="text-sm block text-slate-600 dark:text-slate-300">📲 后台消息推送</span>
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">后台消息推送</span>
                                         <span class="text-[10px] text-muted">切换标签页时收到通知</span>
                                         <!-- 通知权限状态提示 -->
-                                        <span v-if="notifPermStatus==='granted'" class="text-[10px] text-green-500 font-bold block mt-0.5">✅ 已授权</span>
-                                        <span v-else-if="notifPermStatus==='denied'" class="text-[10px] text-red-400 font-bold block mt-0.5">❌ 已拒绝 — 请在浏览器设置中手动开启</span>
-                                        <span v-else class="text-[10px] text-amber-500 font-bold block mt-0.5">⚠️ 未授权 — 点右侧开关申请</span>
+                                        <span v-if="notifPermStatus==='granted'" class="text-[10px] text-green-500 font-bold block mt-0.5">已授权</span>
+                                        <span v-else-if="notifPermStatus==='denied'" class="text-[10px] text-red-400 font-bold block mt-0.5">已拒绝 — 请在浏览器设置中手动开启</span>
+                                        <span v-else class="text-[10px] text-amber-500 font-bold block mt-0.5">未授权 — 点右侧开关申请</span>
                                         <!-- iOS 提示 -->
-                                        <span v-if="isIOS && !isInstalledPWA" class="text-[10px] text-blue-400 block mt-0.5">📱 iOS：请点击 Safari 分享按钮 → 添加到主屏幕，再从主屏打开以启用通知</span>
+                                        <span v-if="isIOS && !isInstalledPWA" class="text-[10px] text-blue-400 block mt-0.5">iOS：请点击 Safari 分享按钮 → 添加到主屏幕，再从主屏打开以启用通知</span>
                                     </div>
                                     <input type="checkbox" v-model="settings.pushNotify" class="reply-checkbox" @change="initNotification">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <div>
-                                        <span class="text-sm block text-slate-600 dark:text-slate-300">⚙️ 后台保活</span>                                    </div>
+                                    <div class="flex-1 pr-2">
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">后台保活（静音音频 + 屏幕常亮）</span>
+                                        <span class="text-[10px] text-muted block mt-0.5">
+                                            切后台时播放静音音频、申请屏幕常亮，尽量防止系统把页面挂起
+                                        </span>
+                                        <span v-if="settings.bgKeepAlive" class="text-[10px] text-emerald-500 flex items-center gap-1 mt-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>已开启 · 可在系统锁屏/控制中心看到播放条
+                                        </span>
+                                        <span class="text-[10px] text-amber-500 block mt-0.5">注意：iOS 电话来电等系统级中断仍可能强制挂起页面，这是系统限制</span>
+                                    </div>
                                     <input type="checkbox" v-model="settings.bgKeepAlive" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">🤖 主动消息</span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">主动消息</span>
                                     <input type="checkbox" v-model="settings.activeMsg" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
@@ -1804,7 +1812,7 @@
                                     <input type="number" v-model.number="settings.activeInterval" min="10" class="w-20 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">🕐 回复延迟(秒)</span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">回复延迟(秒)</span>
                                     <div class="flex items-center gap-1.5">
                                         <input type="number" v-model.number="settings.delayMin" class="w-12 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
                                         <span class="text-muted text-xs">~</span>
@@ -1813,7 +1821,7 @@
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
                                     <div class="min-w-0 pr-2">
-                                        <span class="text-sm block text-slate-600 dark:text-slate-300">✂️ 语料拼接概率</span>
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">语料拼接概率</span>
                                         <span class="text-[10px] text-muted">偶尔随机把 1~3 条语料拼在一起组合成一句话发出，像临场现想的话</span>
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0">
@@ -1823,7 +1831,7 @@
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
                                     <div class="min-w-0 pr-2">
-                                        <span class="text-sm block text-slate-600 dark:text-slate-300">👀 已读不回概率</span>
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">已读不回概率</span>
                                         <span class="text-[10px] text-muted">偶尔只显示"已读"，这条就不主动回复了</span>
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0">
@@ -1888,7 +1896,7 @@
                                     <img :src="settings.bgImage" class="w-12 h-9 object-cover rounded-lg border border-white/60 shadow-sm">
                                     <div class="flex-1">
                                         <p class="text-[10px] text-muted">当前背景已设置</p>
-                                        <button @click="settings.bgImage = ''; settings.bgImageUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">✕ 清除背景</button>
+                                        <button @click="settings.bgImage = ''; settings.bgImageUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">清除背景</button>
                                     </div>
                                 </div>
                             </div>
@@ -1914,7 +1922,7 @@
                                     <img :src="settings.homeWallpaper" class="w-12 h-9 object-cover rounded-lg border border-white/60 shadow-sm">
                                     <div class="flex-1">
                                         <p class="text-[10px] text-muted">当前主页面壁纸已设置</p>
-                                        <button @click="settings.homeWallpaper = ''; settings.homeWallpaperUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">✕ 清除壁纸</button>
+                                        <button @click="settings.homeWallpaper = ''; settings.homeWallpaperUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">清除壁纸</button>
                                     </div>
                                 </div>
                                 <div>
@@ -1948,7 +1956,7 @@
                                     <img :src="settings.callBgImage" class="w-12 h-9 object-cover rounded-lg border border-white/60 shadow-sm">
                                     <div class="flex-1">
                                         <p class="text-[10px] text-muted">通话背景已设置</p>
-                                        <button @click="settings.callBgImage = ''; settings.callBgUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">✕ 清除</button>
+                                        <button @click="settings.callBgImage = ''; settings.callBgUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">清除</button>
                                     </div>
                                 </div>
                             </div>
@@ -2028,7 +2036,7 @@
                                 <i data-lucide="upload" class="w-3.5 h-3.5"></i>立即备份一次
                             </button>
                             <div class="text-[10px] text-muted px-1 pt-1 border-t border-white/50 dark:border-slate-600/30 leading-relaxed">
-                                💡 这个云备份会自动保存，但只是"这台设备"的安全网——防止你清缓存/重装丢数据。<b>换新手机不会自动带过去</b>，需要用下面的"换设备恢复"，或者用"全量导出/导入"手动搬家。
+                                这个云备份会自动保存，但只是"这台设备"的安全网——防止你清缓存/重装丢数据。<b>换新手机不会自动带过去</b>，需要用下面的"换设备恢复"，或者用"全量导出/导入"手动搬家。
                             </div>
                         </section>
 
@@ -2042,7 +2050,7 @@
                                 每台设备都有一个专属"设备ID"。想把旧手机的聊天记录搬到新手机上：先在<b>旧手机</b>这里复制设备ID，再在<b>新手机</b>打开这个 app，把ID粘贴到下面输入框，点"恢复"。
                             </div>
                             <div class="text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 rounded-lg px-2.5 py-1.5 leading-relaxed">
-                                💡 个人自己用的话，这一个功能就够了——不需要再去研究下面的 GitHub 备份，那个是给想要额外再存一份的人用的可选项。
+                                个人自己用的话，这一个功能就够了——不需要再去研究下面的 GitHub 备份，那个是给想要额外再存一份的人用的可选项。
                             </div>
                             <div class="flex items-center gap-2 bg-white/60 dark:bg-slate-700/40 rounded-xl px-3 py-2">
                                 <span class="text-[10px] text-muted shrink-0">本机设备ID</span>
@@ -2097,12 +2105,12 @@
                                     <input v-model="settings.githubToken" type="password" placeholder="GitHub Token（建议用 Fine-grained token，只授权这一个仓库的 Contents 读写权限）"
                                         class="w-full bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
                                     <div class="text-[10px] text-amber-500 leading-relaxed">
-                                        ⚠️ Token 保存在你这台设备本地，用于直接调用 GitHub API 提交文件。
+                                        注意：Token 保存在你这台设备本地，用于直接调用 GitHub API 提交文件。
                                     </div>
                                     <div class="text-[10px] text-muted" v-if="settings.lastGithubBackupAt">
                                         上次 GitHub 备份：{{ new Date(settings.lastGithubBackupAt).toLocaleString('zh-CN') }}
                                     </div>
-                                    <button @click="backupToGitHub().then(r => alert(r.ok ? '✅ 已提交到 GitHub' : ('❌ ' + r.error)))"
+                                    <button @click="backupToGitHub().then(r => alert(r.ok ? '已提交到 GitHub' : (r.error)))"
                                             class="w-full py-2 bg-slate-700/10 dark:bg-slate-600/40 border border-slate-400/30 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-medium hover:bg-slate-700/20 transition flex items-center justify-center gap-1.5">
                                         <i data-lucide="database" class="w-3.5 h-3.5"></i>立即备份到 GitHub
                                     </button>
@@ -2112,8 +2120,8 @@
 
                         <!-- 操作按钮 -->
                         <div class="flex gap-3 pb-2">
-                            <button @click="exportChat" class="flex-1 py-3 bg-white/80 border border-white/70 rounded-2xl font-medium shadow-sm hover:bg-white transition text-sm text-slate-600">📋 导出记录</button>
-                            <button @click="clearChat" class="flex-1 py-3 bg-red-50/80 text-red-500 border border-red-100 rounded-2xl font-medium shadow-sm hover:bg-red-100 transition text-sm">🗑️ 清空对话</button>
+                            <button @click="exportChat" class="flex-1 py-3 bg-white/80 border border-white/70 rounded-2xl font-medium shadow-sm hover:bg-white transition text-sm text-slate-600">导出记录</button>
+                            <button @click="clearChat" class="flex-1 py-3 bg-red-50/80 text-red-500 border border-red-100 rounded-2xl font-medium shadow-sm hover:bg-red-100 transition text-sm">清空对话</button>
                         </div>
 
                     </div>
@@ -2377,9 +2385,9 @@
               <!-- ── 状态预设面板 ─────────────────────────────────────── -->
               <div v-show="corpusTab === 'status'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
-                  <span class="text-xs font-bold text-slate-600 dark:text-slate-300">💬 随机状态预设</span>
+                  <span class="text-xs font-bold text-slate-600 dark:text-slate-300">随机状态预设</span>
                   <p class="text-[10.5px] text-muted leading-relaxed">对方主页那句"✨ 星光漫游"之类的小状态，会不定时从这里随机换一条。用逗号分隔多条。</p>
-                  <textarea v-model="profiles.them.statusPresets" rows="4" placeholder="✨ 星光漫游, 在摸鱼, 今天也很想你"
+                  <textarea v-model="profiles.them.statusPresets" rows="4" placeholder="星光漫游, 在摸鱼, 今天也很想你"
                             class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-xs outline-none focus:border-accent resize-none leading-relaxed"></textarea>
                 </div>
               </div>
@@ -2387,7 +2395,7 @@
               <!-- ── 拍一拍预设面板 ─────────────────────────────────────── -->
               <div v-show="corpusTab === 'poke'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
-                  <span class="text-xs font-bold text-slate-600 dark:text-slate-300">🫳🏻 拍一拍预设</span>
+                  <span class="text-xs font-bold text-slate-600 dark:text-slate-300">拍一拍预设</span>
                   <p class="text-[10.5px] text-muted leading-relaxed">用 <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">{me}</code> / <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">{them}</code> 代表双方昵称，逗号分隔多条，拍一拍时随机挑一条。</p>
                   <textarea v-model="settings.pokePresets" rows="4" placeholder="{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋"
                             class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-xs outline-none focus:border-accent resize-none leading-relaxed"></textarea>
@@ -2407,7 +2415,7 @@
               <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-slate-100 dark:border-slate-700">
                 <div>
                   <h3 class="font-bold text-[16px] text-slate-700 dark:text-white">
-                    {{ selectiveExportMode === 'export' ? '📤 分类导出' : '📥 分类导入' }}
+                    {{ selectiveExportMode === 'export' ? '分类导出' : '分类导入' }}
                   </h3>
                   <p class="text-[10.5px] text-muted mt-0.5">
                     {{ selectiveExportMode === 'export' ? '选择要导出的数据类型' : '选择要从文件中导入的数据类型' }}
@@ -2425,7 +2433,7 @@
                        :class="selectiveItems.messages ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
                   <input type="checkbox" v-model="selectiveItems.messages" class="w-4 h-4 accent-accent rounded">
                   <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">💬 聊天记录</p>
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">聊天记录</p>
                     <p class="text-[10.5px] text-muted">{{ messages.length }} 条消息</p>
                   </div>
                 </label>
@@ -2434,7 +2442,7 @@
                        :class="selectiveItems.corpus ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
                   <input type="checkbox" v-model="selectiveItems.corpus" class="w-4 h-4 accent-accent rounded">
                   <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">📚 语料库</p>
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">语料库</p>
                     <p class="text-[10.5px] text-muted">{{ ungroupedReplies.length + replyGroups.reduce((a,g)=>a+g.replies.length,0) }} 条语料 · {{ replyGroups.length }} 个分组</p>
                   </div>
                 </label>
@@ -2443,7 +2451,7 @@
                        :class="selectiveItems.stickers ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
                   <input type="checkbox" v-model="selectiveItems.stickers" class="w-4 h-4 accent-accent rounded">
                   <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">🖼️ 表情包</p>
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">表情包</p>
                     <p class="text-[10.5px] text-muted">{{ stickerGroups.reduce((a,g)=>a+g.stickers.length,0) }} 张图</p>
                   </div>
                 </label>
@@ -2452,7 +2460,7 @@
                        :class="selectiveItems.notes ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
                   <input type="checkbox" v-model="selectiveItems.notes" class="w-4 h-4 accent-accent rounded">
                   <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">📅 日记记录</p>
+                    <p class="text-[13px] font-bold text-slate-700 dark:text-slate-100">日记记录</p>
                     <p class="text-[10.5px] text-muted">{{ notes.length }} 条日记</p>
                   </div>
                 </label>
@@ -2486,7 +2494,7 @@
                 <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-t-[2rem] sm:rounded-[2rem] p-5 border border-slate-200/60 dark:border-slate-700/60 shadow-2xl flex flex-col gap-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-[16px] font-bold text-slate-700 dark:text-white">📥 批量导入语料</h3>
+                            <h3 class="text-[16px] font-bold text-slate-700 dark:text-white">批量导入语料</h3>
                             <p class="text-[10.5px] text-muted mt-0.5">每行作为一条独立语料</p>
                         </div>
                         <button @click="modals.batchInput=false" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
@@ -2664,7 +2672,7 @@
                     <!-- 记录列表 (占更大比例) -->
                     <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-white/30">
                         <div v-if="filteredNotes.length === 0" class="text-center text-xs text-muted mt-8 opacity-70">
-                            <div class="text-3xl mb-3">📭</div>
+                            <i data-lucide="calendar" class="w-7 h-7 mx-auto text-slate-300 mb-3"></i>
                             这一天还没有记录哦~
                         </div>
                         <div v-for="(note, idx) in filteredNotes" :key="note.id" class="rounded-[1.4rem] overflow-hidden shadow-sm">
@@ -2715,7 +2723,7 @@
                     </div>
                     <!-- 底部提示 -->
                     <div class="px-4 py-2.5 text-[10px] text-accent/80 font-medium border-t border-white/60 bg-white/50 text-center shrink-0">
-                        💡 记录生活后，角色会在 3~5 小时后随机留言回复
+                        记录生活后，角色会在 3~5 小时后随机留言回复
                     </div>
                 </div>
             </div>
@@ -2848,7 +2856,7 @@
             </div>
         </transition>
 
-        <!-- ===== 📞 来电弹窗 ===== -->
+        <!-- ===== 来电弹窗 ===== -->
         <transition name="call">
             <div v-if="callState.status === 'incoming'" class="call-overlay">
                 <div class="call-overlay-bg" :style="settings.callBgImage ? { backgroundImage: `url(${settings.callBgImage})` } : { background: 'linear-gradient(135deg, #1a1f3a 0%, #2d3561 50%, #1a1f3a 100%)' }"></div>
@@ -2883,7 +2891,7 @@
             </div>
         </transition>
 
-        <!-- ===== 📤 拨出等待弹窗 ===== -->
+        <!-- ===== 拨出等待弹窗 ===== -->
         <transition name="call">
             <div v-if="callState.status === 'outgoing'" class="call-overlay">
                 <div class="call-overlay-bg" :style="settings.callBgImage ? { backgroundImage: `url(${settings.callBgImage})` } : { background: 'linear-gradient(135deg, #1a1f3a 0%, #2d3561 50%, #1a1f3a 100%)' }"></div>
@@ -2974,7 +2982,7 @@
     </div>
 </transition>
 
-        <!-- ===== 📦 缩小化通话气泡 ===== -->
+        <!-- ===== 缩小化通话气泡 ===== -->
         <transition name="bubble">
             <div v-if="callState.status === 'minimized'" class="call-mini-bubble" title="拖动移动 · 点击恢复">
                 <div class="call-mini-dot"></div>
@@ -3049,7 +3057,7 @@
     <!-- ===== 拍一拍选择器 ===== -->
     <transition name="poke-picker">
         <div v-if="pokePickerShow" class="poke-picker">
-            <div class="poke-picker-title">🫳🏻 选择拍一拍方式</div>
+            <div class="poke-picker-title">选择拍一拍方式</div>
             <div>
                 <span v-for="opt in pokeOptions" :key="opt" class="poke-option" :class="{ selected: pokePickerSelected === opt }" @click="pokePickerSelected = opt">{{ opt }}</span>
             </div>
@@ -3137,6 +3145,8 @@ if ('serviceWorker' in navigator) {
         if (!e.data) return;
         if (e.data.type === 'pong') window.__lastPong = Date.now();
         if (e.data.type === 'trigger-reply') window.__app_triggerAutoReply?.();
+        // 点击通知（不管是自己发的还是 OneSignal 真实推送的）都跳转到聊天界面
+        if (e.data.type === 'navigate-to-chat') window.__app_navigateToChat?.();
     });
 }
 
@@ -3171,6 +3181,7 @@ document.addEventListener('visibilitychange', () => {
             window.__silentAudio?.play().catch(() => {});
             window.__silentAudioCtx?.state === 'suspended' &&
                 window.__silentAudioCtx.resume().catch(() => {});
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         }
     });
 
@@ -3183,8 +3194,46 @@ document.addEventListener('visibilitychange', () => {
     silentAudio.volume = 0.01;
     window.__silentAudio = silentAudio;
 
+    // ── Media Session：让系统真正"看见"这是一段媒体播放 ──────
+    // 光让 <audio> 自己 play() 是不够的：手机系统（尤其 iOS）判断一个网页
+    // 是否有"正当理由"在后台继续跑，很大程度上看它有没有通过 Media Session
+    // 注册成一个"正规"的媒体会话——不注册的话，锁屏/控制中心完全不会显示
+    // 任何东西，用户也就没法确认"后台真的在播放"，跟你看到的现象一致。
+    // 注册之后，锁屏上会出现一个不起眼的播放条，点开能看到"静语·星降 · 后台保活中"。
+    const setupMediaSession = () => {
+        if (!('mediaSession' in navigator)) return;
+        try {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: '静语·星降',
+                artist: '正在后台保持连接，确保消息不错过',
+                artwork: [
+                    { src: location.origin + '/icon-192.png', sizes: '192x192', type: 'image/png' },
+                    { src: location.origin + '/icon-512.png', sizes: '512x512', type: 'image/png' }
+                ]
+            });
+            navigator.mediaSession.playbackState = 'playing';
+            // 用户如果在锁屏上误点了"暂停"，这里直接重新播放——
+            // 因为这段音频本来就不是给人听的，暂停了就失去保活作用了
+            navigator.mediaSession.setActionHandler('play', () => {
+                silentAudio.play().catch(() => {});
+                navigator.mediaSession.playbackState = 'playing';
+            });
+            navigator.mediaSession.setActionHandler('pause', () => {
+                silentAudio.play().catch(() => {});
+                navigator.mediaSession.playbackState = 'playing';
+            });
+        } catch (e) {}
+    };
+    const clearMediaSession = () => {
+        if (!('mediaSession' in navigator)) return;
+        try {
+            navigator.mediaSession.playbackState = 'none';
+            navigator.mediaSession.metadata = null;
+        } catch (e) {}
+    };
+
     // 尝试立即播放（部分浏览器允许静默自动播放），仅在开关开启时
-    if (__keepAliveEnabled) silentAudio.play().catch(() => {});
+    if (__keepAliveEnabled) { silentAudio.play().then(setupMediaSession).catch(() => {}); }
 
     // ── 静音音频方案 B：AudioContext 节点 ──────────────────
     let audioCtxOk = false;
@@ -3210,7 +3259,7 @@ document.addEventListener('visibilitychange', () => {
     // 首次用户交互后启动（自动播放策略要求）
     const startAll = () => {
         if (!__keepAliveEnabled) return;
-        silentAudio.play().catch(() => {});
+        silentAudio.play().then(setupMediaSession).catch(() => {});
         startAudioCtx();
     };
     ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(t =>
@@ -3223,11 +3272,15 @@ document.addEventListener('visibilitychange', () => {
         if (!__keepAliveEnabled) return;
         // 方案 A：Audio 元素暂停了就重播
         if (silentAudio.paused) {
-            silentAudio.play().catch(() => {});
+            silentAudio.play().then(setupMediaSession).catch(() => {});
         }
         // 方案 B：AudioContext 被挂起了就恢复
         if (window.__silentAudioCtx?.state === 'suspended') {
             window.__silentAudioCtx.resume().catch(() => {});
+        }
+        // 保险起见，每次心跳都重新确认一下播放状态没被系统悄悄重置
+        if ('mediaSession' in navigator && navigator.mediaSession.playbackState !== 'playing') {
+            navigator.mediaSession.playbackState = 'playing';
         }
     }, 30000);
 
@@ -3239,13 +3292,14 @@ document.addEventListener('visibilitychange', () => {
         if (__keepAliveEnabled) {
             window.__swStartPing?.();
             lock();
-            silentAudio.play().catch(() => {});
+            silentAudio.play().then(setupMediaSession).catch(() => {});
             startAudioCtx();
         } else {
             window.__swStopPing?.();
             unlock();
             silentAudio.pause();
             stopAudioCtx();
+            clearMediaSession();
         }
     };
 })();
@@ -3785,8 +3839,8 @@ createApp({
 
         
         const profiles = reactive({
-            me: { name: '我', avatar: '', status: '✨ 记录生活' },
-            them: { name: '对方', avatar: '', status: '✨ 星光漫游', statusPresets: '沉思, 写代码, 听雨, 流浪, 收集星光, 喝着果汁' }
+            me: { name: '我', avatar: '', status: '记录生活' },
+            them: { name: '对方', avatar: '', status: '星光漫游', statusPresets: '沉思, 写代码, 听雨, 流浪, 收集星光, 喝着果汁' }
         });
 
         const settings = reactive({
@@ -3990,7 +4044,7 @@ createApp({
             const cloud = await res.json();
             if (!cloud || !cloud.messages) { alert('这个设备ID还没有云端备份数据'); return; }
             applyCloudBackup(cloud);
-            alert('✅ 已从设备 ' + targetId + ' 恢复数据');
+            alert('已从设备 ' + targetId + ' 恢复数据');
         } catch (e) {
             alert('恢复失败：' + (e?.message || e));
         } finally {
@@ -4125,9 +4179,9 @@ createApp({
         let githubMsg = '';
         if (settings.githubBackupEnabled) {
             const r = await backupToGitHub();
-            githubMsg = r.ok ? '\nGitHub 备份：✅ 成功' : `\nGitHub 备份：❌ ${r.error}`;
+            githubMsg = r.ok ? '\nGitHub 备份：成功' : `\nGitHub 备份：${r.error}`;
         }
-        alert(`${cloudOk ? '✅ 云端备份成功' : '⚠️ 云端备份请求失败（不影响本地聊天数据）'}${githubMsg}`);
+        alert(`${cloudOk ? '云端备份成功' : '云端备份请求失败（不影响本地聊天数据）'}${githubMsg}`);
     };
 
     // 定时自动备份：按 settings.autoBackupIntervalHours 的间隔，周期性做一次
@@ -4457,7 +4511,7 @@ createApp({
                 callState.status = 'incoming';
                 startCallRinging();
                 // 通知
-                showNotification(`📞 ${profiles.them.name} 来电`, '视频通话邀请，点击查看');
+                showNotification(`${profiles.them.name} 来电`, '视频通话邀请，点击查看');
                 // 30秒无人接听自动挂断
                 callRingTimer = safeSetTimeout(() => {
                     if (callState.status === 'incoming') {
@@ -4527,7 +4581,7 @@ createApp({
                     id: Date.now() + Math.random(),
                     sender: 'me',
                     type: 'call',
-                    content: `📹 视频通话已结束 · ${durStr}`,
+                    content: `视频通话已结束 · ${durStr}`,
                     callAccepted: true,
                     timestamp: Date.now(),
                     status: 'read',
@@ -4702,6 +4756,9 @@ createApp({
         const forceBotReply = () => { triggerAutoReply(true); };
         // 全局引用：供 SW Background Sync 消息触发自动回复使用
         window.__app_triggerAutoReply = () => triggerAutoReply();
+        // 点击通知跳转聊天：不管通知是页面自己弹的还是 OneSignal 真实推送的，
+        // 点击后最终都会调用这个桥接函数，统一切到聊天界面
+        window.__app_navigateToChat = () => openChat();
 
         // ===== 自动回复逻辑 =====
         const triggerAutoReply = (force = false) => {
@@ -4771,7 +4828,7 @@ createApp({
                         sendMsg('them', 'text', t, quoteObj);
                         advance();
                     } else {
-                        sendMsg('them', 'text', '✨', quoteObj);
+                        sendMsg('them', 'text', '...', quoteObj);
                         advance();
                     }
                 };
@@ -4894,7 +4951,7 @@ createApp({
             const content = letterContent.value.trim();
             const id = Date.now();
             letterHistory.value.push({ id, timestamp: id, content, status: '时光寄送中', reply: null });
-            sendMsg('me', 'text', `✉️ 寄出信件：${content.substring(0,15)}…`);
+            sendMsg('me', 'text', `寄出信件：${content.substring(0,15)}…`);
             const pool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g=>g.replies)].map(r=>r.text);
             const replyCount = Math.floor(Math.random()*7)+6; // 6~12条
             const replies = [];
@@ -5126,7 +5183,7 @@ createApp({
                 g.replies = g.replies.filter(r => { if (seen.has(r.text)) return false; seen.add(r.text); return true; });
                 removed += b - g.replies.length;
             });
-            alert(removed > 0 ? `✅ 去重完成，删除 ${removed} 条重复语料。` : '✅ 全库无重复语料。');
+            alert(removed > 0 ? `去重完成，删除 ${removed} 条重复语料。` : '全库无重复语料。');
         };
 
         const confirmBatchAdd = () => {
@@ -5274,9 +5331,9 @@ createApp({
                         if (data.letterHistory) letterHistory.value = data.letterHistory;
                     }
                     modals.selectiveExport = false;
-                    alert(`✅ 导入成功！已恢复：${importList}`);
+                    alert(`导入成功！已恢复：${importList}`);
                 } catch(err) {
-                    alert('❌ 文件解析失败，请确认是正确的备份文件。');
+                    alert('文件解析失败，请确认是正确的备份文件。');
                 }
                 e.target.value = '';
             };
@@ -5323,9 +5380,9 @@ createApp({
                     if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
                     applyFontSettings(); toggleTheme(); applyCSS();
                     modals.settings = false;
-                    alert('✅ 导入成功！数据已恢复。');
+                    alert('导入成功！数据已恢复。');
                 } catch (err) {
-                    alert('❌ 文件格式有误，请确认是正确的备份文件。');
+                    alert('文件格式有误，请确认是正确的备份文件。');
                 }
             };
             reader.readAsText(file);
@@ -5406,6 +5463,18 @@ createApp({
         if ("Notification" in window && Notification.permission !== "denied") {
             Notification.requestPermission();
         }
+
+        // ✅ 处理"App 完全被系统关掉之后，靠点通知重新打开"的情形——
+        //   这种情况下没有任何页面在运行、SW 的 postMessage 桥接用不上，
+        //   只能靠 SW 在 notificationclick 时打开这个带参数的 URL，
+        //   这里在启动时检查一下，有这个参数就直接跳到聊天界面。
+        try {
+            const params = new URLSearchParams(location.search);
+            if (params.get('openChat') === '1') {
+                currentScreen.value = 'chat';
+                history.replaceState(null, '', location.pathname); // 用完清掉参数，避免下次刷新又触发
+            }
+        } catch (e) {}
 
         // ✅ 请求"持久化存储"：默认情况下，浏览器在设备存储紧张时，
         //    可能会静默清掉不常用网站的 localStorage / IndexedDB（这大概率是

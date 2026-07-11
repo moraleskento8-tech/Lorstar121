@@ -54,8 +54,9 @@ self.addEventListener('message', (event) => {
     }
 });
 
-// 点击上面这个自定义通知时，把已经打开的窗口切到前台；
-// 没有已打开的窗口就开一个新的。
+// 点击上面这个自定义通知时，把已经打开的窗口切到前台，并告诉它跳转到聊天界面；
+// 没有已打开的窗口就直接开一个新的、带上 ?openChat=1 参数，
+// 主程序启动时会检查这个参数，自动切到聊天界面。
 // 只处理带 __appCustom 标记的通知——OneSignal 自己推送的通知
 // 由上面 importScripts 进来的官方逻辑处理，这里不会跟它抢点击事件。
 self.addEventListener('notificationclick', (event) => {
@@ -64,8 +65,26 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(
         self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
             const existing = list.find(c => 'focus' in c);
-            if (existing) return existing.focus();
-            if (self.clients.openWindow) return self.clients.openWindow('/');
+            if (existing) {
+                existing.postMessage({ type: 'navigate-to-chat' });
+                return existing.focus();
+            }
+            if (self.clients.openWindow) return self.clients.openWindow('/?openChat=1');
+        })
+    );
+});
+
+// 另外这一个专门处理 OneSignal 自己推送的通知（时光信箱回信、日记回复、
+// 主动消息这些都是通过 OneSignal 真实推送的）——这个 app 里所有会推送的内容
+// 本质上都是"聊天里有新东西"，所以点击后统一都跳转到聊天界面。
+// 注意这里不调用 event.notification.close() / clients.openWindow，
+// 那些交给上面 importScripts 进来的 OneSignal 官方逻辑处理，
+// 这里只是"顺便"多发一条消息，让最终被聚焦的那个页面知道要跳到聊天。
+self.addEventListener('notificationclick', (event) => {
+    if (event.notification.data && event.notification.data.__appCustom) return; // 上面那个监听器已经处理过了
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+            list.forEach(c => c.postMessage({ type: 'navigate-to-chat' }));
         })
     );
 });
