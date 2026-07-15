@@ -63,10 +63,10 @@
                         border: 'var(--color-border)',
                         bubbleSend: 'var(--color-bubble-send)',
                         bubbleReceive: 'var(--color-bubble-receive)',
-                        accent: '#6d8fe0',
+                        accent: '#7c94cc',
                         jelly: {
                             light: 'rgba(242, 246, 255, 0.8)',
-                            deep: 'rgba(109,143,224, 0.5)'
+                            deep: 'rgba(124,148,204, 0.5)'
                         }
                     }
                 }
@@ -83,7 +83,7 @@
             --color-border: rgba(200, 215, 245, 0.5);
             --color-bubble-send: #dce6f8;
             --color-bubble-receive: rgba(255, 255, 255, 0.95);
-            --color-accent: #6d8fe0;
+            --color-accent: #7c94cc;
             --font-family-base: 'Quicksand', 'Noto Serif SC', sans-serif;
             --font-size-base: 15px;
             font-family: var(--font-family-base);
@@ -140,7 +140,7 @@
             backdrop-filter: blur(30px) saturate(180%);
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255, 255, 255, 0.75);
-            box-shadow: 0 4px 12px rgba(109,143,224, 0.06);
+            box-shadow: 0 1px 2px rgba(124,148,204,0.08), 0 6px 16px -6px rgba(124,148,204,0.16);
             text-align: left;
             word-wrap: break-word;
             word-break: break-word;
@@ -167,13 +167,13 @@
             width: 22px; height: 22px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);
-            border: 1px solid rgba(109,143,224, 0.3); color: var(--color-muted);
+            border: 1px solid rgba(124,148,204, 0.3); color: var(--color-muted);
             cursor: pointer; opacity: 0; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2;
         }
         .msg-bubble:hover .quote-inline-btn, .msg-bubble:focus-within .quote-inline-btn { opacity: 1; }
-        .quote-inline-btn:hover { background: rgba(109,143,224, 0.25); color: #839deb; transform: scale(1.1); box-shadow: 0 4px 12px rgba(109,143,224, 0.3); }
+        .quote-inline-btn:hover { background: rgba(124,148,204, 0.25); color: #839deb; transform: scale(1.1); box-shadow: 0 4px 12px rgba(124,148,204, 0.3); }
         .quote-inline-btn:active { transform: scale(0.95); }
-        .dark .quote-inline-btn { background: rgba(255, 255, 255, 0.12); border-color: rgba(109,143,224, 0.25); }
+        .dark .quote-inline-btn { background: rgba(255, 255, 255, 0.12); border-color: rgba(124,148,204, 0.25); }
 
         /* ===== 背景透明 + 玻璃效果（统一版）===== */
         body { background-color: var(--color-bg) !important; }
@@ -215,14 +215,14 @@
         .msg-bubble {
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
-            box-shadow: 0 4px 12px rgba(109,143,224, 0.10), 0 1px 3px rgba(0,0,0,0.04) !important;
+            box-shadow: 0 4px 12px rgba(124,148,204, 0.10), 0 1px 3px rgba(0,0,0,0.04) !important;
             border: 0.5px solid rgba(255, 255, 255, 0.8) !important;
         }
         .bg-bubbleSend { background: rgba(185, 205, 248, 0.55) !important; border-color: rgba(255, 255, 255, 0.65) !important; }
         .bg-bubbleReceive { background: rgba(255, 255, 255, 0.48) !important; border-color: rgba(255, 255, 255, 0.55) !important; }
         .dark .bg-bubbleSend { background: rgba(108, 116, 161, 0.6) !important; }
         .dark .bg-bubbleReceive { background: rgba(45, 50, 70, 0.65) !important; }
-        .quote-block { background: rgba(230, 240, 255, 0.75) !important; backdrop-filter: blur(12px) !important; border-left-color: rgba(109,143,224, 0.5) !important; }
+        .quote-block { background: rgba(230, 240, 255, 0.75) !important; backdrop-filter: blur(12px) !important; border-left-color: rgba(124,148,204, 0.5) !important; }
         .dark .quote-block { background: rgba(30, 35, 55, 0.5) !important; }
         .bg-white\/70 { background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(10px) !important; }
         .dark .bg-slate-800\/60 { background: rgba(30, 41, 59, 0.55) !important; backdrop-filter: blur(8px) !important; }
@@ -235,12 +235,12 @@
             width: 26px; height: 26px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px);
-            border: 1px solid rgba(109,143,224, 0.35); color: #839deb;
+            border: 1px solid rgba(124,148,204, 0.35); color: #839deb;
             cursor: pointer; opacity: 0; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
         .img-msg-wrapper:hover .img-quote-btn { opacity: 1; }
-        .img-quote-btn:hover { transform: scale(1.15); box-shadow: 0 6px 20px rgba(109,143,224, 0.4); }
+        .img-quote-btn:hover { transform: scale(1.15); box-shadow: 0 6px 20px rgba(124,148,204, 0.4); }
         .img-quote-btn:active { transform: scale(0.95); }
         .bubble-img { max-width: 140px; border-radius: 16px; box-shadow: 0 4px 16px rgba(100, 120, 200, 0.15); display: block; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .bubble-img:active { transform: scale(0.97); }
@@ -249,20 +249,35 @@
 
         .quoted-msg {
             padding: 8px 12px; border-radius: 14px; margin-bottom: 6px; font-size: 0.88em;
-            background: rgba(109,143,224, 0.08); backdrop-filter: blur(10px);
-            border-left: 3px solid rgba(109,143,224, 0.5); color: var(--color-muted);
+            background: rgba(124,148,204, 0.08); backdrop-filter: blur(10px);
+            border-left: 3px solid rgba(124,148,204, 0.5); color: var(--color-muted);
             max-width: 100%; overflow: hidden; text-overflow: ellipsis;
-            box-shadow: 0 2px 8px rgba(109,143,224, 0.06);
+            box-shadow: 0 2px 8px rgba(124,148,204, 0.06);
         }
-        .dark .quoted-msg { background: rgba(109,143,224, 0.12); border-left-color: rgba(155, 180, 245, 0.4); }
+        .dark .quoted-msg { background: rgba(124,148,204, 0.12); border-left-color: rgba(155, 180, 245, 0.4); }
 
         .fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(8px); }
-        /* 全屏页面切换：iOS 风格从底部滑入，用于主页面各功能入口 */
-        .page-slide-enter-active { transition: transform 0.34s cubic-bezier(0.32,0.72,0,1), opacity 0.28s ease; }
-        .page-slide-leave-active { transition: transform 0.26s cubic-bezier(0.4,0,1,1), opacity 0.22s ease; }
-        .page-slide-enter-from { transform: translateY(6%); opacity: 0; }
-        .page-slide-leave-to { transform: translateY(3%); opacity: 0; }
+        /* 全屏页面切换：iOS 风格，滑入的同时带一点缩放，观感更自然有弹性 */
+        .page-slide-enter-active { transition: transform 0.38s cubic-bezier(0.34,1.15,0.4,1), opacity 0.3s ease; }
+        .page-slide-leave-active { transition: transform 0.24s cubic-bezier(0.4,0,1,1), opacity 0.2s ease; }
+        .page-slide-enter-from { transform: translateY(4%) scale(0.98); opacity: 0; }
+        .page-slide-leave-to { transform: translateY(2%) scale(0.99); opacity: 0; }
+        /* 每日情话弹窗：弹性入场，比普通 fade 更有惊喜感 */
+        .quote-pop-enter-active { transition: opacity 0.3s ease; }
+        .quote-pop-leave-active { transition: opacity 0.22s ease; }
+        .quote-pop-enter-from, .quote-pop-leave-to { opacity: 0; }
+        .quote-pop-enter-active > div, .quote-pop-leave-active > div {
+            transition: transform 0.42s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+        }
+        .quote-pop-enter-from > div { transform: scale(0.8) translateY(12px); opacity: 0; }
+        .quote-pop-leave-to > div { transform: scale(0.92); opacity: 0; }
+        /* 头像呼吸光环：缓慢地放大淡出再重来，像在轻轻心跳 */
+        @keyframes quotePulseRing {
+            0% { transform: scale(1); opacity: 0.55; }
+            100% { transform: scale(1.35); opacity: 0; }
+        }
+        .quote-pulse-ring { animation: quotePulseRing 2.2s cubic-bezier(0.2,0.6,0.4,1) infinite; }
 
         .jelly-btn {
             transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
@@ -270,8 +285,8 @@
             background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.5);
             box-shadow: 0 2px 6px rgba(120,140,230,0.05);
         }
-        .jelly-btn:hover { background: rgba(255,255,255,0.7); box-shadow: 0 4px 12px rgba(109,143,224,0.15); transform: translateY(-1px); }
-        .jelly-btn:active { transform: scale(0.92); background: rgba(109,143,224,0.2); }
+        .jelly-btn:hover { background: rgba(255,255,255,0.7); box-shadow: 0 4px 12px rgba(124,148,204,0.15); transform: translateY(-1px); }
+        .jelly-btn:active { transform: scale(0.92); background: rgba(124,148,204,0.2); }
         .dark .jelly-btn { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
         .dark .jelly-btn:hover { background: rgba(255,255,255,0.12); }
 
@@ -288,7 +303,7 @@
         }
         .header-typing-badge {
             display: inline-flex; align-items: center; gap: 3px;
-            background: rgba(109,143,224,0.12); border-radius: 20px;
+            background: rgba(124,148,204,0.12); border-radius: 20px;
             padding: 2px 8px; color: #839deb; font-style: italic;
             white-space: nowrap; font-size: 10px;
         }
@@ -303,7 +318,7 @@
             -webkit-appearance: none; appearance: none;
             width: 16px; height: 16px; border-radius: 50%;
             background: #839deb; border: 2px solid white;
-            box-shadow: 0 2px 6px rgba(109,143,224,0.4); cursor: pointer;
+            box-shadow: 0 2px 6px rgba(124,148,204,0.4); cursor: pointer;
         }
         /* 聊天气泡中的表情包（双方一致，90×90px 显示）*/
         .sticker-bubble { width:90px;height:90px;border-radius:14px;display:block;object-fit:contain;
@@ -345,7 +360,7 @@
 
         .corpus-section-count {
             font-size: 11px; color: #839deb; font-weight: 600;
-            background: rgba(109,143,224,0.15); padding: 1px 8px;
+            background: rgba(124,148,204,0.15); padding: 1px 8px;
             border-radius: 999px;
         }
 
@@ -366,7 +381,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         .corpus-section-action.rename { color: #839deb; }
-        .corpus-section-action.rename:active { background: rgba(109,143,224,0.2); }
+        .corpus-section-action.rename:active { background: rgba(124,148,204,0.2); }
         .corpus-section-action.del { color: #ef4444; }
         .corpus-section-action.del:active { background: rgba(239,68,68,0.1); }
 
@@ -380,10 +395,10 @@
         }
         .reply-row:last-child { border-bottom: none; }
         .reply-row:active { background: #f8f9ff; }
-        .reply-row.is-selected { background: rgba(109,143,224,0.06); }
+        .reply-row.is-selected { background: rgba(124,148,204,0.06); }
         .dark .reply-row { background: rgba(28,34,58,0.9); border-color: rgba(60,75,110,0.4); }
         .dark .reply-row:active { background: rgba(38,46,78,0.9); }
-        .dark .reply-row.is-selected { background: rgba(109,143,224,0.1); }
+        .dark .reply-row.is-selected { background: rgba(124,148,204,0.1); }
 
         /* 分区容器（包住该分区的所有条目）*/
         .corpus-section-body {
@@ -452,7 +467,7 @@
             position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
             background: #fff; border-radius: 22px 22px 0 0;
             padding: 16px 16px 28px;
-            box-shadow: 0 -6px 32px rgba(109,143,224,0.15);
+            box-shadow: 0 -6px 32px rgba(124,148,204,0.15);
             border-top: 1px solid #e8edf8;
         }
         .dark .move-sheet { background: rgba(22,28,52,0.99); border-color: rgba(80,100,150,0.3); }
@@ -460,14 +475,14 @@
             display: inline-flex; align-items: center; gap: 5px;
             padding: 8px 14px; border-radius: 999px;
             font-size: 12.5px; font-weight: 700;
-            background: rgba(109,143,224,0.09);
-            border: 1.5px solid rgba(109,143,224,0.22);
+            background: rgba(124,148,204,0.09);
+            border: 1.5px solid rgba(124,148,204,0.22);
             color: #6a85d0; cursor: pointer; transition: all 0.15s;
             -webkit-tap-highlight-color: transparent;
         }
-        .move-sheet-tag:active { transform: scale(0.92); background: rgba(109,143,224,0.18); }
+        .move-sheet-tag:active { transform: scale(0.92); background: rgba(124,148,204,0.18); }
         .move-sheet-tag.new-group { border-style: dashed; color: #839deb; }
-        .dark .move-sheet-tag { color: #a29bfe; background: rgba(109,143,224,0.12); }
+        .dark .move-sheet-tag { color: #a29bfe; background: rgba(124,148,204,0.12); }
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .slide-up-enter-active, .slide-up-leave-active { transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s; }
         .slide-up-enter-from, .slide-up-leave-to { transform: translateY(20px); opacity: 0; }
@@ -483,10 +498,10 @@
 
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
         .calendar-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 12px; cursor: pointer; transition: all 0.2s; position: relative; }
-        .calendar-cell:hover { background: rgba(109,143,224,0.18); }
-        .calendar-cell.active { background: var(--color-accent); color: white; box-shadow: 0 4px 10px rgba(109,143,224,0.35); }
-        .calendar-cell.has-note:not(.active) { background: rgba(109,143,224,0.1); }
-        .note-dot { position: absolute; bottom: 2px; width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 5px rgba(109,143,224,0.7); }
+        .calendar-cell:hover { background: rgba(124,148,204,0.18); }
+        .calendar-cell.active { background: var(--color-accent); color: white; box-shadow: 0 4px 10px rgba(124,148,204,0.35); }
+        .calendar-cell.has-note:not(.active) { background: rgba(124,148,204,0.1); }
+        .note-dot { position: absolute; bottom: 2px; width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 5px rgba(124,148,204,0.7); }
         .calendar-cell.active .note-dot { background: white; box-shadow: none; }
         .period-dot { position: absolute; top: 2px; width: 5px; height: 5px; border-radius: 50%; background: rgb(244,114,182); box-shadow: 0 0 5px rgba(244,114,182,0.6); }
         .calendar-cell.active .period-dot { background: white; box-shadow: none; }
@@ -534,7 +549,7 @@
             height: 48vh !important; /* 固定高度 */
             border-radius: 32px !important;
             overflow: hidden !important;
-            box-shadow: 0 20px 50px rgba(109,143,224,0.3) !important;
+            box-shadow: 0 20px 50px rgba(124,148,204,0.3) !important;
             border: 2px solid rgba(255,255,255,0.8) !important;
             touch-action: none; /* 必须保留，防止拖拽时屏幕滚动 */
             position: fixed !important;
@@ -569,9 +584,9 @@
         .call-window-medium .call-content.mb-10 { margin-bottom: 6px !important; gap: 10px !important; padding: 0 8px !important; }
         /* 来电振铃动画 */
         @keyframes ringPulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(109,143,224,0.6); }
-            50% { transform: scale(1.04); box-shadow: 0 0 0 22px rgba(109,143,224,0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(109,143,224,0); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,148,204,0.6); }
+            50% { transform: scale(1.04); box-shadow: 0 0 0 22px rgba(124,148,204,0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,148,204,0); }
         }
         .call-ring-anim { animation: ringPulse 1.5s ease-out infinite; }
 
@@ -609,7 +624,7 @@
             position: fixed; bottom: 110px; right: 16px; z-index: 400;
             background: rgba(25, 30, 50, 0.92);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(109,143,224,0.4);
+            border: 1px solid rgba(124,148,204,0.4);
             border-radius: 50px; padding: 10px 16px;
             display: flex; align-items: center; gap: 10px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.5);
@@ -686,8 +701,8 @@
             border-bottom: 1px solid rgba(0,0,0,0.045);
         }
         .msg-ctx-item:last-child { border-bottom: none; }
-        .msg-ctx-item:hover { background: rgba(109,143,224,0.10); }
-        .msg-ctx-item:active { background: rgba(109,143,224,0.18); }
+        .msg-ctx-item:hover { background: rgba(124,148,204,0.10); }
+        .msg-ctx-item:active { background: rgba(124,148,204,0.18); }
         .msg-ctx-item.danger { color: #ef4444; }
         .msg-ctx-item.danger:hover { background: rgba(239,68,68,0.08); }
         .ctx-enter-active { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -704,7 +719,7 @@
             font-size: 12.5px; font-weight: 500;
             backdrop-filter: blur(12px);
             border: 0.5px solid rgba(255,255,255,0.75);
-            box-shadow: 0 4px 12px rgba(109,143,224,0.08);
+            box-shadow: 0 4px 12px rgba(124,148,204,0.08);
         }
         .call-record-me {
             background: rgba(190,210,250,0.78);
@@ -728,19 +743,19 @@
         .call-record-btn {
             font-size: 10.5px; font-weight: 600; color: var(--color-accent);
             padding: 3px 9px; border-radius: 20px;
-            background: rgba(109,143,224,0.14); flex-shrink: 0;
+            background: rgba(124,148,204,0.14); flex-shrink: 0;
             cursor: pointer; transition: background 0.2s;
-            border: 1px solid rgba(109,143,224,0.2);
+            border: 1px solid rgba(124,148,204,0.2);
         }
-        .call-record-btn:hover { background: rgba(109,143,224,0.26); }
+        .call-record-btn:hover { background: rgba(124,148,204,0.26); }
 
         /* ===== 拍一拍消息 ===== */
         .poke-system-msg {
             display: flex; align-items: center; justify-content: center;
             padding: 5px 18px; border-radius: 50px;
             font-size: 12px; color: var(--color-muted);
-            background: rgba(109,143,224,0.07);
-            border: 1px dashed rgba(109,143,224,0.28);
+            background: rgba(124,148,204,0.07);
+            border: 1px dashed rgba(124,148,204,0.28);
             backdrop-filter: blur(8px);
         }
         /* ===== 拍一拍选择器 ===== */
@@ -765,13 +780,13 @@
         }
         .poke-option {
             display: inline-block; padding: 6px 14px;
-            background: rgba(109,143,224,0.10);
-            border: 1px solid rgba(109,143,224,0.25);
+            background: rgba(124,148,204,0.10);
+            border: 1px solid rgba(124,148,204,0.25);
             border-radius: 20px; margin: 3px; font-size: 13px;
             color: var(--color-text); cursor: pointer;
             transition: all 0.15s;
         }
-        .poke-option:hover, .poke-option.selected { background: rgba(109,143,224,0.25); color: #5b79d4; }
+        .poke-option:hover, .poke-option.selected { background: rgba(124,148,204,0.25); color: #5b79d4; }
         .poke-picker-enter-active { transition: all 0.22s cubic-bezier(0.175,0.885,0.32,1.275); }
         .poke-picker-leave-active { transition: all 0.15s ease; }
         .poke-picker-enter-from { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.95); }
@@ -1333,7 +1348,7 @@
              有新消息时都会从顶部飘一条下来，点一下直接跳回聊天 ===== -->
         <transition name="fade">
             <div v-if="inAppBanner.show" @click="openInAppBannerTarget"
-                 class="absolute top-3 left-3 right-3 z-[200] bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl rounded-2xl shadow-[0_4px_16px_rgba(109,143,224,0.18),0_1px_3px_rgba(0,0,0,0.06)] border border-white/70 dark:border-slate-600/40 px-4 py-3 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition">
+                 class="absolute top-3 left-3 right-3 z-[200] bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl rounded-2xl shadow-[0_4px_16px_rgba(124,148,204,0.18),0_1px_3px_rgba(0,0,0,0.06)] border border-white/70 dark:border-slate-600/40 px-4 py-3 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition">
                 <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-accent/15 flex items-center justify-center">
                     <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
                     <i v-else data-lucide="message-circle" class="w-4 h-4 text-accent"></i>
@@ -1346,25 +1361,68 @@
             </div>
         </transition>
 
+        <!-- ===== 每日情话弹窗：每天第一次打开时弹一次 ===== -->
+        <transition name="quote-pop">
+            <div v-if="showDailyQuotePopup" class="absolute inset-0 z-[210] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-6" @click.self="showDailyQuotePopup = false">
+                <div class="relative overflow-hidden bg-gradient-to-br from-sky-100/95 via-white/92 to-indigo-100/90 dark:from-slate-700/92 dark:via-slate-800/92 dark:to-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_2px_10px_rgba(124,148,204,0.1),0_20px_50px_-16px_rgba(124,148,204,0.35)] border border-white/60 dark:border-white/10 pt-8 pb-6 px-7 text-center w-[300px] max-w-[86%]">
+                    <!-- 柔和光斑，增加渐变层次 -->
+                    <div class="absolute -top-16 -left-10 w-44 h-44 bg-sky-300/35 dark:bg-sky-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-16 -right-10 w-44 h-44 bg-indigo-300/30 dark:bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                    <!-- 玻璃边缘高光：顶部一圈更亮，模拟玻璃质感的反光 -->
+                    <div class="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-white/60 to-transparent dark:from-white/10 pointer-events-none"></div>
+                    <div class="absolute inset-0 rounded-[2.5rem] ring-1 ring-inset ring-white/50 dark:ring-white/5 pointer-events-none"></div>
+
+                    <!-- 头像 + 呼吸光环 -->
+                    <div class="relative inline-block">
+                        <div class="absolute inset-0 rounded-full bg-accent/20 quote-pulse-ring"></div>
+                        <div class="relative w-16 h-16 rounded-full overflow-hidden border-[3px] border-white/90 dark:border-slate-700 shadow-md">
+                            <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full bg-accent/15 flex items-center justify-center text-accent font-bold text-lg">{{ chatDisplayName.charAt(0) }}</div>
+                        </div>
+                    </div>
+                    <p class="relative text-sm font-bold text-slate-700 dark:text-slate-100 mt-2.5">{{ chatDisplayName }}</p>
+                    <p v-if="profiles.them.status" class="relative text-[11px] text-muted mt-0.5">{{ profiles.them.status }}</p>
+
+                    <!-- 情话气泡：带一点主题色的磨砂质感，跟卡片融为一体又不会太素 -->
+                    <div class="relative mt-4 bg-gradient-to-br from-accent/15 to-sky-100/50 dark:from-accent/20 dark:to-slate-700/40 backdrop-blur-md rounded-2xl px-4 py-4 border border-white/60 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]">
+                        <p class="text-[15px] text-slate-700 dark:text-slate-100 leading-relaxed">{{ todaysQuote }}</p>
+                    </div>
+
+                    <p class="relative text-[10px] text-muted mt-3">
+                        {{ todayDateText }}<span v-if="daysTogether"> · 相伴 {{ daysTogether }} 天</span>
+                    </p>
+
+                    <button @click="showDailyQuotePopup = false" class="relative mt-4 px-5 py-1.5 bg-accent/90 text-white rounded-full text-[11px] font-medium shadow-sm hover:bg-accent active:scale-95 transition">收下</button>
+                </div>
+            </div>
+        </transition>
+
         <!-- ===== 桌面主页面 ===== -->
         <transition name="page-slide">
         <div v-show="currentScreen === 'home'" class="absolute inset-0 flex flex-col overflow-y-auto bg-cover bg-center"
              :style="settings.homeWallpaper ? { backgroundImage: `url(${settings.homeWallpaper})` } : {}">
             <div class="flex-1 flex flex-col px-5 pt-12 pb-8 gap-9">
-                <!-- 情侣卡片 -->
-                <div class="bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl rounded-[2rem] pt-10 pb-6 px-6 text-center shadow-[0_2px_8px_rgba(109,143,224,0.1),0_16px_40px_-12px_rgba(109,143,224,0.35)] border border-white/60 dark:border-slate-600/40 relative mt-8 shrink-0">
-                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 flex">
-                        <div class="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-md -mr-3 relative z-10">
-                            <img v-if="profiles.me.avatar" :src="profiles.me.avatar" class="w-full h-full object-cover">
-                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-lg">{{ profiles.me.name.charAt(0) }}</div>
-                        </div>
-                        <div class="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-md relative">
-                            <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
-                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-lg">{{ profiles.them.name.charAt(0) }}</div>
+                <!-- 情侣卡片：上半部分可选一张图片(约50%)，下半部分是磨砂文字区，头像跨在两者接缝处 -->
+                <div class="rounded-[1.75rem] shadow-[0_2px_8px_rgba(124,148,204,0.1),0_16px_40px_-12px_rgba(124,148,204,0.35)] border border-white/60 dark:border-slate-600/40 relative mt-7 shrink-0 overflow-hidden">
+                    <div class="h-32 bg-cover bg-center" :class="!settings.coupleCardImage ? 'bg-gradient-to-br from-accent/25 to-sky-100/40 dark:from-accent/20 dark:to-slate-700/40' : ''"
+                         :style="settings.coupleCardImage ? { backgroundImage: `url(${settings.coupleCardImage})` } : {}"></div>
+                    <div class="bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl pt-8 pb-6 px-6 text-center">
+                        <h1 class="text-base font-bold text-slate-700 dark:text-slate-100">{{ coupleTitle }}</h1>
+                        <p v-if="homeSubtitle" class="text-[11px] text-muted mt-1.5">{{ homeSubtitle }}</p>
+                        <div v-if="daysTogether" class="inline-flex items-center gap-1 mt-2.5 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-[10px] font-medium">
+                            <i data-lucide="heart" class="w-2.5 h-2.5"></i>相伴 {{ daysTogether }} 天
                         </div>
                     </div>
-                    <h1 class="text-xl font-bold text-slate-700 dark:text-slate-100 mt-2">{{ coupleTitle }}</h1>
-                    <p v-if="settings.coupleTagline" class="text-xs text-muted mt-1.5">{{ settings.coupleTagline }}</p>
+                    <div class="absolute top-[84px] left-1/2 -translate-x-1/2 flex">
+                        <div class="w-16 h-16 rounded-full overflow-hidden border-[3px] border-white shadow-md -mr-3 relative z-10">
+                            <img v-if="profiles.me.avatar" :src="profiles.me.avatar" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-base">{{ profiles.me.name.charAt(0) }}</div>
+                        </div>
+                        <div class="w-16 h-16 rounded-full overflow-hidden border-[3px] border-white shadow-md relative">
+                            <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-base">{{ profiles.them.name.charAt(0) }}</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 时钟 -->
@@ -1376,37 +1434,43 @@
                 <!-- 应用图标网格 -->
                 <div class="grid grid-cols-3 gap-y-7 gap-x-2">
                     <button @click="openChat" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
+                            <i data-lucide="message-circle" class="w-6 h-6"></i>
+                            <span v-if="settings.unreadChatCount > 0" class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-accent text-white text-[10px] font-bold rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center leading-none">{{ settings.unreadChatCount > 99 ? '99+' : settings.unreadChatCount }}</span>
+                        </div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">聊天</span>
                     </button>
-                    <button @click="modals.letterHistory = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
+                    <button @click="modals.letterHistory = true; settings.unreadLetterCount = 0" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
                             <i data-lucide="mail" class="w-6 h-6"></i>
-                            <span v-if="pendingLetter" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-400 border-2 border-white rounded-full"></span>
+                            <span v-if="settings.unreadLetterCount > 0" class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-accent text-white text-[10px] font-bold rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center leading-none">{{ settings.unreadLetterCount > 99 ? '99+' : settings.unreadLetterCount }}</span>
                         </div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">信笺</span>
                     </button>
                     <button @click="modals.replyManager = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="library" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="library" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">语料库</span>
                     </button>
-                    <button @click="modals.notebook = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
+                    <button @click="modals.notebook = true; settings.unreadNoteCount = 0" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
+                            <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                            <span v-if="settings.unreadNoteCount > 0" class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-accent text-white text-[10px] font-bold rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center leading-none">{{ settings.unreadNoteCount > 99 ? '99+' : settings.unreadNoteCount }}</span>
+                        </div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">日历</span>
                     </button>
                     <button @click="modals.periodTracker = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
                             <i data-lucide="waves" class="w-6 h-6"></i>
                             <span v-if="periodDaysUntilNext !== null && periodDaysUntilNext <= (settings.periodReminderDaysBefore||2) && periodDaysUntilNext >= 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-400 border-2 border-white rounded-full"></span>
                         </div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">潮汐</span>
                     </button>
                     <button @click="modals.favorites = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="star" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="star" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">收藏</span>
                     </button>
                     <button @click="modals.settings = true" class="flex flex-col items-center gap-1.5">
-                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(109,143,224,0.08),0_6px_16px_-4px_rgba(109,143,224,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="sliders-horizontal" class="w-6 h-6"></i></div>
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="sliders-horizontal" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">设置</span>
                     </button>
                 </div>
@@ -1429,13 +1493,13 @@
                 <div class="relative cursor-pointer group shrink-0" @click="editProfile('them')">
                     <div class="w-9 h-9 rounded-2xl overflow-hidden border-2 border-white shadow-md transition-transform group-active:scale-95" :style="{ borderRadius: settings.avatarRadius + '%' }">
                         <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
-                        <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold">{{ profiles.them.name.charAt(0) }}</div>
+                        <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold">{{ chatDisplayName.charAt(0) }}</div>
                     </div>
                     <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></div>
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-1.5">
-                        <h2 class="header-name">{{ profiles.them.name }}</h2>
+                        <h2 class="header-name">{{ chatDisplayName }}</h2>
                         <button @click="refreshStatus('them')" class="text-muted/60 hover:text-accent transition-transform active:rotate-180 shrink-0"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button>
                     </div>
                     <div class="header-status text-muted">
@@ -1484,7 +1548,7 @@
                     </div>
                     <!-- 撤回的消息：只显示居中小灰条 -->
                     <div v-if="msg.recalled" class="flex justify-center my-1">
-                        <span class="text-[11px] text-muted/70 bg-white/60 dark:bg-slate-800/50 px-3 py-1 rounded-full">{{ msg.sender === 'me' ? '你' : profiles.them.name }}撤回了一条消息</span>
+                        <span class="text-[11px] text-muted/70 bg-white/60 dark:bg-slate-800/50 px-3 py-1 rounded-full">{{ msg.sender === 'me' ? '你' : chatDisplayName }}撤回了一条消息</span>
                     </div>
                     <div v-else class="flex w-full gap-2.5 items-end"
                          :class="[msg.sender === 'me' ? 'flex-row-reverse' : 'flex-row', selectMode && isMsgSelected(msg) ? 'bg-accent/10 rounded-2xl' : '']"
@@ -1507,7 +1571,7 @@
                             <div v-else class="w-8"></div>
                         </div>
                         <div class="flex flex-col flex-1 min-w-0" :class="msg.sender === 'me' ? 'items-end' : 'items-start'">
-                            <span v-if="settings.showNickname && msg.sender==='them'" class="text-[10px] text-muted ml-2 mb-1">{{ profiles.them.name }}</span>
+                            <span v-if="settings.showNickname && msg.sender==='them'" class="text-[10px] text-muted ml-2 mb-1">{{ chatDisplayName }}</span>
                             <span v-if="settings.showNickname && msg.sender==='me'" class="text-[10px] text-muted mr-2 mb-1">{{ profiles.me.name }}</span>
                             <!-- 编辑中：文字气泡替换成一个可编辑输入框 -->
                             <div v-if="editingMsgId === msg.id" class="msg-bubble relative" :class="msg.sender === 'me' ? 'bg-bubbleSend bubble-me' : 'bg-bubbleReceive dark:bg-slate-800/70 bubble-them'">
@@ -1520,7 +1584,7 @@
                             <!-- 文字气泡 -->
                             <div v-else-if="msg.type === 'text'" class="msg-bubble relative" :class="msg.sender === 'me' ? 'bg-bubbleSend bubble-me' : 'bg-bubbleReceive dark:bg-slate-800/70 bubble-them'" style="color:rgba(95,108,140,0.80);">
                                 <div v-if="msg.quote" class="quote-block cursor-pointer" @click="scrollToMsg(msg.quote.id)">
-                                    <span class="font-semibold">{{ msg.quote.sender === 'me' ? profiles.me.name : profiles.them.name }}:</span>
+                                    <span class="font-semibold">{{ msg.quote.sender === 'me' ? profiles.me.name : chatDisplayName }}:</span>
                                     <template v-if="msg.quote.type === 'text'">{{ msg.quote.content }}</template>
                                     <template v-else-if="msg.quote.type === 'image'"><img :src="msg.quote.content" class="quote-img" alt="引用图片"></template>
                                     <template v-else>[图片/表情]</template>
@@ -1533,7 +1597,7 @@
                             <!-- 图片气泡 -->
                             <div v-else-if="msg.type === 'image'" class="img-msg-wrapper relative">
                                 <div v-if="msg.quote" class="quote-block cursor-pointer mb-1 bg-white/60 dark:bg-slate-800 border-none shadow-sm text-xs rounded-xl inline-block max-w-[150px]">
-                                    <span class="font-semibold">{{ msg.quote.sender === 'me' ? profiles.me.name : profiles.them.name }}:</span>
+                                    <span class="font-semibold">{{ msg.quote.sender === 'me' ? profiles.me.name : chatDisplayName }}:</span>
                                     {{ msg.quote.type === 'text' ? msg.quote.content : '[图片]' }}
                                 </div>
                                 <img :src="msg.content" :class="msg.isSticker ? 'sticker-bubble cursor-pointer hover:brightness-95 transition' : 'bubble-img cursor-pointer hover:brightness-95 transition'" @click="previewImg = msg.content">
@@ -1553,7 +1617,7 @@
                                             {{ msg.callAccepted ? '视频通话' : (msg.content.includes('未接') ? '未接来电' : '已拒绝通话') }}
                                         </div>
                                         <div class="call-record-sub">
-                                            {{ msg.sender === 'me' ? profiles.me.name : profiles.them.name }} · {{ formatTime(msg.timestamp) }}
+                                            {{ msg.sender === 'me' ? profiles.me.name : chatDisplayName }} · {{ formatTime(msg.timestamp) }}
                                         </div>
                                     </div>
                                 </div>
@@ -1596,7 +1660,7 @@
 
         <!-- ===== 表情包选取器 ===== -->
         <transition name="fade">
-            <div v-if="modals.stickerPicker" class="absolute bottom-20 left-4 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-3xl rounded-3xl p-4 shadow-2xl z-40 border border-white/70 max-h-80 overflow-hidden flex flex-col">
+            <div v-if="modals.stickerPicker" class="absolute bottom-20 left-4 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-3xl rounded-3xl p-4 shadow-2xl z-40 border border-white/70 max-h-96 overflow-hidden flex flex-col">
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-bold text-accent">表情包</span>
@@ -1609,7 +1673,7 @@
                         <button @click="modals.stickerPicker = false" class="text-muted p-1 hover:text-accent transition bg-white/50 rounded-full"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
                     </div>
                 </div>
-                <div class="grid grid-cols-5 auto-rows-max gap-3 overflow-y-auto p-1 flex-1 content-start">
+                <div class="grid grid-cols-4 auto-rows-max gap-3 overflow-y-auto p-1 flex-1 content-start">
                     <div v-for="(s, idx) in currentStickerGroup.stickers" :key="idx" @click="sendSticker(s)" class="aspect-square bg-white/60 rounded-2xl overflow-hidden hover:scale-105 transition-transform cursor-pointer border border-white/50 shadow-sm flex items-center justify-center p-1">
                         <img :src="s.dataURL" class="w-full h-full object-contain sticker-img">
                     </div>
@@ -1627,7 +1691,7 @@
             <div v-if="quotingMsg" class="mb-2 mx-1 flex items-center justify-between bg-white/80 dark:bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-accent/20 shadow-sm text-xs text-muted">
                 <div class="truncate flex-1 flex items-center gap-2">
                     <i data-lucide="reply" class="w-3.5 h-3.5 text-accent shrink-0"></i>
-                    <span class="font-bold text-slate-600 dark:text-slate-200 shrink-0">{{ quotingMsg.sender === 'me' ? profiles.me.name : profiles.them.name }}:</span>
+                    <span class="font-bold text-slate-600 dark:text-slate-200 shrink-0">{{ quotingMsg.sender === 'me' ? profiles.me.name : chatDisplayName }}:</span>
                     <span class="truncate">{{ quotingMsg.type === 'text' ? quotingMsg.content : '[图片/表情]' }}</span>
                 </div>
                 <button @click="quotingMsg = null" class="ml-2 text-slate-400 hover:text-red-400 p-1.5 bg-white/50 rounded-full transition-colors shrink-0" title="取消引用">
@@ -1675,7 +1739,6 @@
                         <button @click="modals.settings = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                         <div>
                             <h3 class="font-bold text-base text-slate-700 dark:text-white">设置</h3>
-                            <p class="text-[10px] text-muted mt-0.5">在这里定制你的专属体验</p>
                         </div>
                     </div>
 
@@ -1692,7 +1755,7 @@
                     <div class="flex-1 overflow-y-auto p-5 space-y-4">
 
                         <!-- 我的身份 -->
-                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="user" class="w-4 h-4 text-indigo-500 dark:text-indigo-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">我的身份</label>
@@ -1711,7 +1774,7 @@
                         </section>
 
                         <!-- 对方设置 -->
-                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="heart" class="w-4 h-4 text-rose-400 dark:text-rose-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-rose-400 dark:text-rose-300 uppercase tracking-wider">对方设置</label>
@@ -1723,17 +1786,18 @@
                                     <div class="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i data-lucide="camera" class="w-4 h-4 text-white"></i></div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-[10px] text-muted mb-1">显示名称</p>
+                                    <p class="text-[10px] text-muted mb-1">角色名</p>
                                     <input v-model="profiles.them.name" class="w-full bg-transparent text-sm font-bold border-b border-white/60 outline-none pb-1 dark:text-white">
                                 </div>
                             </div>
-                            <div class="bg-white/60 dark:bg-slate-700/40 p-3 rounded-2xl border border-white/50 space-y-2">
-                                <p class="text-[10px] text-muted leading-relaxed">状态预设 / 拍一拍预设已经搬到「语料库」里对应的分栏了，这里不用重复填。</p>
+                            <div>
+                                <span class="text-xs text-muted block mb-1">聊天备注（留空则聊天里也显示角色名）</span>
+                                <input v-model="profiles.them.remark" placeholder="例如：宝宝、老公" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
                             </div>
                         </section>
 
                         <!-- 字体定制 -->
-                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="type" class="w-4 h-4 text-violet-500 dark:text-violet-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-violet-500 dark:text-violet-300 uppercase tracking-wider">字体定制</label>
@@ -1758,7 +1822,7 @@
                         </section>
 
                         <!-- 显示与行为 -->
-                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-1">
+                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-1">
                             <div class="flex items-center gap-2 mb-3">
                                 <i data-lucide="sparkles" class="w-4 h-4 text-sky-500 dark:text-sky-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">显示与行为</label>
@@ -1780,25 +1844,22 @@
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
                                     <div>
                                         <span class="text-sm block text-slate-600 dark:text-slate-300">后台消息推送</span>
-                                        <span class="text-[10px] text-muted">切换标签页时收到通知</span>
-                                        <!-- 通知权限状态提示 -->
-                                        <span v-if="notifPermStatus==='granted'" class="text-[10px] text-green-500 font-bold block mt-0.5">已授权</span>
-                                        <span v-else-if="notifPermStatus==='denied'" class="text-[10px] text-red-400 font-bold block mt-0.5">已拒绝 — 请在浏览器设置中手动开启</span>
-                                        <span v-else class="text-[10px] text-amber-500 font-bold block mt-0.5">未授权 — 点右侧开关申请</span>
-                                        <!-- iOS 提示 -->
-                                        <span v-if="isIOS && !isInstalledPWA" class="text-[10px] text-blue-400 block mt-0.5">iOS：请点击 Safari 分享按钮 → 添加到主屏幕，再从主屏打开以启用通知</span>
+                                        <span class="text-[10px] flex items-center gap-1 mt-0.5"
+                                              :class="notifPermStatus==='granted' ? 'text-emerald-500' : notifPermStatus==='denied' ? 'text-red-400' : 'text-amber-500'">
+                                            <span class="w-1.5 h-1.5 rounded-full" :class="notifPermStatus==='granted' ? 'bg-emerald-400' : notifPermStatus==='denied' ? 'bg-red-400' : 'bg-amber-400'"></span>
+                                            {{ notifPermStatus==='granted' ? '已授权' : notifPermStatus==='denied' ? '已拒绝' : '未授权' }}
+                                        </span>
+                                        <span v-if="isIOS && !isInstalledPWA" class="text-[10px] text-blue-400 block mt-0.5">iOS 需先添加到主屏幕</span>
                                     </div>
                                     <input type="checkbox" v-model="settings.pushNotify" class="reply-checkbox" @change="initNotification">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
                                     <div class="flex-1 pr-2">
-                                        <span class="text-sm block text-slate-600 dark:text-slate-300">后台保活（静音音频 + 屏幕常亮）</span>
-                                        <span class="text-[10px] text-muted block mt-0.5">
-                                            切后台时播放静音音频、申请屏幕常亮
-                                        </span>
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">后台保活</span>
                                         <span v-if="settings.bgKeepAlive" class="text-[10px] text-emerald-500 flex items-center gap-1 mt-1">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>已开启 · 可在系统锁屏/控制中心看到播放条
-                                        </span>                                    </div>
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>已开启
+                                        </span>
+                                    </div>
                                     <input type="checkbox" v-model="settings.bgKeepAlive" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition border-t border-white/50 mt-1 pt-3">
@@ -1806,7 +1867,7 @@
                                     <input type="checkbox" v-model="settings.activeMsg" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">⏱️ 主动间隔(秒)</span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">主动间隔(秒)</span>
                                     <input type="number" v-model.number="settings.activeInterval" min="10" class="w-20 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
@@ -1838,7 +1899,7 @@
                         </section>
 
                         <!-- 提示音 & 音量 -->
-                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="volume-2" class="w-4 h-4 text-amber-500 dark:text-amber-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-amber-500 dark:text-amber-300 uppercase tracking-wider">提示音与音量</label>
@@ -1872,7 +1933,7 @@
                         </section>
 
                         <!-- 聊天背景图 -->
-                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="image" class="w-4 h-4 text-emerald-500 dark:text-emerald-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-emerald-500 dark:text-emerald-300 uppercase tracking-wider">聊天背景图</label>
@@ -1898,7 +1959,7 @@
                         </section>
 
                         <!-- 主页面壁纸与标题 -->
-                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="home" class="w-4 h-4 text-rose-500 dark:text-rose-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-rose-500 dark:text-rose-300 uppercase tracking-wider">桌面主页面</label>
@@ -1920,19 +1981,35 @@
                                         <button @click="settings.homeWallpaper = ''; settings.homeWallpaperUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">清除壁纸</button>
                                     </div>
                                 </div>
+                                <label class="flex items-center gap-2 cursor-pointer bg-white/70 dark:bg-slate-700/50 border border-accent/20 rounded-2xl px-4 py-2.5 hover:bg-white/90 transition text-sm font-medium text-accent">
+                                    <i data-lucide="image-plus" class="w-4 h-4"></i>
+                                    <span>选择情侣卡片图片</span>
+                                    <input type="file" accept="image/*" class="hidden" @change="uploadCoupleCardImage">
+                                </label>
+                                <div class="flex gap-2">
+                                    <input v-model="settings.coupleCardImageUrl" placeholder="或输入图片 URL..." class="flex-1 bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                    <button @click="applyCoupleCardImageUrl" class="bg-accent text-white px-4 rounded-xl text-xs font-medium shadow-md hover:bg-opacity-90 transition shrink-0">应用</button>
+                                </div>
+                                <div v-if="settings.coupleCardImage" class="flex items-center gap-3 bg-white/60 p-2 rounded-xl">
+                                    <img :src="settings.coupleCardImage" class="w-12 h-9 object-cover rounded-lg border border-white/60 shadow-sm">
+                                    <div class="flex-1">
+                                        <p class="text-[10px] text-muted">卡片图片已设置</p>
+                                        <button @click="settings.coupleCardImage = ''; settings.coupleCardImageUrl = ''" class="text-[10px] text-red-400 hover:text-red-500 font-medium mt-0.5">清除</button>
+                                    </div>
+                                </div>
                                 <div>
                                     <span class="text-xs text-muted block mb-1">主页面标题（留空则自动显示"{{ profiles.me.name }} & {{ profiles.them.name }}"）</span>
                                     <input v-model="settings.coupleName" placeholder="例如：我 & 哥哥" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
                                 </div>
                                 <div>
-                                    <span class="text-xs text-muted block mb-1">副标题</span>
-                                    <input v-model="settings.coupleTagline" placeholder="例如：夏意 永不凋谢" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
+                                    <span class="text-xs text-muted block mb-1">相伴开始日期</span>
+                                    <input type="date" v-model="settings.relationshipStartDate" class="w-full bg-white/80 dark:bg-slate-600/60 border border-white/70 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-accent shadow-inner">
                                 </div>
                             </div>
                         </section>
 
                         <!-- 通话背景 -->
-                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="phone" class="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">通话界面背景</label>
@@ -1958,7 +2035,7 @@
                         </section>
 
                         <!-- 自定义CSS -->
-                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-2">
+                        <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-2">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="palette" class="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">自定义气泡 CSS</label>
@@ -1968,7 +2045,7 @@
                         </section>
 
                         <!-- 全局备份 -->
-                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="save" class="w-4 h-4 text-indigo-500 dark:text-indigo-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">备份与恢复</label>
@@ -1998,18 +2075,13 @@
                         </section>
 
                         <!-- 云端自动备份 -->
-                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="cloud" class="w-4 h-4 text-sky-500 dark:text-sky-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">云端自动备份</label>
                             </div>
                             <div class="flex justify-between items-center py-1 px-1">
-                                <div>
-                                    <span class="text-sm block text-slate-600 dark:text-slate-300">定时自动备份</span>
-                                    <span class="text-[10px] text-muted">
-                                       这里设置固定周期 ，每次修改语料库都会自动同步
-                                    </span>
-                                </div>
+                                <span class="text-sm text-slate-600 dark:text-slate-300">定时自动备份</span>
                                 <input type="checkbox" v-model="settings.autoBackupEnabled" class="reply-checkbox">
                             </div>
                             <div class="flex justify-between items-center py-1 px-1" v-if="settings.autoBackupEnabled">
@@ -2024,30 +2096,22 @@
                                 </select>
                             </div>
                             <div class="text-[10px] text-muted px-1" v-if="settings.lastCloudBackupAt">
-                                上次云端备份：{{ new Date(settings.lastCloudBackupAt).toLocaleString('zh-CN') }}
+                                上次备份：{{ new Date(settings.lastCloudBackupAt).toLocaleString('zh-CN') }}
                             </div>
                             <button @click="manualBackupNow"
                                     class="w-full py-2 bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-300 rounded-xl text-xs font-medium hover:bg-sky-500/20 transition flex items-center justify-center gap-1.5">
                                 <i data-lucide="upload" class="w-3.5 h-3.5"></i>立即备份一次
                             </button>
-                            <div class="text-[10px] text-muted px-1 pt-1 border-t border-white/50 dark:border-slate-600/30 leading-relaxed">
-                                这个云备份会自动保存，但只是"这台设备"的安全网——防止你清缓存/重装丢数据。<b>换新手机不会自动带过去</b>，需要用下面的"换设备恢复"，或者用"全量导出/导入"手动搬家。                            </div>
                         </section>
 
                         <!-- 换设备恢复 -->
-                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-3">
+                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="smartphone" class="w-4 h-4 text-emerald-600 dark:text-emerald-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-emerald-600 dark:text-emerald-300 uppercase tracking-wider">换设备恢复</label>
                             </div>
-                            <div class="text-[10px] text-muted px-1 leading-relaxed">
-                                每台设备都有一个专属"设备ID"。想把旧手机的聊天记录搬到新手机上：先在<b>旧手机</b>这里复制设备ID，再在<b>新手机</b>打开这个 app，把ID粘贴到下面输入框，点"恢复"。
-                            </div>
-                            <div class="text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 rounded-lg px-2.5 py-1.5 leading-relaxed">
-                                个人自己用的话，这一个功能就够了——不需要再去研究下面的 GitHub 备份，那个是给想要额外再存一份的人用的可选项。
-                            </div>
                             <div class="flex items-center gap-2 bg-white/60 dark:bg-slate-700/40 rounded-xl px-3 py-2">
-                                <span class="text-[10px] text-muted shrink-0">本机设备ID</span>
+                                <span class="text-[10px] text-muted shrink-0">设备ID</span>
                                 <code class="text-[10px] text-slate-600 dark:text-slate-300 truncate flex-1">{{ CLOUD_DEVICE_ID }}</code>
                                 <button @click="copyDeviceId" class="text-emerald-600 dark:text-emerald-300 shrink-0"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
                             </div>
@@ -2061,24 +2125,17 @@
                         </section>
 
                         <!-- GitHub 直传备份（可选，进阶功能，默认收起）-->
-                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(109,143,224,0.06),0_8px_20px_-6px_rgba(109,143,224,0.12)] space-y-2">
+                        <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-2">
                             <button @click="githubBackupExpanded = !githubBackupExpanded" class="w-full flex items-center justify-between text-left">
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="database" class="w-4 h-4 text-slate-600 dark:text-slate-300 shrink-0"></i>
-                                    <div>
-                                        <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider block">GitHub 备份（进阶，可跳过）</span>
-                                        <span class="text-[10px] text-muted font-normal normal-case">个人用不需要这个，上面"换设备恢复"就够了</span>
-                                    </div>
+                                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">GitHub 备份</span>
                                 </div>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-muted transition shrink-0" :class="githubBackupExpanded ? 'rotate-180' : ''"></i>
                             </button>
                             <div v-if="githubBackupExpanded" class="space-y-2 pt-2 border-t border-white/50 dark:border-slate-600/40">
-                                </p>
                                 <div class="flex justify-between items-center py-1 px-1">
-                                    <div>
-                                        <span class="text-sm block text-slate-600 dark:text-slate-300">备份到我的 GitHub 仓库</span>
-                                        <span class="text-[10px] text-muted">按上面设置的周期，把存档 JSON 直接提交进你的 GitHub 仓库</span>
-                                    </div>
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">备份到 GitHub 仓库</span>
                                     <input type="checkbox" v-model="settings.githubBackupEnabled" class="reply-checkbox">
                                 </div>
                                 <div v-if="settings.githubBackupEnabled" class="space-y-2 pt-1 border-t border-white/50 dark:border-slate-600/40">
@@ -2091,16 +2148,13 @@
                                     <div class="grid grid-cols-2 gap-2">
                                         <input v-model="settings.githubBranch" placeholder="分支（默认 main）"
                                             class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
-                                        <input v-model="settings.githubPath" placeholder="文件路径，如 backup/latest.json"
+                                        <input v-model="settings.githubPath" placeholder="文件路径"
                                             class="bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
                                     </div>
-                                    <input v-model="settings.githubToken" type="password" placeholder="GitHub Token（建议用 Fine-grained token，只授权这一个仓库的 Contents 读写权限）"
+                                    <input v-model="settings.githubToken" type="password" placeholder="GitHub Token"
                                         class="w-full bg-white/80 dark:bg-slate-700/60 border border-white/70 rounded-lg p-2 text-xs outline-none">
-                                    <div class="text-[10px] text-amber-500 leading-relaxed">
-                                        注意：Token 保存在你这台设备本地，用于直接调用 GitHub API 提交文件。
-                                    </div>
                                     <div class="text-[10px] text-muted" v-if="settings.lastGithubBackupAt">
-                                        上次 GitHub 备份：{{ new Date(settings.lastGithubBackupAt).toLocaleString('zh-CN') }}
+                                        上次备份：{{ new Date(settings.lastGithubBackupAt).toLocaleString('zh-CN') }}
                                     </div>
                                     <button @click="backupToGitHub().then(r => alert(r.ok ? '已提交到 GitHub' : (r.error)))"
                                             class="w-full py-2 bg-slate-700/10 dark:bg-slate-600/40 border border-slate-400/30 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-medium hover:bg-slate-700/20 transition flex items-center justify-center gap-1.5">
@@ -2156,7 +2210,7 @@
 
               <!-- ── 分栏 Tab：回复语料 / 表情包 / 状态预设 / 拍一拍预设 ──────── -->
               <div class="flex bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 shrink-0 px-2">
-                <button v-for="t in [{k:'replies',label:'回复语料'},{k:'stickers',label:'表情包'},{k:'status',label:'状态预设'},{k:'poke',label:'拍一拍'}]" :key="t.k"
+                <button v-for="t in [{k:'replies',label:'回复语料'},{k:'stickers',label:'表情包'},{k:'status',label:'状态预设'},{k:'poke',label:'拍一拍'},{k:'quotes',label:'每日情话'}]" :key="t.k"
                         @click="corpusTab = t.k"
                         class="flex-1 py-2.5 text-[12px] font-bold text-center transition border-b-2"
                         :class="corpusTab === t.k ? 'text-accent border-accent' : 'text-muted border-transparent'">
@@ -2378,7 +2432,6 @@
               <div v-show="corpusTab === 'status'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
                   <span class="text-xs font-bold text-slate-600 dark:text-slate-300">随机状态预设</span>
-                  <p class="text-[10.5px] text-muted leading-relaxed">对方主页那句"✨ 星光漫游"之类的小状态，会不定时从这里随机换一条。用逗号分隔多条。</p>
                   <textarea v-model="profiles.them.statusPresets" rows="4" placeholder="星光漫游, 在摸鱼, 今天也很想你"
                             class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-xs outline-none focus:border-accent resize-none leading-relaxed"></textarea>
                 </div>
@@ -2388,9 +2441,18 @@
               <div v-show="corpusTab === 'poke'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
                   <span class="text-xs font-bold text-slate-600 dark:text-slate-300">拍一拍预设</span>
-                  <p class="text-[10.5px] text-muted leading-relaxed">用 <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">{me}</code> / <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">{them}</code> 代表双方昵称，逗号分隔多条，拍一拍时随机挑一条。</p>
                   <textarea v-model="settings.pokePresets" rows="4" placeholder="{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋"
                             class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-xs outline-none focus:border-accent resize-none leading-relaxed"></textarea>
+                </div>
+              </div>
+
+              <!-- ── 每日情话面板：主页面副标题的位置，每天固定显示一条，跨零点自动换下一条 ─── -->
+              <div v-show="corpusTab === 'quotes'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
+                  <span class="text-xs font-bold text-slate-600 dark:text-slate-300">每日情话</span>
+                  <textarea v-model="settings.dailyQuotesText" rows="5" placeholder="夏意 永不凋谢, 今天也要好好爱你, 想把每个瞬间都分享给你"
+                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-xs outline-none focus:border-accent resize-none leading-relaxed"></textarea>
+                  <p v-if="todaysQuote" class="text-[11px] text-accent px-1">今日：{{ todaysQuote }}</p>
                 </div>
               </div>
 
@@ -2591,7 +2653,7 @@
                             <div class="space-y-1.5">
                                 <div v-for="item in fav.items" :key="item.id" class="flex" :class="item.sender === 'me' ? 'justify-end' : 'justify-start'">
                                     <div class="max-w-[85%] px-3 py-1.5 rounded-2xl text-xs leading-relaxed" :class="item.sender === 'me' ? 'bg-bubbleSend' : 'bg-bubbleReceive dark:bg-slate-800/70'" style="color:rgba(95,108,140,0.85);">
-                                        <span class="block text-[9px] text-muted mb-0.5">{{ item.sender === 'me' ? profiles.me.name : profiles.them.name }}</span>
+                                        <span class="block text-[9px] text-muted mb-0.5">{{ item.sender === 'me' ? profiles.me.name : chatDisplayName }}</span>
                                         <template v-if="item.type === 'text'">{{ item.content }}</template>
                                         <template v-else-if="item.type === 'image'"><img :src="item.content" class="max-w-[100px] rounded-lg"></template>
                                         <template v-else>[消息]</template>
@@ -2696,11 +2758,11 @@
                                     <!-- 对方头像小 -->
                                     <div class="w-6 h-6 rounded-full overflow-hidden border border-white/60 shrink-0 mt-0.5 bg-accent/15 flex items-center justify-center">
                                         <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
-                                        <span v-else class="text-[8px] font-bold text-accent">{{ profiles.them.name.charAt(0) }}</span>
+                                        <span v-else class="text-[8px] font-bold text-accent">{{ chatDisplayName.charAt(0) }}</span>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-baseline gap-1.5 flex-wrap">
-                                            <span class="text-[10px] font-semibold text-accent/80">{{ profiles.them.name }}</span>
+                                            <span class="text-[10px] font-semibold text-accent/80">{{ chatDisplayName }}</span>
                                             <span class="text-[9px] text-muted/60 font-mono">{{ formatTime(rep.timestamp) }}</span>
                                         </div>
                                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mt-0.5 break-words">{{ rep.text }}</p>
@@ -2709,7 +2771,7 @@
                             </div>
                             <!-- 等待回复提示 -->
                             <div v-else class="bg-accent/[0.03] border-x border-b border-white/50 px-4 py-1.5 text-[9.5px] text-muted/50 italic">
-                                {{ profiles.them.name }} 稍后会来看的...
+                                {{ chatDisplayName }} 稍后会来看的...
                             </div>
                         </div>
                     </div>
@@ -2858,10 +2920,10 @@
                     <p class="text-white/50 text-xs tracking-[0.25em] uppercase">视频通话邀请</p>
                     <div class="call-ring-anim w-20 h-20 rounded-[1.6rem] overflow-hidden border-2 border-white/25 shadow-2xl">
                         <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
-                        <div v-else class="w-full h-full bg-accent/30 flex items-center justify-center text-white text-3xl font-light">{{ profiles.them.name.charAt(0) }}</div>
+                        <div v-else class="w-full h-full bg-accent/30 flex items-center justify-center text-white text-3xl font-light">{{ chatDisplayName.charAt(0) }}</div>
                     </div>
                     <div class="text-center">
-                        <h2 class="text-white text-xl font-semibold tracking-wide">{{ profiles.them.name }}</h2>
+                        <h2 class="text-white text-xl font-semibold tracking-wide">{{ chatDisplayName }}</h2>
                         <p class="text-white/50 text-xs mt-1.5 tracking-wider">邀请你进行视频通话</p>
                     </div>
                 </div>
@@ -2891,10 +2953,10 @@
                 <div class="call-content mt-20 gap-5 flex flex-col items-center">
                     <div class="w-20 h-20 rounded-[1.6rem] overflow-hidden border-2 border-white/25 shadow-2xl">
                         <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
-                        <div v-else class="w-full h-full bg-accent/30 flex items-center justify-center text-white text-3xl font-light">{{ profiles.them.name.charAt(0) }}</div>
+                        <div v-else class="w-full h-full bg-accent/30 flex items-center justify-center text-white text-3xl font-light">{{ chatDisplayName.charAt(0) }}</div>
                     </div>
                     <div class="text-center">
-                        <h2 class="text-white text-xl font-semibold tracking-wide">{{ profiles.them.name }}</h2>
+                        <h2 class="text-white text-xl font-semibold tracking-wide">{{ chatDisplayName }}</h2>
                         <p class="call-outgoing-text text-white/50 text-xs mt-1.5 tracking-wider">等待对方接听</p>
                     </div>
                 </div>
@@ -2939,10 +3001,10 @@
             <!-- 对方头像（中） -->
             <div class="w-20 h-20 rounded-[1.6rem] overflow-hidden border-2 border-white/25 shadow-2xl">
                 <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
-                <div v-else class="w-full h-full bg-accent/40 flex items-center justify-center text-white text-3xl font-light">{{ profiles.them.name.charAt(0) }}</div>
+                <div v-else class="w-full h-full bg-accent/40 flex items-center justify-center text-white text-3xl font-light">{{ chatDisplayName.charAt(0) }}</div>
             </div>
             <div class="text-center">
-                <h2 class="text-white text-xl font-semibold tracking-wide">{{ profiles.them.name }}</h2>
+                <h2 class="text-white text-xl font-semibold tracking-wide">{{ chatDisplayName }}</h2>
                 <p class="text-white/50 text-xs mt-1 tracking-wider">通话中</p>
             </div>
         </div>
@@ -2958,7 +3020,7 @@
             </div>
             <!-- 扬声器 -->
             <div class="call-ctrl-btn" @click="callState.speakerOn = !callState.speakerOn">
-                <div class="call-ctrl-circle" :style="callState.speakerOn ? 'background:rgba(109,143,224,0.35)' : 'background:rgba(255,255,255,0.12)'">
+                <div class="call-ctrl-circle" :style="callState.speakerOn ? 'background:rgba(124,148,204,0.35)' : 'background:rgba(255,255,255,0.12)'">
                     <i :data-lucide="callState.speakerOn ? 'volume-2' : 'volume-x'" class="w-5 h-5 text-white"></i>
                 </div>
                 <span class="call-ctrl-label">{{ callState.speakerOn ? '扬声器' : '听筒' }}</span>
@@ -2980,7 +3042,7 @@
                 <div class="call-mini-dot"></div>
                 <div class="w-7 h-7 rounded-xl overflow-hidden border border-white/30 shrink-0">
                     <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
-                    <div v-else class="w-full h-full bg-accent/40 flex items-center justify-center text-white text-xs font-bold">{{ profiles.them.name.charAt(0) }}</div>
+                    <div v-else class="w-full h-full bg-accent/40 flex items-center justify-center text-white text-xs font-bold">{{ chatDisplayName.charAt(0) }}</div>
                 </div>
                 <span class="call-mini-timer">{{ formatCallDuration }}</span>
                 <div @click.stop="hangupCall" class="bg-red-500/80 hover:bg-red-500 rounded-full p-1.5 transition" title="挂断">
@@ -3770,7 +3832,7 @@ createApp({
         const sendPoke = (pokeText) => {
             const msgText = pokeText
                 .replace(/\{me\}/g,"你")
-                .replace(/\{them\}/g,profiles.them.name);            
+                .replace(/\{them\}/g,chatDisplayName.value);            
           messages.value.push({
                 id: Date.now() + Math.random(),
                 sender: 'me', type: 'poke',
@@ -3804,7 +3866,7 @@ createApp({
                 const opts = (settings.pokePresets || '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋').split(/[,，]/).map(s=>s.trim()).filter(s=>s);
                 const pokeWord = opts[Math.floor(Math.random() * opts.length)];
                 const theirMsg = pokeWord
-                    .replace(/\{me\}/g,profiles.them.name)
+                    .replace(/\{me\}/g,chatDisplayName.value)
                     .replace(/\{them\}/g,"你");                messages.value.push({
                     id: Date.now() + Math.random(),
                     sender: 'them', type: 'poke',
@@ -3813,7 +3875,7 @@ createApp({
                 });
                 playSound('receive');
                 scrollToBottom(true);
-                showNotification(profiles.them.name, theirMsg);
+                showNotification(chatDisplayName.value, theirMsg);
                 pokeToast.text = theirMsg;
                 pokeToast.show = true;
                 if (pokeToastTimer) clearTimeout(pokeToastTimer);
@@ -3832,7 +3894,7 @@ createApp({
         
         const profiles = reactive({
             me: { name: '我', avatar: '', status: '记录生活' },
-            them: { name: '对方', avatar: '', status: '星光漫游', statusPresets: '沉思, 写代码, 听雨, 流浪, 收集星光, 喝着果汁' }
+            them: { name: '对方', remark: '', avatar: '', status: '星光漫游', statusPresets: '沉思, 写代码, 听雨, 流浪, 收集星光, 喝着果汁' }
         });
 
         const settings = reactive({
@@ -3843,8 +3905,15 @@ createApp({
             avatarRadius: 40, bgImage: '', bgImageUrl: '', customCSS: '',
             // ===== 桌面主页面 =====
             homeWallpaper: '', homeWallpaperUrl: '', // 主页面壁纸（跟聊天背景 bgImage 是分开的两张图）
+            coupleCardImage: '', coupleCardImageUrl: '', // 情侣卡片上半部分的图片（半块背景图）
             coupleName: '', // 主页面标题，例如"我 & 哥哥"；留空则自动用 me/them 的名字拼
-            coupleTagline: '夏意 永不凋谢', // 主页面标题下方的小字副标题
+            coupleTagline: '夏意 永不凋谢', // 已废弃，仅兼容旧数据，不再提供编辑入口
+            dailyQuotesText: '夏意 永不凋谢, 今天也要好好爱你, 想把每个瞬间都分享给你', // 每日情话语料池，逗号分隔，每天随机显示一条
+            lastDailyQuoteShownDate: '', // 记录"今天弹过一次每日情话弹窗了"，避免同一天反复弹
+            relationshipStartDate: '', // 相伴开始日期，留空则不显示"相伴 X 天"
+            unreadChatCount: 0, // 主页面"聊天"图标角标数字：对方新消息且不在聊天页时累加，进聊天自动清零
+            unreadLetterCount: 0, // 主页面"信笺"图标角标数字：收到回信时累加，写信/寄出时不触发，打开信笺自动清零
+            unreadNoteCount: 0, // 主页面"日历"图标角标数字：日记收到回复时累加，打开日历自动清零
             // ===== 潮汐（月经记录）=====
             periodCycleLength: 28, // 默认平均周期天数，记录多了之后会用实际平均值
             periodReminderEnabled: true,
@@ -3887,9 +3956,55 @@ createApp({
         //   界面、容器变为可见的那一刻"，所以在这里重新滚一次。
         const openChat = () => {
             currentScreen.value = 'chat';
+            settings.unreadChatCount = 0;
             nextTick(() => scrollToBottom());
         };
         const coupleTitle = computed(() => settings.coupleName?.trim() || `${profiles.me.name} & ${profiles.them.name}`);
+        // 聊天里显示的名字：设了"聊天备注"就优先用备注，没设就用角色名本身。
+        // 主页面的 coupleTitle 只认角色名，不受这个备注影响——两者刻意分开。
+        const chatDisplayName = computed(() => profiles.them.remark?.trim() || profiles.them.name);
+        // ===== 相伴天数 & 今日日期（弹窗和主页面都会用到）=====
+        const daysTogether = computed(() => {
+            if (!settings.relationshipStartDate) return null;
+            const start = new Date(settings.relationshipStartDate + 'T00:00:00');
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const diff = Math.floor((today.getTime() - start.getTime()) / ONE_DAY_MS) + 1;
+            return diff > 0 ? diff : null;
+        });
+        const todayDateText = computed(() => {
+            const d = new Date(homeClockNow.value);
+            return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+        });
+        // ===== 每日情话：语料库里设置好一堆句子，每天随机显示其中一条 =====
+        const dailyQuoteList = computed(() =>
+            (settings.dailyQuotesText || '').split(',').map(s => s.trim()).filter(Boolean)
+        );
+        // 按"今天的日期字符串"做一次简单哈希来选序号——
+        // 效果是每天看起来随机跳到语料池里不同的一条（不是死板地按顺序 1,2,3...轮），
+        // 但同一天内不管刷新多少次都选到同一条，不会出现"重进App换了一条"的诡异感。
+        const hashDateSeed = (str) => {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) | 0;
+            return Math.abs(hash);
+        };
+        const todaysQuote = computed(() => {
+            const list = dailyQuoteList.value;
+            if (!list.length) return '';
+            const todayStr = new Date().toDateString();
+            return list[hashDateSeed(todayStr) % list.length];
+        });
+        // 主页面副标题：现在完全由「语料库 → 每日情话」驱动，没配置就不显示
+        const homeSubtitle = computed(() => todaysQuote.value);
+
+        // ===== 每日情话弹窗：每天第一次打开时弹一次 =====
+        const showDailyQuotePopup = ref(false);
+        const checkDailyQuotePopup = () => {
+            if (!todaysQuote.value) return; // 没配置语料池就不弹
+            const todayStr = new Date().toDateString();
+            if (settings.lastDailyQuoteShownDate === todayStr) return; // 今天已经弹过了
+            settings.lastDailyQuoteShownDate = todayStr;
+            showDailyQuotePopup.value = true;
+        };
         // 主页面顶部的实时时钟：每 15 秒刷新一次就够了，没必要按秒刷新增加开销
         const homeClockNow = ref(Date.now());
         let homeClockTimer = null;
@@ -4272,7 +4387,7 @@ createApp({
             if(el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 el.style.transition = 'background-color 0.6s';
-                el.style.backgroundColor = 'rgba(109,143,224, 0.2)';
+                el.style.backgroundColor = 'rgba(124,148,204, 0.2)';
                 setTimeout(() => { el.style.backgroundColor = ''; }, 800);
             }
         };
@@ -4503,7 +4618,7 @@ createApp({
                 callState.status = 'incoming';
                 startCallRinging();
                 // 通知
-                showNotification(`${profiles.them.name} 来电`, '视频通话邀请，点击查看');
+                showNotification(`${chatDisplayName.value} 来电`, '视频通话邀请，点击查看');
                 // 30秒无人接听自动挂断
                 callRingTimer = safeSetTimeout(() => {
                     if (callState.status === 'incoming') {
@@ -4539,7 +4654,7 @@ createApp({
                 id: Date.now() + Math.random(),
                 sender: callState.caller === 'them' ? 'them' : 'me',
                 type: 'call',
-                content: auto ? `未接来电 · ${profiles.them.name}` : `已拒绝视频通话`,
+                content: auto ? `未接来电 · ${chatDisplayName.value}` : `已拒绝视频通话`,
                 callAccepted: false,
                 timestamp: Date.now(),
                 status: 'read',
@@ -4547,7 +4662,7 @@ createApp({
             };
             messages.value.push(msg);
             // ✅ 未接/拒接来电也弹通知，跟其他消息一样走统一的 showNotification（不再自己重复写一遍 SW 推送逻辑）
-            showNotification(profiles.them.name, msg.content);
+            showNotification(chatDisplayName.value, msg.content);
             callState.status = 'idle';
             scrollToBottom(true);
             nextTick(() => lucide.createIcons());
@@ -4582,7 +4697,7 @@ createApp({
                 messages.value.push(msg);
                 scrollToBottom(true);
                 // ✅ 通话结束也弹通知——比如挂断那一下手机正好切到别的 app 了，回来才看到时长
-                showNotification(profiles.them.name, msg.content);
+                showNotification(chatDisplayName.value, msg.content);
             }
             nextTick(() => lucide.createIcons());
         };
@@ -4726,7 +4841,9 @@ createApp({
         // ✅ 正确的后台通知（使用已有的 showNotification）
         if (sender === 'them') {
              const notifyBody = type === 'text' ? txt : '[图片消息]';
-             showNotification(profiles.them.name, notifyBody);
+             showNotification(chatDisplayName.value, notifyBody);
+             // 不在聊天页面时，主页面"聊天"图标显示未读角标；进聊天会自动清掉
+             if (currentScreen.value !== 'chat') settings.unreadChatCount = (settings.unreadChatCount || 0) + 1;
     }
 
          scrollToBottom(true);
@@ -4843,7 +4960,7 @@ createApp({
             const delay = overrideDelay !== null ? overrideDelay : (Math.random() * 2 + 3) * 3600 * 1000;
             // 💡 只有在新写日记（overrideDelay为null）时，才呼叫后端，避免刷新页面重复发通知
             if (overrideDelay === null) {
-                scheduleOfflinePush(profiles.them.name, "我看了你的日记，有话对你说...", delay);
+                scheduleOfflinePush(chatDisplayName.value, "我看了你的日记，有话对你说...", delay);
             }
             // 保存绝对触发时间，用于页面刷新后恢复
             const targetNote = notes.value.find(n => n.id === noteId);
@@ -4869,7 +4986,8 @@ createApp({
                     t2.replies.push({ id: Date.now()+Math.random(), text, timestamp: Date.now() });
                     playSound('receive');
                     // ✅ 日历/日记回复也要弹系统通知（之前只有聊天消息和时光信箱信件会弹通知）
-                    showNotification(profiles.them.name + ' · 日记回复', text);
+                    showNotification(chatDisplayName.value + ' · 日记回复', text);
+                    if (idx === 0) settings.unreadNoteCount = (settings.unreadNoteCount || 0) + 1; // 主页面"日历"角标：一次回复事件计一次
                     idx++;
                     if (idx < count) safeSetTimeout(addNext, (Math.random() * 3 + 2) * 1000);
                 };
@@ -4932,6 +5050,7 @@ createApp({
                     if(letter) { letter.status = '已回信'; letter.reply = replyTexts.join(' · '); }
                     pendingLetter.value = null;
                     letterTimerActive = false;
+                    settings.unreadLetterCount = (settings.unreadLetterCount || 0) + 1; // 回信收到了，主页面"信笺"图标显示角标
                 }
             };
             // 断点续传场景（startIndex>0）：说明第一条早就该发了，只需按正常的条间间隔接上，不用再等 baseDelay
@@ -5244,6 +5363,20 @@ createApp({
             const url = settings.homeWallpaperUrl.trim();
             if (!url) { alert('请先输入图片链接'); return; }
             settings.homeWallpaper = url;
+        };
+
+        // ===== 情侣卡片图片（主页面卡片上半部分的那一小块图）=====
+        const uploadCoupleCardImage = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => { settings.coupleCardImage = ev.target.result; settings.coupleCardImageUrl = ''; };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        };
+        const applyCoupleCardImageUrl = () => {
+            const url = settings.coupleCardImageUrl.trim();
+            if (!url) { alert('请先输入图片链接'); return; }
+            settings.coupleCardImage = url;
         };
 
         // ===== 分类导出 / 导入 =====
@@ -5581,6 +5714,7 @@ createApp({
                 restorePendingLetter();
                 restoreNoteReminders();
                 checkPeriodReminder();
+                checkDailyQuotePopup();
                 restartActiveMsgTimer();
                 restartAutoBackupTimer();
                 // 主页面时钟：每15秒刷新一次
@@ -5625,8 +5759,9 @@ createApp({
             toggleTheme, quotingMsg, quoteMsg, forceBotReply, scrollToMsg,
             renderContent,
             uploadBg, applyBgUrl, globalExport, globalImport,
-            uploadHomeWallpaper, applyHomeWallpaperUrl,
-            currentScreen, goHome, openChat, coupleTitle, homeTimeText, homeDateText,
+            uploadHomeWallpaper, applyHomeWallpaperUrl, uploadCoupleCardImage, applyCoupleCardImageUrl,
+            currentScreen, goHome, openChat, coupleTitle, chatDisplayName, homeTimeText, homeDateText,
+            todaysQuote, homeSubtitle, showDailyQuotePopup, daysTogether, todayDateText,
             manualBackupNow, backupToGitHub,
             CLOUD_DEVICE_ID, restoreFromDeviceId, restoringFromDevice, restoreFromOtherDevice, copyDeviceId, githubBackupExpanded,
             // 视频通话
