@@ -1394,7 +1394,7 @@
                 <div class="rounded-[1.75rem] shadow-[0_2px_8px_rgba(124,148,204,0.1),0_16px_40px_-12px_rgba(124,148,204,0.35)] border border-white/60 dark:border-slate-600/40 relative mt-7 shrink-0 overflow-hidden">
                     <div class="h-32 bg-cover bg-center" :class="!settings.coupleCardImage ? 'bg-gradient-to-br from-accent/25 to-sky-100/40 dark:from-accent/20 dark:to-slate-700/40' : ''"
                          :style="settings.coupleCardImage ? { backgroundImage: `url(${settings.coupleCardImage})` } : {}"></div>
-                    <div class="bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl pt-8 pb-6 px-6 text-center">
+                    <div class="bg-white dark:bg-slate-800 pt-8 pb-6 px-6 text-center">
                         <h1 class="text-base font-bold text-slate-700 dark:text-slate-100">{{ coupleTitle }}</h1>
                         <p v-if="homeSubtitle" class="text-[11px] text-muted mt-1.5">{{ homeSubtitle }}</p>
                         <div v-if="daysTogether" class="inline-flex items-center gap-1 mt-2.5 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-[10px] font-medium">
@@ -5298,7 +5298,12 @@ createApp({
             const root = document.documentElement;
             const fontSize = settings.fontSize + 'px';
             root.style.setProperty('--font-size-base', fontSize);
-            root.style.fontSize = fontSize;
+            // ⚠️ 这里之前还有一行 root.style.fontSize = fontSize，
+            //   直接改了 <html> 根元素的字号——但页面里大量用的是 rem 单位
+            //   （图标尺寸、间距、头像大小……几乎所有 Tailwind 的 w-/h-/p- 类都是 rem），
+            //   而 rem 就是相对"根元素字号"计算的，所以调字号设置会把图标、间距全部一起放大缩小。
+            //   字号设置本来只想影响聊天文字大小，下面这个 dynamicStyle 才是真正该用的方式——
+            //   只针对 .msg-bubble / .msg-content 生效，不会牵连其它任何东西。
             let dynamicStyle = document.getElementById('dynamic-font-size');
             if (!dynamicStyle) { dynamicStyle = document.createElement('style'); dynamicStyle.id = 'dynamic-font-size'; document.head.appendChild(dynamicStyle); }
             dynamicStyle.textContent = `.msg-bubble, .msg-content { font-size: ${fontSize} !important; }`;
