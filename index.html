@@ -6,20 +6,20 @@
     <title>静语·星降</title>
     <link rel="manifest" href="/manifest.json">
 
-    <!-- ===== iOS / Android PWA 必要标签 ===== -->
-    <!-- 告诉 iOS Safari：这个网页可以像原生 App 一样全屏运行（隐藏浏览器工具栏）-->
+    
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- 状态栏样式：black-translucent 让内容延伸到状态栏下方，更沉浸 -->
+    
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- 添加到主屏幕后显示的 App 名称 -->
+    
     <meta name="apple-mobile-web-app-title" content="静语">
-    <!-- iOS 主屏幕图标（iOS 不读 manifest，需要单独指定）-->
+    
     <link rel="apple-touch-icon" href="/icon-180.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/icon-152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
-    <!-- 浏览器标签页/任务栏主题色 -->
+    
     <meta name="theme-color" content="#0f0c2e">
-    <!-- Android Chrome 的应用图标 -->
+    
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
     
@@ -32,21 +32,16 @@
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <script>
-      // ===== OneSignal 初始化 =====
-      // Netlify 部署在根目录，所以 SW 路径直接用 /OneSignalSDK.sw.js
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "ad0c2800-5d31-4ef7-9219-23e214add771",
           safari_web_id: "web.onesignal.auto.5d035d80-811e-4f05-a17d-f7e13950e2b6",
-          // Netlify 根目录部署：直接放根路径
           serviceWorkerPath: "/OneSignalSDK.sw.js",
           serviceWorkerParam: { scope: "/" },
           notifyButton: { enable: false },
         });
         window.__oneSignalReady = true;
-        // 用自定义事件通知 Vue 那边"OneSignal 真的就绪了"，
-        // 不用再靠"等 3.2 秒后再调一次碰碰运气"这种猜时间的重复调用
         window.dispatchEvent(new Event('onesignal-ready'));
       });
     </script>
@@ -175,7 +170,7 @@
         .quote-inline-btn:active { transform: scale(0.95); }
         .dark .quote-inline-btn { background: rgba(255, 255, 255, 0.12); border-color: rgba(124,148,204, 0.25); }
 
-        /* ===== 背景透明 + 玻璃效果（统一版）===== */
+        
         body { background-color: var(--color-bg) !important; }
         #app { background: transparent !important; }
         .glass-panel {
@@ -258,12 +253,12 @@
 
         .fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(8px); }
-        /* 全屏页面切换：iOS 风格，滑入的同时带一点缩放，观感更自然有弹性 */
+        
         .page-slide-enter-active { transition: transform 0.38s cubic-bezier(0.34,1.15,0.4,1), opacity 0.3s ease; }
         .page-slide-leave-active { transition: transform 0.24s cubic-bezier(0.4,0,1,1), opacity 0.2s ease; }
         .page-slide-enter-from { transform: translateY(4%) scale(0.98); opacity: 0; }
         .page-slide-leave-to { transform: translateY(2%) scale(0.99); opacity: 0; }
-        /* 每日情话弹窗：弹性入场，比普通 fade 更有惊喜感 */
+        
         .quote-pop-enter-active { transition: opacity 0.3s ease; }
         .quote-pop-leave-active { transition: opacity 0.22s ease; }
         .quote-pop-enter-from, .quote-pop-leave-to { opacity: 0; }
@@ -272,7 +267,7 @@
         }
         .quote-pop-enter-from > div { transform: scale(0.8) translateY(12px); opacity: 0; }
         .quote-pop-leave-to > div { transform: scale(0.92); opacity: 0; }
-        /* 头像呼吸光环：缓慢地放大淡出再重来，像在轻轻心跳 */
+        
         @keyframes quotePulseRing {
             0% { transform: scale(1); opacity: 0.55; }
             100% { transform: scale(1.35); opacity: 0; }
@@ -290,7 +285,7 @@
         .dark .jelly-btn { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
         .dark .jelly-btn:hover { background: rgba(255,255,255,0.12); }
 
-        /* ===== 顶栏名字不换行 & 输入状态优化 ===== */
+        
         .header-name {
             font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -307,7 +302,7 @@
             padding: 2px 8px; color: #839deb; font-style: italic;
             white-space: nowrap; font-size: 10px;
         }
-        /* ===== 音量滑块样式 ===== */
+        
         .volume-slider {
             -webkit-appearance: none; appearance: none;
             height: 4px; border-radius: 2px; outline: none;
@@ -320,12 +315,12 @@
             background: #839deb; border: 2px solid white;
             box-shadow: 0 2px 6px rgba(124,148,204,0.4); cursor: pointer;
         }
-        /* 聊天气泡中的表情包（双方一致，90×90px 显示）*/
+        
         .sticker-bubble { width:90px;height:90px;border-radius:14px;display:block;object-fit:contain;
           image-rendering:-webkit-optimize-contrast;image-rendering:high-quality;
           -ms-interpolation-mode:bicubic;
           filter:contrast(1.04) saturate(1.06);transform:translateZ(0); }
-        /* 选取面板缩略图（较大，便于查看）*/
+        
         .sticker-img { max-width:92px;max-height:92px;border-radius:12px;
           image-rendering:-webkit-optimize-contrast;image-rendering:high-quality;
           -ms-interpolation-mode:bicubic;
@@ -333,11 +328,9 @@
         .bubble-img { image-rendering:-webkit-optimize-contrast;image-rendering:high-quality;-ms-interpolation-mode:bicubic;filter:contrast(1.03) saturate(1.05);transform:translateZ(0); }
         .reply-checkbox { accent-color: #839deb; width: 18px; height: 18px; }
 
-        /* ╔══════════════════════════════════════════════╗
-           ║       语料库 — 可折叠分区列表设计             ║
-           ╚══════════════════════════════════════════════╝ */
+        
 
-        /* ── 分区标题行（可点击折叠）─────────────────── */
+        
         .corpus-section-hd {
             display: flex; align-items: center; gap: 8px;
             padding: 10px 14px 10px 16px;
@@ -364,7 +357,7 @@
             border-radius: 999px;
         }
 
-        /* 折叠箭头 */
+        
         .corpus-section-arrow {
             width: 20px; height: 20px;
             display: flex; align-items: center; justify-content: center;
@@ -373,7 +366,7 @@
         }
         .corpus-section-arrow.open { transform: rotate(90deg); }
 
-        /* 分区操作按钮（重命名 / 删除）*/
+        
         .corpus-section-action {
             width: 28px; height: 28px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
@@ -385,7 +378,7 @@
         .corpus-section-action.del { color: #ef4444; }
         .corpus-section-action.del:active { background: rgba(239,68,68,0.1); }
 
-        /* ── 语料条目 ─────────────────────────────────── */
+        
         .reply-row {
             display: flex; align-items: center;
             min-height: 50px; padding: 7px 6px 7px 12px;
@@ -400,7 +393,7 @@
         .dark .reply-row:active { background: rgba(38,46,78,0.9); }
         .dark .reply-row.is-selected { background: rgba(124,148,204,0.1); }
 
-        /* 分区容器（包住该分区的所有条目）*/
+        
         .corpus-section-body {
             border-radius: 0 0 14px 14px;
             overflow: hidden;
@@ -410,7 +403,7 @@
         }
         .dark .corpus-section-body { border-color: rgba(60,75,110,0.4); }
 
-        /* 未分组的条目直接裸放，外面包一个单独容器 */
+        
         .corpus-ungroup-body {
             border-radius: 14px; overflow: hidden;
             border: 1px solid #e8edf8;
@@ -418,14 +411,14 @@
         }
         .dark .corpus-ungroup-body { border-color: rgba(60,75,110,0.4); }
 
-        /* 勾选框 — 大触控区 */
+        
         .reply-check-wrap {
             width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
         }
         .reply-checkbox { width: 17px; height: 17px; accent-color: #839deb; cursor: pointer; }
 
-        /* 文本输入 */
+        
         .reply-text-input {
             flex: 1; background: transparent; border: none;
             padding: 0 4px; outline: none;
@@ -433,7 +426,7 @@
             min-width: 0; line-height: 1.5;
         }
 
-        /* 删除按钮 */
+        
         .reply-del-btn {
             width: 36px; height: 36px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -442,7 +435,7 @@
         }
         .reply-del-btn:active { background: rgba(239,68,68,0.1); color: #ef4444; }
 
-        /* ── 底部选中操作栏 ──────────────────────────── */
+        
         .corpus-action-bar {
             display: flex; align-items: center; gap: 8px;
             padding: 10px 12px;
@@ -462,7 +455,7 @@
         .corpus-action-btn.danger { background: rgba(239,68,68,0.07); color: #ef4444; border-color: rgba(239,68,68,0.18); }
         .dark .corpus-action-btn { background: rgba(40,46,68,0.8); border-color: rgba(80,100,150,0.3); }
 
-        /* 移动 sheet */
+        
         .move-sheet {
             position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
             background: #fff; border-radius: 22px 22px 0 0;
@@ -505,7 +498,7 @@
         .calendar-cell.active .note-dot { background: white; box-shadow: none; }
         .period-dot { position: absolute; top: 2px; width: 5px; height: 5px; border-radius: 50%; background: rgb(244,114,182); box-shadow: 0 0 5px rgba(244,114,182,0.6); }
         .calendar-cell.active .period-dot { background: white; box-shadow: none; }
-        /* 潮汐日历：有记录的日子实心高亮，预测范围内的日子用虚线圈出 */
+        
         .calendar-cell.has-record:not(.active) { background: rgba(244,114,182,0.18); }
         .calendar-cell.is-predicted:not(.active):not(.has-record) { border: 1.5px dashed rgba(244,114,182,0.5); }
         .calendar-cell.is-ovulation:not(.active) { background: rgba(251,146,60,0.35); box-shadow: inset 0 0 0 1.5px rgba(251,146,60,0.6); }
@@ -524,7 +517,7 @@
         .notebook-expand-enter-from, .notebook-expand-leave-to { max-height: 0; opacity: 0; }
         .notebook-expand-enter-to, .notebook-expand-leave-from { max-height: 160px; opacity: 1; }
 
-        /* ===== 视频通话系统样式 ===== */
+        
         .call-overlay {
             position: fixed; inset: 0; z-index: 500;
             display: flex; flex-direction: column;
@@ -543,18 +536,18 @@
         }
         .call-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%; }
         
-        /* 中等窗口模式 (可拖拽画中画) */
+        
         .call-window-medium {
-            width: 65vw !important; /* 固定宽度 */
-            height: 48vh !important; /* 固定高度 */
+            width: 65vw !important; 
+            height: 48vh !important; 
             border-radius: 32px !important;
             overflow: hidden !important;
             box-shadow: 0 20px 50px rgba(124,148,204,0.3) !important;
             border: 2px solid rgba(255,255,255,0.8) !important;
-            touch-action: none; /* 必须保留，防止拖拽时屏幕滚动 */
+            touch-action: none; 
             position: fixed !important;
             z-index: 600;
-        }        /* 中等窗口内部元素缩小 */
+        }        
         .call-window-medium .call-ctrl-circle {
             width: 36px !important; height: 36px !important;
         }
@@ -582,7 +575,7 @@
         .call-window-medium .call-info-bar button { padding: 4px !important; }
         .call-window-medium .call-info-bar i { width: 12px !important; height: 12px !important; }
         .call-window-medium .call-content.mb-10 { margin-bottom: 6px !important; gap: 10px !important; padding: 0 8px !important; }
-        /* 来电振铃动画 */
+        
         @keyframes ringPulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,148,204,0.6); }
             50% { transform: scale(1.04); box-shadow: 0 0 0 22px rgba(124,148,204,0); }
@@ -595,7 +588,7 @@
         }
         .call-outgoing-text { animation: outgoingPulse 1.8s ease-in-out infinite; }
 
-        /* 通话控制按钮 */
+        
         .call-ctrl-btn {
             display: flex; flex-direction: column; align-items: center; gap: 8px;
             cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -610,7 +603,7 @@
         }
         .call-ctrl-label { font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 0.02em; }
 
-        /* 接听/挂断大按钮 */
+        
         .call-answer-btn {
             width: 70px; height: 70px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -619,7 +612,7 @@
         }
         .call-answer-btn:active { transform: scale(0.9); }
 
-        /* 缩小化浮动气泡 */
+        
         .call-mini-bubble {
             position: fixed; bottom: 110px; right: 16px; z-index: 400;
             background: rgba(25, 30, 50, 0.92);
@@ -638,7 +631,7 @@
         }
         .call-mini-timer { font-size: 14px; font-weight: 700; color: white; letter-spacing: 0.05em; font-variant-numeric: tabular-nums; }
 
-        /* 通话中顶部信息栏 */
+        
         .call-info-bar {
             position: absolute; top: 0; left: 0; right: 0;
             display: flex; align-items: center; justify-content: space-between;
@@ -647,19 +640,19 @@
             z-index: 3;
         }
 
-        /* 通话进入/退出动画 */
+        
         .call-enter-active { transition: opacity 0.3s ease, transform 0.3s ease; }
         .call-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
         .call-enter-from { opacity: 0; transform: scale(1.03); }
         .call-leave-to { opacity: 0; transform: scale(0.97); }
 
-        /* 浮动气泡进入动画 */
+        
         .bubble-enter-active { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .bubble-leave-active { transition: all 0.2s ease; }
         .bubble-enter-from { opacity: 0; transform: translateX(60px) scale(0.8); }
         .bubble-leave-to { opacity: 0; transform: translateX(60px) scale(0.8); }
 
-        /* ===== 拍一拍 Toast ===== */
+        
         @keyframes pokePulse {
             0%   { transform: translate(-50%,-50%) scale(0.82); opacity: 0; }
             18%  { transform: translate(-50%,-50%) scale(1.06); opacity: 1; }
@@ -679,7 +672,7 @@
             animation: pokePulse 2s ease forwards;
         }
 
-        /* ===== 消息右键/长按菜单 ===== */
+        
         .msg-ctx-menu {
             position: fixed; z-index: 700;
             background: rgba(255,255,255,0.97);
@@ -710,7 +703,7 @@
         .ctx-enter-from { opacity: 0; transform: scale(0.88); }
         .ctx-leave-to   { opacity: 0; transform: scale(0.9); }
 
-        /* ===== 通话记录气泡（简约可爱版）===== */
+        
         .call-record-bubble {
             position: relative;
             display: inline-flex; align-items: center; gap: 8px;
@@ -749,7 +742,7 @@
         }
         .call-record-btn:hover { background: rgba(124,148,204,0.26); }
 
-        /* ===== 拍一拍消息 ===== */
+        
         .poke-system-msg {
             display: flex; align-items: center; justify-content: center;
             padding: 5px 18px; border-radius: 50px;
@@ -758,7 +751,7 @@
             border: 1px dashed rgba(124,148,204,0.28);
             backdrop-filter: blur(8px);
         }
-        /* ===== 拍一拍选择器 ===== */
+        
         .poke-picker {
             position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
             background: rgba(255,255,255,0.97);
@@ -792,7 +785,7 @@
         .poke-picker-enter-from { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.95); }
         .poke-picker-leave-to   { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.95); }
 
-        /* ===== 通话记录气泡 - 可爱精致卡片版 ===== */
+        
         .call-record-card {
             display: inline-flex; flex-direction: column;
             min-width: 175px; max-width: 215px;
@@ -843,7 +836,7 @@
         }
         .call-record-rebtn:hover { background: rgba(170,155,225,0.26); }
 
-        /* ===== 开屏动画 · 星降长桉林 · v3 ===== */
+        
         .splash-enter-active { transition: opacity 2.4s cubic-bezier(0.22,1,0.36,1); }
         .splash-leave-active { transition: opacity 1.6s cubic-bezier(0.4,0,0.2,1); }
         .splash-enter-from,.splash-leave-to { opacity:0; }
@@ -870,11 +863,11 @@
             100%{transform:translateY(106vh) translateX(var(--sx,10px)) rotate(520deg);opacity:0;}
         }
 
-        /* ── 星盘：div 容器旋转（transform-origin:center 可靠生效）── */
+        
         @keyframes sp-spin-cw  { from{transform:rotate(0deg);}   to{transform:rotate(360deg);}  }
         @keyframes sp-spin-ccw { from{transform:rotate(0deg);}   to{transform:rotate(-360deg);} }
 
-        /* ── 星盘：描边生长 ── */
+        
         @keyframes sp-line-draw {
             from{stroke-dashoffset:var(--len,300);opacity:0;}
             7%{opacity:1;}
@@ -885,20 +878,20 @@
             10%{opacity:0.95;}
             to{stroke-dashoffset:0;opacity:0.95;}
         }
-        /* ── 扩散环（scale 方式跨浏览器可靠）── */
+        
         @keyframes sp-ring-scale {
             0%{transform:scale(0.02);opacity:0.55;}
             100%{transform:scale(2.6);opacity:0;}
         }
 
-        /* ── 皇冠 ── */
+        
         @keyframes sp-crown {
             0%  {opacity:0; transform:translate(-50%,-100%) translateY(-14px) scale(0.45);}
             55% {transform:translate(-50%,-100%) translateY(-6px) scale(1.09);}
             100%{opacity:1; transform:translate(-50%,-100%) translateY(-8px) scale(1);}
         }
 
-        /* ── 逐字入场（游戏海报风）── */
+        
         @keyframes sp-char-fall   { 0%{opacity:0;transform:translateY(-32px) scale(0.82) skewY(4deg);} 100%{opacity:1;transform:translateY(0) scale(1) skewY(0);} }
         @keyframes sp-char-rise   { 0%{opacity:0;transform:translateY(32px) scale(0.82) skewY(-4deg);} 100%{opacity:1;transform:translateY(0) scale(1) skewY(0);} }
         @keyframes sp-char-left   { 0%{opacity:0;transform:translateX(-24px) rotate(-6deg);} 100%{opacity:1;transform:translateX(0) rotate(0);} }
@@ -909,8 +902,8 @@
         @keyframes sp-divider-grow{ from{width:0;opacity:0;} to{width:var(--w,72px);opacity:1;} }
         @keyframes sp-divider-dot { 0%{opacity:0;transform:scale(0) rotate(-45deg);} 70%{transform:scale(1.3) rotate(8deg);} 100%{opacity:1;transform:scale(1) rotate(0);} }
 
-        /* ── 圆形进度条 ── */
-        /* circumference of r=44: 2π×44 ≈ 276.5 */
+        
+        
         @keyframes sp-circ-progress {
             0%  {stroke-dashoffset:277;}
             10% {stroke-dashoffset:258;}
@@ -932,11 +925,11 @@
             100%{transform:translateY(100%);opacity:0.02;}
         }
 
-        /* ── 花卉 ── */
+        
         @keyframes sp-bloom       { 0%{opacity:0;transform:scale(.08) rotate(-55deg);} 62%{transform:scale(1.10) rotate(5deg);} 100%{opacity:1;transform:scale(1) rotate(0);} }
         @keyframes sp-petal-breathe{ 0%,100%{transform:scale(1) rotate(0);opacity:.72;} 50%{transform:scale(1.07) rotate(4deg);opacity:.90;} }
 
-        /* 中屏通话窗口额外样式 */
+        
         .call-window-medium { touch-action: none; user-select: none; }
     </style>
     <style id="custom-bubble-css"></style>
@@ -946,24 +939,24 @@
 <body>
 <div id="app" class="h-[100dvh] w-full flex justify-center items-center selection:bg-accent/30 relative" style="background: transparent !important;">
 
-    <!-- ===== 开屏动画 · 星降长桉林 · v3 ===== -->
+    
     <transition name="splash">
       <div v-if="showSplash" class="fixed inset-0 z-[100] overflow-hidden select-none"
            style="background:linear-gradient(168deg,#090910 0%,#0e0e1b 22%,#111224 52%,#0f1020 78%,#090910 100%);">
 
-        <!-- ══ 0. 噪点膜 + 扫描线光效 ══ -->
+        
         <div style="position:absolute;inset:0;pointer-events:none;opacity:0.038;
           background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%22180%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.88%22 numOctaves=%224%22 stitchTiles=%22stitch%22/></filter><rect width=%22180%22 height=%22180%22 filter=%22url(%23n)%22/></svg>');"></div>
         <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;">
           <div style="position:absolute;width:100%;height:40%;background:linear-gradient(180deg,transparent,rgba(168,155,240,0.025),transparent);animation:sp-scan 7s linear 1s infinite;"></div>
         </div>
 
-        <!-- ══ 1. 深空光晕 ══ -->
+        
         <div style="position:absolute;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,175,0.11) 0%,transparent 68%);top:-140px;left:-130px;animation:sp-breathe 10s ease-in-out infinite;--opa:0.11;pointer-events:none;"></div>
         <div style="position:absolute;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(70,110,195,0.08) 0%,transparent 68%);bottom:-80px;right:-80px;animation:sp-breathe 13s ease-in-out 3.5s infinite;--opa:0.08;pointer-events:none;"></div>
         <div style="position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(130,90,205,0.07) 0%,transparent 70%);top:35%;left:70%;animation:sp-breathe 8s ease-in-out 1.8s infinite;--opa:0.07;pointer-events:none;"></div>
 
-        <!-- ══ 2. 全幅星图 SVG（星座连线 + 流星）══ -->
+        
         <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <filter id="gls" x="-60%" y="-60%" width="220%" height="220%">
@@ -982,7 +975,7 @@
             </linearGradient>
           </defs>
 
-          <!-- 星座连线 -->
+          
           <g fill="none">
             <path d="M40,72 L95,48 L170,90 L232,56 L302,108" stroke="rgba(158,148,212,0.22)" stroke-width="0.6" stroke-dasharray="352" style="animation:sp-line-draw 4.5s ease .3s both;--len:352;"/>
             <path d="M40,72 L70,178 L140,198 L170,90" stroke="rgba(152,142,206,0.17)" stroke-width="0.5" stroke-dasharray="302" style="animation:sp-line-draw 4.2s ease .9s both;--len:302;"/>
@@ -991,7 +984,7 @@
             <path d="M24,644 L74,618 L132,654 L184,632 L242,666" stroke="rgba(144,136,200,0.16)" stroke-width="0.48" stroke-dasharray="292" style="animation:sp-line-draw 3.8s ease 2.4s both;--len:292;"/>
             <path d="M232,690 L288,670 L342,706" stroke="rgba(146,138,202,0.16)" stroke-width="0.48" stroke-dasharray="178" style="animation:sp-line-draw 3.2s ease 2.7s both;--len:178;"/>
           </g>
-          <!-- 星点 -->
+          
           <g filter="url(#gls)">
             <circle cx="40"  cy="72"  r="2.4" fill="rgba(202,190,250,0.92)" style="animation:sp-star-twinkle 2.4s ease-in-out 0s   infinite;"/>
             <circle cx="95"  cy="48"  r="3.1" fill="rgba(218,204,255,0.95)" style="animation:sp-star-twinkle 1.8s ease-in-out .5s  infinite;"/>
@@ -1011,7 +1004,7 @@
             <circle cx="232" cy="690" r="2.3" fill="rgba(212,200,254,0.90)" style="animation:sp-star-twinkle 2.2s ease-in-out 1.3s infinite;"/>
             <circle cx="288" cy="670" r="1.9" fill="rgba(202,192,250,0.86)" style="animation:sp-star-twinkle 1.9s ease-in-out .3s  infinite;"/>
             <circle cx="342" cy="706" r="2.5" fill="rgba(218,204,255,0.92)" style="animation:sp-star-twinkle 2.5s ease-in-out .7s  infinite;"/>
-            <!-- 散点 -->
+            
             <circle cx="174" cy="40"  r="1.1" fill="rgba(196,186,242,0.76)" style="animation:sp-star-twinkle 3.0s ease-in-out 2.0s infinite;"/>
             <circle cx="322" cy="412" r="1.0" fill="rgba(190,180,238,0.70)" style="animation:sp-star-twinkle 2.8s ease-in-out .3s  infinite;"/>
             <circle cx="14"  cy="496" r="1.5" fill="rgba(202,192,250,0.76)" style="animation:sp-star-twinkle 2.4s ease-in-out 1.7s infinite;"/>
@@ -1022,7 +1015,7 @@
             <circle cx="8"   cy="150" r="1.3" fill="rgba(198,188,244,0.73)" style="animation:sp-star-twinkle 2.0s ease-in-out .6s  infinite;"/>
           </g>
 
-          <!-- 流星（8条，渐变尾迹）-->
+          
           <g filter="url(#glm)">
             <line x1="16" y1="20" x2="114" y2="53" stroke="url(#mg1)" stroke-width="0.9" stroke-linecap="round" style="animation:sp-meteor 5.8s linear  .8s infinite;--mx:228px;--my:68px;"/>
             <circle cx="114" cy="53" r="1.9" fill="rgba(235,225,255,.93)" style="animation:sp-meteor 5.8s linear .8s infinite;--mx:228px;--my:68px;"/>
@@ -1042,14 +1035,14 @@
             <circle cx="150" cy="738" r="1.0" fill="rgba(218,208,250,.75)" style="animation:sp-meteor 11.5s linear 6.5s infinite;--mx:212px;--my:64px;"/>
           </g>
 
-          <!-- 扩散环 (scale方式) -->
+          
           <circle cx="187" cy="370" r="55" stroke="rgba(168,155,228,0.22)" stroke-width="0.8" fill="none"
             style="transform-box:fill-box;transform-origin:center;animation:sp-ring-scale 7s ease-out 1.2s infinite;"/>
           <circle cx="187" cy="370" r="55" stroke="rgba(162,150,222,0.13)" stroke-width="0.5" fill="none"
             style="transform-box:fill-box;transform-origin:center;animation:sp-ring-scale 7s ease-out 4.0s infinite;"/>
         </svg>
 
-        <!-- ══ 3. 雪花粒子 ══ -->
+        
         <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
           <div v-for="i in 20" :key="'sf'+i" style="position:absolute;top:-28px;"
                :style="`left:${(i*4.7+1.3)%96}%;animation:sp-snow ${9+((i*11)%7)}s linear ${((i*0.41)%5.2)}s infinite;--op:${0.20+((i%5)*0.07)};--sx:${(i%2===0?1:-1)*(3+(i%7))}px;`">
@@ -1066,7 +1059,7 @@
           </div>
         </div>
 
-        <!-- ══ 4. 花卉装饰 ══ -->
+        
         <div style="position:absolute;bottom:20%;left:5%;animation:sp-bloom 1.2s cubic-bezier(0.34,1.56,0.64,1) 1.1s both;">
           <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="animation:sp-petal-breathe 5s ease-in-out 2.2s infinite;">
             <g transform="translate(26,26)">
@@ -1125,7 +1118,7 @@
           </svg>
         </div>
 
-        <!-- ══ 5. 皇冠（定位在星盘正上方）══ -->
+        
         <div style="position:absolute;top:38%;left:50%;animation:sp-crown 1.2s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;">
           <svg width="58" height="42" viewBox="0 0 58 42" fill="none">
             <path d="M4 36 L5 13 L19 25 L29 3.5 L39 25 L53 13 L54 36 Z"
@@ -1143,14 +1136,14 @@
           </svg>
         </div>
 
-        <!-- ══ 6. 星盘 Astrolabe（div旋转层，星象动画完整）══ -->
+        
         <div style="position:absolute;top:38%;left:50%;width:250px;height:250px;transform:translate(-50%,-50%);pointer-events:none;">
 
-          <!-- 层A：最外旋转环（CW 72s） -->
+          
           <div style="position:absolute;inset:0;animation:sp-spin-cw 72s linear .5s infinite;transform-origin:center center;">
             <svg width="100%" height="100%" viewBox="-125 -125 250 250" fill="none" overflow="visible">
               <circle r="118" stroke="rgba(145,135,215,0.42)" stroke-width="0.7" fill="none" stroke-dasharray="5 9"/>
-              <!-- 八方主刻度（纤细）-->
+              
               <g stroke="rgba(155,145,222,0.58)" stroke-width="0.9" stroke-linecap="round">
                 <line x1="0" y1="-118" x2="0" y2="-112"/>
                 <line x1="0" y1="112" x2="0" y2="118"/>
@@ -1164,19 +1157,19 @@
             </svg>
           </div>
 
-          <!-- 层B：中环（CCW 50s，四象限弧描边，简洁）-->
+          
           <div style="position:absolute;inset:18px;animation:sp-spin-ccw 50s linear .5s infinite;transform-origin:center center;">
             <svg width="100%" height="100%" viewBox="-107 -107 214 214" fill="none" overflow="visible">
-              <!-- 主环虚线 -->
+              
               <circle r="100" stroke="rgba(150,140,218,0.45)" stroke-width="0.7" fill="none" stroke-dasharray="3 7"/>
-              <!-- 四方微刻度 -->
+              
               <g stroke="rgba(155,145,222,0.60)" stroke-width="0.85" stroke-linecap="round">
                 <line x1="0" y1="-100" x2="0" y2="-94"/>
                 <line x1="0" y1="94" x2="0" y2="100"/>
                 <line x1="-100" y1="0" x2="-94" y2="0"/>
                 <line x1="94" y1="0" x2="100" y2="0"/>
               </g>
-              <!-- 四段弧（仅四象限，简约）-->
+              
               <path d="M0,-100 A100,100 0 0,1 100,0"   stroke="rgba(158,148,222,0.42)" stroke-width="0.8" fill="none" stroke-dasharray="158" style="animation:sp-arc-draw 3.0s ease .6s both;--len:158;"/>
               <path d="M100,0 A100,100 0 0,1 0,100"    stroke="rgba(153,143,218,0.36)" stroke-width="0.8" fill="none" stroke-dasharray="158" style="animation:sp-arc-draw 3.0s ease 1.1s both;--len:158;"/>
               <path d="M0,100 A100,100 0 0,1 -100,0"   stroke="rgba(158,148,222,0.42)" stroke-width="0.8" fill="none" stroke-dasharray="158" style="animation:sp-arc-draw 3.0s ease 1.6s both;--len:158;"/>
@@ -1184,7 +1177,7 @@
             </svg>
           </div>
 
-          <!-- 层C：内层同心圆（两圈，纯净）-->
+          
           <div style="position:absolute;inset:38px;">
             <svg width="100%" height="100%" viewBox="-87 -87 174 174" fill="none" overflow="visible">
               <circle r="62" stroke="rgba(150,140,215,0.38)" stroke-width="0.7" fill="none" stroke-dasharray="390" style="animation:sp-arc-draw 3.8s ease 1.0s both;--len:390;"/>
@@ -1192,7 +1185,7 @@
             </svg>
           </div>
 
-          <!-- 层D：轨道行星（div自转，位置偏移产生公转视觉）-->
+          
           <div style="position:absolute;inset:0;animation:sp-spin-cw 16s linear 2s infinite;transform-origin:center center;">
             <div style="position:absolute;top:calc(50% - 2.2px);left:calc(50% + 61px);width:4.4px;height:4.4px;border-radius:50%;
               background:rgba(212,200,255,0.80);box-shadow:0 0 8px 3px rgba(190,178,255,0.55);"></div>
@@ -1201,7 +1194,7 @@
             <div style="position:absolute;top:calc(50% - 1.6px);left:calc(50% + 95px);width:3.2px;height:3.2px;border-radius:50%;
               background:rgba(200,188,250,0.65);box-shadow:0 0 6px 2px rgba(178,166,248,0.45);"></div>
           </div>
-          <!-- 中心核 -->
+          
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
             <div style="width:12px;height:12px;border-radius:50%;
               background:radial-gradient(circle,rgba(225,215,255,0.95),rgba(195,182,252,0.55) 55%,transparent);
@@ -1210,17 +1203,13 @@
           </div>
         </div>
 
-        <!-- ══ 7. 开屏排版：星降长桉林 · 左下双列 Logo ══ -->
+        
         <div style="position:absolute;bottom:26%;left:0;pointer-events:none;animation:sp-float 7s ease-in-out 3s infinite;padding-left:28px;">
 
-          <!--
-            左列 2 字：星(上) · 降(下)   weight:200/300
-            右列 3 字：长(上) · 桉(中) · 林(下)  右列整体下移 16px 咬合
-            Loreille & Savit 置于右列最下方，右对齐花体
-          -->
+          
           <div style="position:relative;display:inline-flex;align-items:flex-start;gap:4px;">
 
-            <!-- ─── 左列：星 · 降 ─── -->
+            
             <div style="display:flex;flex-direction:column;gap:2px;">
 
               <span style="font-family:'Noto Serif SC',serif;font-weight:200;font-size:43px;line-height:1;display:block;
@@ -1234,12 +1223,12 @@
 
             </div>
 
-            <!-- 分隔线 -->
+            
             <div style="width:0.5px;align-self:stretch;margin:6px 0 4px;flex-shrink:0;
               background:linear-gradient(180deg,transparent,rgba(172,162,232,0.22) 28%,rgba(172,162,232,0.30) 60%,rgba(172,162,232,0.16) 86%,transparent);
               animation:sp-appear 1.4s ease 1.6s both;opacity:0;"></div>
 
-            <!-- ─── 右列：长 · 桉 · 林 + 署名（整体下移 16px）─── -->
+            
             <div style="display:flex;flex-direction:column;gap:1px;padding-top:16px;">
 
               <span style="font-family:'Noto Serif SC',serif;font-weight:200;font-size:31px;line-height:1;display:block;margin-left:2px;
@@ -1255,7 +1244,7 @@
                 color:rgba(180,170,244,0.70);
                 animation:sp-char-left  0.9s cubic-bezier(0.34,1.18,0.64,1) 1.32s both;">林</span>
 
-              <!-- Loreille & Savit — 花体，右列正下方右对齐 -->
+              
               <div style="margin-top:9px;text-align:right;padding-right:1px;
                 animation:sp-en-slide 1.2s cubic-bezier(0.22,1,0.36,1) 1.74s both;">
                 <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
@@ -1266,7 +1255,7 @@
 
             </div>
 
-            <!-- 竖排标号（左侧极淡）-->
+            
             <div style="position:absolute;left:-12px;top:6px;
               font-family:'IM Fell English',serif;font-style:italic;font-size:7px;letter-spacing:0.28em;
               color:rgba(136,126,196,0.16);writing-mode:vertical-rl;
@@ -1275,21 +1264,21 @@
           </div>
         </div>
 
-        <!-- ══ 8. 圆形进度条（明显可见，游戏HUD风）══ -->
+        
         <div style="position:absolute;bottom:68px;left:50%;transform:translateX(-50%);
           display:flex;flex-direction:column;align-items:center;gap:14px;
           animation:sp-appear 1s ease 1.8s both;opacity:0;">
 
-          <!-- 圆环 SVG -->
+          
           <div style="position:relative;width:90px;height:90px;animation:sp-circ-glow 2s ease-in-out 2s infinite;">
             <svg width="90" height="90" viewBox="0 0 110 110" fill="none" style="display:block;">
-              <!-- 背景轨道 -->
+              
               <circle cx="55" cy="55" r="44" stroke="rgba(145,135,210,0.22)" stroke-width="1.8" fill="none"/>
-              <!-- 装饰外圈 -->
+              
               <circle cx="55" cy="55" r="50" stroke="rgba(140,130,205,0.10)" stroke-width="0.6" fill="none" stroke-dasharray="2 5"/>
-              <!-- 装饰内圈 -->
+              
               <circle cx="55" cy="55" r="38" stroke="rgba(140,130,205,0.12)" stroke-width="0.5" fill="none" stroke-dasharray="1.5 6"/>
-              <!-- 进度弧（亮色，明显）-->
+              
               <circle cx="55" cy="55" r="44"
                 stroke="rgba(188,175,252,0.92)"
                 stroke-width="2.5"
@@ -1300,28 +1289,28 @@
                 transform="rotate(-90 55 55)"
                 style="animation:sp-circ-progress 5s cubic-bezier(0.4,0,0.35,1) 1.5s both;
                   filter:drop-shadow(0 0 5px rgba(178,165,252,0.7));"/>
-              <!-- 进度尖端发光点（随进度条末端移动，简化版：固定在终点位置但延迟出现）-->
+              
             </svg>
-            <!-- 中心标记 -->
+            
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
               width:6px;height:6px;border-radius:50%;
               background:rgba(200,188,255,0.75);
               box-shadow:0 0 8px 3px rgba(185,172,255,0.5);
               animation:sp-star-pulse 2.8s ease-in-out infinite;"></div>
-            <!-- 四角刻度点 -->
+            
             <div style="position:absolute;top:2px;left:50%;transform:translateX(-50%) translateX(-0.5px);width:3px;height:3px;border-radius:50%;background:rgba(165,155,228,0.55);"></div>
             <div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%) translateX(-0.5px);width:3px;height:3px;border-radius:50%;background:rgba(165,155,228,0.45);"></div>
             <div style="position:absolute;top:50%;left:2px;transform:translateY(-50%);width:3px;height:3px;border-radius:50%;background:rgba(165,155,228,0.45);"></div>
             <div style="position:absolute;top:50%;right:2px;transform:translateY(-50%);width:3px;height:3px;border-radius:50%;background:rgba(165,155,228,0.55);"></div>
           </div>
 
-          <!-- Connecting... 文字（明显可见）-->
+          
           <div style="display:flex;align-items:center;gap:7px;">
             <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:11.5px;
               letter-spacing:0.30em;text-indent:0.30em;
               color:rgba(188,178,248,0.90);
               text-shadow:0 0 14px rgba(170,158,242,0.55);">Connecting</span>
-            <!-- 三点动画 -->
+            
             <span style="display:inline-flex;gap:3px;align-items:center;margin-bottom:1px;">
               <span style="display:inline-block;width:3px;height:3px;border-radius:50%;background:rgba(185,175,245,0.85);animation:sp-conn-dot 1.6s ease-in-out 0s   infinite;"></span>
               <span style="display:inline-block;width:3px;height:3px;border-radius:50%;background:rgba(185,175,245,0.85);animation:sp-conn-dot 1.6s ease-in-out .55s infinite;"></span>
@@ -1330,7 +1319,7 @@
           </div>
         </div>
 
-        <!-- ══ 9. 底部徽章 ══ -->
+        
         <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
           display:flex;align-items:center;gap:10px;white-space:nowrap;
           animation:sp-badge-in 1.5s ease 2.8s both;">
@@ -1344,8 +1333,7 @@
 
     <div v-show="!showSplash" class="w-full md:max-w-md h-full flex flex-col glass-panel md:shadow-2xl transition-all relative overflow-hidden rounded-none md:rounded-[2.5rem]">
 
-        <!-- ===== 应用内消息横幅：不管现在在主页面/设置/语料库...哪个页面，
-             有新消息时都会从顶部飘一条下来，点一下直接跳回聊天 ===== -->
+        
         <transition name="fade">
             <div v-if="inAppBanner.show" @click="openInAppBannerTarget"
                  class="absolute top-3 left-3 right-3 z-[200] bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl rounded-2xl shadow-[0_4px_16px_rgba(124,148,204,0.18),0_1px_3px_rgba(0,0,0,0.06)] border border-white/70 dark:border-slate-600/40 px-4 py-3 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition">
@@ -1361,18 +1349,18 @@
             </div>
         </transition>
 
-        <!-- ===== 每日情话弹窗：每天第一次打开时弹一次 ===== -->
+        
         <transition name="quote-pop">
             <div v-if="showDailyQuotePopup" class="absolute inset-0 z-[210] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-6" @click.self="showDailyQuotePopup = false">
                 <div class="relative overflow-hidden bg-gradient-to-br from-sky-100/95 via-white/92 to-indigo-100/90 dark:from-slate-700/92 dark:via-slate-800/92 dark:to-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_2px_10px_rgba(124,148,204,0.1),0_20px_50px_-16px_rgba(124,148,204,0.35)] border border-white/60 dark:border-white/10 pt-8 pb-6 px-7 text-center w-[300px] max-w-[86%]">
-                    <!-- 柔和光斑，增加渐变层次 -->
+                    
                     <div class="absolute -top-16 -left-10 w-44 h-44 bg-sky-300/35 dark:bg-sky-500/15 rounded-full blur-3xl pointer-events-none"></div>
                     <div class="absolute -bottom-16 -right-10 w-44 h-44 bg-indigo-300/30 dark:bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
-                    <!-- 玻璃边缘高光：顶部一圈更亮，模拟玻璃质感的反光 -->
+                    
                     <div class="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-white/60 to-transparent dark:from-white/10 pointer-events-none"></div>
                     <div class="absolute inset-0 rounded-[2.5rem] ring-1 ring-inset ring-white/50 dark:ring-white/5 pointer-events-none"></div>
 
-                    <!-- 头像 + 呼吸光环 -->
+                    
                     <div class="relative inline-block">
                         <div class="absolute inset-0 rounded-full bg-accent/20 quote-pulse-ring"></div>
                         <div class="relative w-16 h-16 rounded-full overflow-hidden border-[3px] border-white/90 dark:border-slate-700 shadow-md">
@@ -1383,7 +1371,7 @@
                     <p class="relative text-sm font-bold text-slate-700 dark:text-slate-100 mt-2.5">{{ chatDisplayName }}</p>
                     <p v-if="profiles.them.status" class="relative text-[11px] text-muted mt-0.5">{{ profiles.them.status }}</p>
 
-                    <!-- 情话气泡：带一点主题色的磨砂质感，跟卡片融为一体又不会太素 -->
+                    
                     <div class="relative mt-4 bg-gradient-to-br from-accent/15 to-sky-100/50 dark:from-accent/20 dark:to-slate-700/40 backdrop-blur-md rounded-2xl px-4 py-4 border border-white/60 dark:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]">
                         <p class="text-[15px] text-slate-700 dark:text-slate-100 leading-relaxed">{{ todaysQuote }}</p>
                     </div>
@@ -1397,12 +1385,12 @@
             </div>
         </transition>
 
-        <!-- ===== 桌面主页面 ===== -->
+        
         <transition name="page-slide">
         <div v-show="currentScreen === 'home'" class="absolute inset-0 flex flex-col overflow-y-auto bg-cover bg-center"
              :style="settings.homeWallpaper ? { backgroundImage: `url(${settings.homeWallpaper})` } : {}">
             <div class="flex-1 flex flex-col px-5 pt-12 pb-8 gap-9">
-                <!-- 情侣卡片：上半部分可选一张图片(约50%)，下半部分是磨砂文字区，头像跨在两者接缝处 -->
+                
                 <div class="rounded-[1.75rem] shadow-[0_2px_8px_rgba(124,148,204,0.1),0_16px_40px_-12px_rgba(124,148,204,0.35)] border border-white/60 dark:border-slate-600/40 relative mt-7 shrink-0 overflow-hidden">
                     <div class="h-32 bg-cover bg-center" :class="!settings.coupleCardImage ? 'bg-gradient-to-br from-accent/25 to-sky-100/40 dark:from-accent/20 dark:to-slate-700/40' : ''"
                          :style="settings.coupleCardImage ? { backgroundImage: `url(${settings.coupleCardImage})` } : {}"></div>
@@ -1425,13 +1413,13 @@
                     </div>
                 </div>
 
-                <!-- 时钟 -->
+                
                 <div class="text-center shrink-0">
                     <div class="text-[2.75rem] leading-none font-bold text-slate-700 dark:text-slate-100 tracking-wide" style="font-variant-numeric: tabular-nums;">{{ homeTimeText }}</div>
                     <div class="text-xs text-muted mt-2">{{ homeDateText }}</div>
                 </div>
 
-                <!-- 应用图标网格 -->
+                
                 <div class="grid grid-cols-3 gap-y-7 gap-x-2">
                     <button @click="openChat" class="flex flex-col items-center gap-1.5">
                         <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition relative">
@@ -1478,15 +1466,10 @@
         </div>
         </transition>
 
-        <!-- ===== 聊天界面（header + 消息列表 + 输入区）。
-             之前用 display:contents 包裹是为了让 header/main/footer 直接作为
-             phone-frame 的 flex 子元素；但 display:contents 的元素没法做动画
-             （没有自己的盒子可以transform/fade），所以"进入聊天没有动画"。
-             现在改成 absolute inset-0 的独立层，本身是一个完整的 flex 容器，
-             这样才能配合 transition 组件做滑入动画，跟其他页面手感一致。 ===== -->
+        
         <transition name="page-slide">
         <div v-show="currentScreen === 'chat'" class="absolute inset-0 flex flex-col overflow-hidden">
-        <!-- ===== 顶栏 Header ===== -->
+        
         <header class="h-16 flex items-center justify-between px-4 shrink-0 border-b border-white/60 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl z-30 rounded-t-[2.5rem]">
             <div class="flex items-center gap-3 min-w-0 flex-1">
                 <button @click="goHome" class="jelly-btn shrink-0 mr-0.5" title="返回主页面"><i data-lucide="home" class="w-4 h-4"></i></button>
@@ -1518,7 +1501,7 @@
                 </div>
             </div>
             <div class="flex gap-2 text-accent shrink-0 ml-2">
-                <!-- 视频通话按钮 -->
+                
                 <button @click="initiateCall('me')" v-if="callState.status === 'idle'" class="jelly-btn text-green-500" title="视频通话">
                     <i data-lucide="video" class="w-4 h-4"></i>
                 </button>
@@ -1534,7 +1517,7 @@
 
             
 
-        <!-- ===== 聊天主体 ===== -->
+        
         <main id="chat-container" class="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-4 pb-20">
             <div v-if="messages.length === 0" class="flex-1 flex flex-col items-center justify-center text-muted/40 space-y-3 opacity-60">
                 <i data-lucide="message-square-dashed" class="w-12 h-12 stroke-[1]"></i>
@@ -1546,7 +1529,7 @@
                     <div v-if="shouldShowDate(index)" class="flex justify-center my-4">
                         <span class="text-[10px] bg-white/70 dark:bg-slate-800/60 px-4 py-1.5 rounded-full text-muted uppercase tracking-tighter backdrop-blur shadow-sm border border-white/60">{{ formatDateSeparator(msg.timestamp) }}</span>
                     </div>
-                    <!-- 撤回的消息：只显示居中小灰条 -->
+                    
                     <div v-if="msg.recalled" class="flex justify-center my-1">
                         <span class="text-[11px] text-muted/70 bg-white/60 dark:bg-slate-800/50 px-3 py-1 rounded-full">{{ msg.sender === 'me' ? '你' : chatDisplayName }}撤回了一条消息</span>
                     </div>
@@ -1558,7 +1541,7 @@
                          @touchstart.passive="startLongPress($event, msg)"
                          @touchend="cancelLongPress"
                          @touchmove="cancelLongPress">
-                        <!-- 多选模式下的圆形勾选框，浮在消息外侧 -->
+                        
                         <div v-if="selectMode" class="absolute top-1/2 -translate-y-1/2 z-10 w-5 h-5 rounded-full border-2 flex items-center justify-center transition shrink-0"
                              :class="[msg.sender==='me' ? '-right-1' : '-left-1', isMsgSelected(msg) ? 'bg-accent border-accent' : 'bg-white/90 border-slate-300']">
                             <i v-if="isMsgSelected(msg)" data-lucide="check" class="w-3 h-3 text-white"></i>
@@ -1573,7 +1556,7 @@
                         <div class="flex flex-col flex-1 min-w-0" :class="msg.sender === 'me' ? 'items-end' : 'items-start'">
                             <span v-if="settings.showNickname && msg.sender==='them'" class="text-[10px] text-muted ml-2 mb-1">{{ chatDisplayName }}</span>
                             <span v-if="settings.showNickname && msg.sender==='me'" class="text-[10px] text-muted mr-2 mb-1">{{ profiles.me.name }}</span>
-                            <!-- 编辑中：文字气泡替换成一个可编辑输入框 -->
+                            
                             <div v-if="editingMsgId === msg.id" class="msg-bubble relative" :class="msg.sender === 'me' ? 'bg-bubbleSend bubble-me' : 'bg-bubbleReceive dark:bg-slate-800/70 bubble-them'">
                                 <textarea v-model="editingText" rows="2" class="w-full bg-transparent outline-none resize-none text-sm" style="color:rgba(95,108,140,0.9);" @keydown.enter.exact.prevent="confirmEditMsg" @keydown.esc="cancelEditMsg"></textarea>
                                 <div class="flex justify-end gap-2 mt-1">
@@ -1581,7 +1564,7 @@
                                     <button @click="confirmEditMsg" class="text-[11px] text-accent font-bold px-2 py-0.5 rounded-full hover:bg-accent/10">保存</button>
                                 </div>
                             </div>
-                            <!-- 文字气泡 -->
+                            
                             <div v-else-if="msg.type === 'text'" class="msg-bubble relative" :class="msg.sender === 'me' ? 'bg-bubbleSend bubble-me' : 'bg-bubbleReceive dark:bg-slate-800/70 bubble-them'" style="color:rgba(95,108,140,0.80);">
                                 <div v-if="msg.quote" class="quote-block cursor-pointer" @click="scrollToMsg(msg.quote.id)">
                                     <span class="font-semibold">{{ msg.quote.sender === 'me' ? profiles.me.name : chatDisplayName }}:</span>
@@ -1594,7 +1577,7 @@
                                     <i data-lucide="reply" style="width:11px;height:11px;"></i>
                                 </button>
                             </div>
-                            <!-- 图片气泡 -->
+                            
                             <div v-else-if="msg.type === 'image'" class="img-msg-wrapper relative">
                                 <div v-if="msg.quote" class="quote-block cursor-pointer mb-1 bg-white/60 dark:bg-slate-800 border-none shadow-sm text-xs rounded-xl inline-block max-w-[150px]">
                                     <span class="font-semibold">{{ msg.quote.sender === 'me' ? profiles.me.name : chatDisplayName }}:</span>
@@ -1605,7 +1588,7 @@
                                     <i data-lucide="reply" style="width:11px;height:11px;"></i>
                                 </button>
                             </div>
-                            <!-- 通话记录气泡 - 精致卡片版 -->
+                            
                             <div v-else-if="msg.type === 'call'" class="call-record-card" :class="msg.sender === 'me' ? 'call-record-card-me' : 'call-record-card-them'">
                                 <div class="call-record-header">
                                     <div class="call-record-icon" :class="msg.callAccepted ? 'ok' : 'miss'">
@@ -1626,13 +1609,12 @@
                                     <button v-if="msg.callAccepted || msg.sender==='them'" @click.stop="initiateCall('me')" class="call-record-rebtn">再次拨打</button>
                                 </div>
                             </div>
-                            <!-- 拍一拍消息 (居中系统消息风格) -->
+                            
                             <div v-else-if="msg.type === 'poke'" class="poke-system-msg">
                                 {{ msg.content }}
                             </div>
-                            <!-- 时间戳 -->
+                            
                             <div class="flex items-center gap-1.5 mt-1 px-1 text-[10px] text-muted tracking-tight font-sans opacity-70" :class="msg.sender === 'me' ? 'justify-end' : 'justify-start'">
-                                <span v-if="msg.edited" class="italic opacity-70">已编辑</span>
                                 <span>{{ formatTime(msg.timestamp) }}</span>
                                 <template v-if="msg.sender === 'me'">
                                     <span v-if="msg.status === 'read'" class="text-accent flex items-center gap-0.5"><i data-lucide="check-check" class="w-3 h-3"></i></span>
@@ -1642,7 +1624,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- 打字指示器 -->
+                
                 <div v-if="isTyping" class="flex justify-start items-end gap-2.5 mb-2">
                     <div v-if="settings.showAvatar" class="w-9 h-9 rounded-2xl bg-white/60 border border-white/70 shadow-sm animate-pulse shrink-0 overflow-hidden">
                         <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover opacity-60">
@@ -1658,7 +1640,7 @@
             </div>
         </main>
 
-        <!-- ===== 表情包选取器 ===== -->
+        
         <transition name="fade">
             <div v-if="modals.stickerPicker" class="absolute bottom-20 left-4 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-3xl rounded-3xl p-4 shadow-2xl z-40 border border-white/70 max-h-96 overflow-hidden flex flex-col">
                 <div class="flex justify-between items-center mb-3">
@@ -1686,7 +1668,7 @@
             </div>
         </transition>
 
-        <!-- ===== 底部输入区 Footer ===== -->
+        
         <footer class="p-3 bg-white/50 dark:bg-slate-900/50 backdrop-blur-2xl border-t border-white/60 shrink-0 z-30 rounded-b-[2.5rem]">
             <div v-if="quotingMsg" class="mb-2 mx-1 flex items-center justify-between bg-white/80 dark:bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-accent/20 shadow-sm text-xs text-muted">
                 <div class="truncate flex-1 flex items-center gap-2">
@@ -1726,15 +1708,13 @@
         </footer>
         </div>
         </transition>
-        <!-- ↑ 聊天界面(header+消息列表+输入区)包裹结束。
-             下面这些 Modal（设置/语料库/信箱/收藏/日历等）是全局的，
-             不管当前在主页面还是聊天页面，都可以被对应的图标/按钮打开。 -->
+        
 
-        <!-- ===== 偏好设置（全屏页面）===== -->
+        
         <transition name="page-slide">
             <div v-if="modals.settings" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
-                    <!-- 标题栏 -->
+                    
                     <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-3 shrink-0">
                         <button @click="modals.settings = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                         <div>
@@ -1742,7 +1722,7 @@
                         </div>
                     </div>
 
-                    <!-- 分栏 Tab：聊天 / 美化 / 数据 -->
+                    
                     <div class="flex bg-white/60 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-700/60 shrink-0 px-2">
                         <button v-for="t in [{k:'chat',label:'聊天'},{k:'beauty',label:'美化'},{k:'data',label:'数据'}]" :key="t.k"
                                 @click="settingsTab = t.k"
@@ -1754,7 +1734,7 @@
 
                     <div class="flex-1 overflow-y-auto p-5 space-y-4">
 
-                        <!-- 我的身份 -->
+                        
                         <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="user" class="w-4 h-4 text-indigo-500 dark:text-indigo-300 shrink-0"></i>
@@ -1773,7 +1753,7 @@
                             </div>
                         </section>
 
-                        <!-- 对方设置 -->
+                        
                         <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="heart" class="w-4 h-4 text-rose-400 dark:text-rose-300 shrink-0"></i>
@@ -1796,7 +1776,7 @@
                             </div>
                         </section>
 
-                        <!-- 字体定制 -->
+                        
                         <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="type" class="w-4 h-4 text-violet-500 dark:text-violet-300 shrink-0"></i>
@@ -1821,13 +1801,13 @@
                             </button>
                         </section>
 
-                        <!-- 显示与行为 -->
+                        
                         <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-1">
                             <div class="flex items-center gap-2 mb-3">
                                 <i data-lucide="sparkles" class="w-4 h-4 text-sky-500 dark:text-sky-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-sky-500 dark:text-sky-300 uppercase tracking-wider">显示与行为</label>
                             </div>
-                            <!-- Toggle rows -->
+                            
                             <div class="space-y-0.5">
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
                                     <span class="text-sm text-slate-600 dark:text-slate-300">显示头像</span>
@@ -1895,16 +1875,25 @@
                                         <span class="text-xs font-bold text-accent w-9 text-right">{{ settings.noReplyChance||0 }}%</span>
                                     </div>
                                 </div>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <div class="min-w-0 pr-2">
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">拒接电话概率</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <input type="range" v-model.number="settings.callDeclineChance" min="0" max="100" step="5" class="w-16 accent-accent">
+                                        <span class="text-xs font-bold text-accent w-9 text-right">{{ settings.callDeclineChance||0 }}%</span>
+                                    </div>
+                                </div>
                             </div>
                         </section>
 
-                        <!-- 提示音 & 音量 -->
+                        
                         <section v-show="settingsTab === 'chat'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="volume-2" class="w-4 h-4 text-amber-500 dark:text-amber-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-amber-500 dark:text-amber-300 uppercase tracking-wider">提示音与音量</label>
                             </div>
-                            <!-- 音量滑块 -->
+                            
                             <div class="bg-white/70 dark:bg-slate-700/50 p-3 rounded-2xl border border-white/60 space-y-2">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-medium text-slate-600 dark:text-slate-300">音量</span>
@@ -1932,7 +1921,7 @@
                             </button>
                         </section>
 
-                        <!-- 聊天背景图 -->
+                        
                         <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="image" class="w-4 h-4 text-emerald-500 dark:text-emerald-300 shrink-0"></i>
@@ -1958,7 +1947,7 @@
                             </div>
                         </section>
 
-                        <!-- 主页面壁纸与标题 -->
+                        
                         <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="home" class="w-4 h-4 text-rose-500 dark:text-rose-300 shrink-0"></i>
@@ -2008,7 +1997,7 @@
                             </div>
                         </section>
 
-                        <!-- 通话背景 -->
+                        
                         <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="phone" class="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0"></i>
@@ -2034,7 +2023,7 @@
                             </div>
                         </section>
 
-                        <!-- 自定义CSS -->
+                        
                         <section v-show="settingsTab === 'beauty'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-2">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="palette" class="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0"></i>
@@ -2044,13 +2033,13 @@
                             <button @click="applyCSS" class="text-xs font-medium text-accent border border-accent/30 px-4 py-1.5 rounded-xl hover:bg-accent/10 transition">应用 CSS</button>
                         </section>
 
-                        <!-- 全局备份 -->
+                        
                         <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="save" class="w-4 h-4 text-indigo-500 dark:text-indigo-300 shrink-0"></i>
                                 <label class="text-[11px] font-bold text-indigo-500 dark:text-indigo-300 uppercase tracking-wider">备份与恢复</label>
                             </div>
-                            <!-- 分类导出/导入 -->
+                            
                             <div class="flex gap-2">
                                 <button @click="selectiveExportMode='export'; modals.selectiveExport=true"
                                         class="flex-1 py-2.5 bg-accent/10 border border-accent/20 text-accent rounded-2xl font-medium text-xs hover:bg-accent/20 transition flex items-center justify-center gap-1.5">
@@ -2061,7 +2050,7 @@
                                     <i data-lucide="upload" class="w-3.5 h-3.5"></i>分类导入
                                 </button>
                             </div>
-                            <!-- 全局一键备份 -->
+                            
                             <div class="flex gap-2 pt-1 border-t border-white/50 dark:border-slate-600/40">
                                 <button @click="globalExport"
                                         class="flex-1 py-2 bg-white/60 dark:bg-slate-700/40 border border-white/60 text-slate-500 rounded-xl text-[11px] hover:bg-white transition flex items-center justify-center gap-1">
@@ -2074,7 +2063,7 @@
                             </div>
                         </section>
 
-                        <!-- 云端自动备份 -->
+                        
                         <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="cloud" class="w-4 h-4 text-sky-500 dark:text-sky-300 shrink-0"></i>
@@ -2104,7 +2093,7 @@
                             </button>
                         </section>
 
-                        <!-- 换设备恢复 -->
+                        
                         <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-3">
                             <div class="flex items-center gap-2 mb-1">
                                 <i data-lucide="smartphone" class="w-4 h-4 text-emerald-600 dark:text-emerald-300 shrink-0"></i>
@@ -2124,7 +2113,7 @@
                             </div>
                         </section>
 
-                        <!-- GitHub 直传备份（可选，进阶功能，默认收起）-->
+                        
                         <section v-show="settingsTab === 'data'" class="rounded-[1.5rem] bg-white/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 p-4 shadow-[0_1px_2px_rgba(124,148,204,0.06),0_8px_20px_-6px_rgba(124,148,204,0.12)] space-y-2">
                             <button @click="githubBackupExpanded = !githubBackupExpanded" class="w-full flex items-center justify-between text-left">
                                 <div class="flex items-center gap-2">
@@ -2164,7 +2153,7 @@
                             </div>
                         </section>
 
-                        <!-- 操作按钮 -->
+                        
                         <div class="flex gap-3 pb-2">
                             <button @click="exportChat" class="flex-1 py-3 bg-white/80 border border-white/70 rounded-2xl font-medium shadow-sm hover:bg-white transition text-sm text-slate-600">导出记录</button>
                             <button @click="clearChat" class="flex-1 py-3 bg-red-50/80 text-red-500 border border-red-100 rounded-2xl font-medium shadow-sm hover:bg-red-100 transition text-sm">清空对话</button>
@@ -2175,17 +2164,17 @@
             </div>
         </transition>
 
-        <!-- ===== 语料库（全屏页面）===== -->
+        
         <transition name="page-slide">
           <div v-if="modals.replyManager" class="fixed inset-0 z-[100] bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
             <div class="w-full h-full flex flex-col overflow-hidden relative">
 
-              <!-- ── 标题栏 ────────────────────────────────────────── -->
+              
               <div class="bg-white dark:bg-slate-800 px-3 pt-4 pb-3 shrink-0">
                 <div class="flex items-center gap-1 mb-1">
                   <button @click="modals.replyManager=false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-full transition shrink-0"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                   <h3 class="font-bold text-[16px] text-slate-700 dark:text-white flex-1">语料库</h3>
-                  <!-- 管理按钮：切换是否显示分组的重命名/删除 -->
+                  
                   <button @click="corpusEditing=!corpusEditing"
                           class="text-[11.5px] font-bold px-3 py-1.5 rounded-full transition"
                           :class="corpusEditing
@@ -2200,7 +2189,7 @@
                   <span v-if="selectedReplies.length" class="text-accent font-bold ml-1">· 已选 {{ selectedReplies.length }}</span>
                 </p>
 
-                <!-- Emoji 尾缀 -->
+                
                 <div class="mt-2.5 flex items-center gap-2 bg-slate-50 dark:bg-slate-700/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-slate-600">
                   <i data-lucide="sparkles" class="w-3 h-3 text-accent shrink-0"></i>
                   <input v-model="emojiPoolText" placeholder="Emoji 尾缀，逗号分隔：✨,🫐,🌿"
@@ -2208,7 +2197,7 @@
                 </div>
               </div>
 
-              <!-- ── 分栏 Tab：回复语料 / 表情包 / 状态预设 / 拍一拍预设 ──────── -->
+              
               <div class="flex bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 shrink-0 px-2">
                 <button v-for="t in [{k:'replies',label:'回复语料'},{k:'stickers',label:'表情包'},{k:'status',label:'状态预设'},{k:'poke',label:'拍一拍'},{k:'quotes',label:'每日情话'}]" :key="t.k"
                         @click="corpusTab = t.k"
@@ -2218,9 +2207,9 @@
                 </button>
               </div>
 
-              <!-- ── 回复语料面板 ─────────────────────────────────────── -->
+              
               <div v-show="corpusTab === 'replies'" class="contents">
-              <!-- ── 搜索 + 工具栏 ─────────────────────────────────── -->
+              
               <div class="bg-white dark:bg-slate-800 px-3 pb-3 flex gap-2 shrink-0 border-b border-slate-100 dark:border-slate-700">
                 <div class="relative flex-1">
                   <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 pointer-events-none"></i>
@@ -2235,10 +2224,10 @@
                 <button @click="modals.batchInput=true" class="shrink-0 text-[11.5px] font-bold px-3 py-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500">导入</button>
               </div>
 
-              <!-- ── 列表区 ─────────────────────────────────────────── -->
+              
               <div class="flex-1 overflow-y-auto px-3 py-3 space-y-2">
 
-                <!-- 搜索结果 -->
+                
                 <template v-if="searchQuery">
                   <p class="text-[10.5px] text-accent font-bold px-1">搜索结果 · {{ filteredReplies.length }} 条</p>
                   <div v-if="!filteredReplies.length" class="flex flex-col items-center justify-center h-24 opacity-40 gap-1">
@@ -2258,10 +2247,10 @@
                   </div>
                 </template>
 
-                <!-- 正常视图 -->
+                
                 <template v-else>
 
-                  <!-- ① 无分组词句（直接裸放，无标题） -->
+                  
                   <div v-if="ungroupedReplies.length" class="corpus-ungroup-body">
                     <div v-for="(r,i) in ungroupedReplies" :key="'u'+i"
                          class="reply-row"
@@ -2280,9 +2269,9 @@
                     </div>
                   </div>
 
-                  <!-- ② 用户分组（可折叠，管理模式下显示重命名/删除）-->
+                  
                   <div v-for="g in replyGroups" :key="g.id">
-                    <!-- 分区标题 -->
+                    
                     <div class="corpus-section-hd"
                          :class="collapsedGroups.includes(g.id) ? 'rounded-[14px] mb-0' : 'rounded-t-[14px]'"
                          @click="toggleCollapse(g.id)">
@@ -2291,7 +2280,7 @@
                       </div>
                       <span class="corpus-section-name">{{ g.name }}</span>
                       <span class="corpus-section-count">{{ g.replies.length }}</span>
-                      <!-- 管理模式才显示的操作按钮 -->
+                      
                       <template v-if="corpusEditing">
                         <button @click.stop="renameGroup(g)" class="corpus-section-action rename">
                           <i data-lucide="pencil" style="width:13px;height:13px;"></i>
@@ -2301,7 +2290,7 @@
                         </button>
                       </template>
                     </div>
-                    <!-- 分区内容 -->
+                    
                     <div v-if="!collapsedGroups.includes(g.id)" class="corpus-section-body">
                       <div v-if="!g.replies.length" class="px-4 py-3 text-[11px] text-muted opacity-50 flex items-center gap-1.5">
                         <i data-lucide="inbox" style="width:13px;height:13px;"></i> 暂无语料，可将无分组词句移入
@@ -2324,7 +2313,7 @@
                     </div>
                   </div>
 
-                  <!-- 空状态 -->
+                  
                   <div v-if="!ungroupedReplies.length && !replyGroups.length"
                        class="flex flex-col items-center justify-center h-32 opacity-40 gap-2">
                     <i data-lucide="inbox" class="w-10 h-10 text-slate-400"></i>
@@ -2332,9 +2321,9 @@
                   </div>
 
                 </template>
-              </div><!-- end list -->
+              </div>
 
-              <!-- ── 选中操作栏 ─────────────────────────────────────── -->
+              
               <transition name="slide-up">
                 <div v-if="selectedReplies.length" class="corpus-action-bar shrink-0">
                   <button @click="selectedReplies=[];selectAll=false" class="corpus-action-btn" style="font-size:11px;flex:0.8">
@@ -2348,13 +2337,13 @@
                 </div>
               </transition>
 
-              <!-- ── 底部输入栏 ─────────────────────────────────────── -->
+              
               <div v-if="!selectedReplies.length"
                    class="bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 shrink-0">
-                <!-- 分组选择器 chip 行 -->
+                
                 <div class="px-3 pt-2.5 pb-1 flex gap-1.5 overflow-x-auto"
                      style="-ms-overflow-style:none;scrollbar-width:none;">
-                  <!-- 无分组 chip -->
+                  
                   <button @click="newReplyGroupId=null"
                           class="shrink-0 text-[11px] font-bold px-3 py-1 rounded-full border transition"
                           :class="newReplyGroupId===null
@@ -2362,7 +2351,7 @@
                             : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-muted'">
                     无分组
                   </button>
-                  <!-- 各分组 chip -->
+                  
                   <button v-for="g in replyGroups" :key="g.id"
                           @click="newReplyGroupId=g.id"
                           class="shrink-0 text-[11px] font-bold px-3 py-1 rounded-full border transition whitespace-nowrap"
@@ -2372,7 +2361,7 @@
                     {{ g.name }}
                   </button>
                 </div>
-                <!-- 输入行 -->
+                
                 <div class="flex gap-2 px-3 pb-3 pt-1">
                   <input v-model="newReplyText" @keydown.enter="addReply"
                          :placeholder="newReplyGroupId ? `添加到「${replyGroups.find(g=>g.id===newReplyGroupId)?.name}」…` : '添加语料（无分组）…'"
@@ -2382,7 +2371,7 @@
                 </div>
               </div>
 
-              <!-- ── 移动 Sheet ─────────────────────────────────────── -->
+              
               <transition name="slide-up">
                 <div v-if="showMovePanel" class="move-sheet" @click.stop>
                   <div class="flex items-center justify-between mb-3">
@@ -2390,7 +2379,7 @@
                     <button @click="showMovePanel=false"><i data-lucide="x" style="width:16px;height:16px;" class="text-muted"></i></button>
                   </div>
                   <div class="flex flex-wrap gap-2">
-                    <!-- 移回无分组 -->
+                    
                     <button @click="doMoveToGroup(null)" class="move-sheet-tag">不分组</button>
                     <button v-for="g in replyGroups" :key="g.id" @click="doMoveToGroup(g)" class="move-sheet-tag">
                       {{ g.name }} <span class="text-[10px] opacity-50">{{ g.replies.length }}</span>
@@ -2404,9 +2393,9 @@
               <div v-if="showMovePanel" class="absolute inset-0 z-20 bg-black/10 rounded-t-[2rem]" @click="showMovePanel=false"></div>
 
               </div>
-              <!-- ↑ 回复语料面板结束 -->
+              
 
-              <!-- ── 表情包面板（原"表情管理"弹窗的内容搬过来，不再重复一份）──── -->
+              
               <div v-show="corpusTab === 'stickers'" class="flex-1 flex flex-col overflow-hidden">
                 <div class="flex border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-x-auto shrink-0">
                   <div v-for="g in stickerGroups" :key="g.id" @click="currentStickerGroupId = g.id"
@@ -2428,7 +2417,7 @@
                 </div>
               </div>
 
-              <!-- ── 状态预设面板 ─────────────────────────────────────── -->
+              
               <div v-show="corpusTab === 'status'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
                   <span class="text-xs font-bold text-slate-600 dark:text-slate-300">随机状态预设</span>
@@ -2437,7 +2426,7 @@
                 </div>
               </div>
 
-              <!-- ── 拍一拍预设面板 ─────────────────────────────────────── -->
+              
               <div v-show="corpusTab === 'poke'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
                   <span class="text-xs font-bold text-slate-600 dark:text-slate-300">拍一拍预设</span>
@@ -2446,7 +2435,7 @@
                 </div>
               </div>
 
-              <!-- ── 每日情话面板：主页面副标题的位置，每天固定显示一条，跨零点自动换下一条 ─── -->
+              
               <div v-show="corpusTab === 'quotes'" class="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
                   <span class="text-xs font-bold text-slate-600 dark:text-slate-300">每日情话</span>
@@ -2460,12 +2449,12 @@
           </div>
         </transition>
 
-        <!-- ===== 分类导出/导入 Modal ===== -->
+        
         <transition name="fade">
           <div v-if="modals.selectiveExport" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[110] flex items-end sm:items-center justify-center" @click.self="modals.selectiveExport=false">
             <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-slate-200/60 dark:border-slate-700/60 overflow-hidden">
 
-              <!-- 标题栏 -->
+              
               <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-slate-100 dark:border-slate-700">
                 <div>
                   <h3 class="font-bold text-[16px] text-slate-700 dark:text-white">
@@ -2480,9 +2469,9 @@
                 </button>
               </div>
 
-              <!-- 选项列表 -->
+              
               <div class="px-4 py-4 space-y-2">
-                <!-- 聊天记录 -->
+                
                 <label class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition"
                        :class="selectiveItems.messages ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
                   <input type="checkbox" v-model="selectiveItems.messages" class="w-4 h-4 accent-accent rounded">
@@ -2491,7 +2480,7 @@
                     <p class="text-[10.5px] text-muted">{{ messages.length }} 条消息</p>
                   </div>
                 </label>
-                <!-- 语料库 -->
+                
                 <label class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition"
                        :class="selectiveItems.corpus ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
                   <input type="checkbox" v-model="selectiveItems.corpus" class="w-4 h-4 accent-accent rounded">
@@ -2500,7 +2489,7 @@
                     <p class="text-[10.5px] text-muted">{{ ungroupedReplies.length + replyGroups.reduce((a,g)=>a+g.replies.length,0) }} 条语料 · {{ replyGroups.length }} 个分组</p>
                   </div>
                 </label>
-                <!-- 表情包 -->
+                
                 <label class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition"
                        :class="selectiveItems.stickers ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
                   <input type="checkbox" v-model="selectiveItems.stickers" class="w-4 h-4 accent-accent rounded">
@@ -2509,7 +2498,7 @@
                     <p class="text-[10.5px] text-muted">{{ stickerGroups.reduce((a,g)=>a+g.stickers.length,0) }} 张图</p>
                   </div>
                 </label>
-                <!-- 日记记录 -->
+                
                 <label class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition"
                        :class="selectiveItems.notes ? 'bg-accent/6 border-accent/25' : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'">
                   <input type="checkbox" v-model="selectiveItems.notes" class="w-4 h-4 accent-accent rounded">
@@ -2520,18 +2509,18 @@
                 </label>
               </div>
 
-              <!-- 底部按钮 -->
+              
               <div class="px-4 pb-6 pt-2 border-t border-slate-100 dark:border-slate-700 flex gap-2">
                 <button @click="modals.selectiveExport=false"
                         class="flex-1 py-3 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-[13px]">取消</button>
-                <!-- 导出 -->
+                
                 <button v-if="selectiveExportMode==='export'"
                         @click="doSelectiveExport"
                         :disabled="!selectiveItems.messages && !selectiveItems.corpus && !selectiveItems.stickers && !selectiveItems.notes"
                         class="flex-1 py-3 rounded-2xl bg-accent text-white font-bold text-[13px] shadow-md disabled:opacity-40">
                   导出文件
                 </button>
-                <!-- 导入 -->
+                
                 <label v-else class="flex-1 py-3 rounded-2xl bg-accent text-white font-bold text-[13px] shadow-md flex items-center justify-center cursor-pointer">
                   选择文件
                   <input type="file" accept=".json" class="hidden" @change="doSelectiveImport">
@@ -2542,7 +2531,7 @@
           </div>
         </transition>
 
-        <!-- ===== 批量导入 Modal ===== -->
+        
         <transition name="fade">
             <div v-if="modals.batchInput" class="fixed inset-0 bg-slate-900/30 backdrop-blur-md z-[110] flex items-end sm:items-center justify-center" @click.self="modals.batchInput = false">
                 <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-t-[2rem] sm:rounded-[2rem] p-5 border border-slate-200/60 dark:border-slate-700/60 shadow-2xl flex flex-col gap-4">
@@ -2556,7 +2545,7 @@
                         </button>
                     </div>
 
-                    <!-- 分组选择 -->
+                    
                     <div>
                         <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-2">导入到：</p>
                         <div class="flex flex-wrap gap-1.5">
@@ -2579,7 +2568,7 @@
                         </div>
                     </div>
 
-                    <!-- 文本区域 -->
+                    
                     <textarea v-model="batchInputText" rows="7"
                               :placeholder="`每行一条语料，将导入到「${newReplyGroupId ? (replyGroups.find(g=>g.id===newReplyGroupId)?.name||'') : '无分组'}」\n\n例：\n今天天气真好\n我在听\n嗯嗯`"
                               class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-sm outline-none focus:border-accent resize-none leading-relaxed"></textarea>
@@ -2597,8 +2586,8 @@
             </div>
         </transition>
 
-        <!-- ===== 信笺 Modal（信箱历史 + 写信 合并）===== -->
-        <!-- ===== 信笺（信箱历史 + 写信 合并，全屏页面）===== -->
+        
+        
         <transition name="page-slide">
             <div v-if="modals.letterHistory" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
@@ -2611,7 +2600,7 @@
                             <i data-lucide="feather" class="w-3.5 h-3.5"></i>写信
                         </button>
                     </div>
-                    <!-- 写信展开区：默认收起，点右上角"写信"展开 -->
+                    
                     <div v-if="showLetterCompose" class="p-5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/60 dark:bg-slate-800/40 shrink-0">
                         <textarea v-model="letterContent" rows="4" placeholder="写下你想对TA说的话，这封信将在未来得到回复..." class="w-full bg-white dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-2xl p-3 text-sm outline-none focus:ring-1 focus:ring-accent resize-none leading-relaxed"></textarea>
                         <div class="flex gap-2 mt-3">
@@ -2636,7 +2625,7 @@
             </div>
         </transition>
 
-        <!-- ===== 消息收藏（全屏页面）===== -->
+        
         <transition name="page-slide">
             <div v-if="modals.favorites" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
@@ -2667,22 +2656,22 @@
             </div>
         </transition>
 
-        <!-- ===== 记忆日历（全屏页面）===== -->
+        
         <transition name="page-slide">
             <div v-if="modals.notebook" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
-                    <!-- 标题 -->
+                    
                     <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
                         <button @click="modals.notebook = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                         <h3 class="font-bold text-base text-slate-700 dark:text-white">日历</h3>
                     </div>
-                    <!-- 月份导航 (紧凑) -->
+                    
                     <div class="py-2 px-6 bg-slate-50/60 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between shrink-0">
                         <button @click="prevMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
                         <span class="font-bold text-sm text-slate-600 dark:text-slate-300">{{ currentMonthYearText }}</span>
                         <button @click="nextMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     </div>
-                    <!-- 日历格 (紧凑版) -->
+                    
                     <div class="px-3 pt-2 pb-2 bg-white dark:bg-transparent border-b border-slate-100 dark:border-slate-700/60 shrink-0">
                         <div class="calendar-grid mb-1 text-[9px] text-muted font-bold">
                             <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
@@ -2702,7 +2691,7 @@
                             <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full bg-accent"></div><span>选中</span></div>
                         </div>
                     </div>
-                    <!-- 记录输入区 -->
+                    
                     <div class="px-4 py-3 bg-white/50 border-b border-white/60 shadow-inner shrink-0">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-bold text-accent">{{ selectedDateText }} 的记录</span>
@@ -2723,23 +2712,23 @@
                             </div>
                         </div>
                     </div>
-                    <!-- 记录列表 (占更大比例) -->
+                    
                     <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-white/30">
                         <div v-if="filteredNotes.length === 0" class="text-center text-xs text-muted mt-8 opacity-70">
                             <i data-lucide="calendar" class="w-7 h-7 mx-auto text-slate-300 mb-3"></i>
                             这一天还没有记录哦~
                         </div>
                         <div v-for="(note, idx) in filteredNotes" :key="note.id" class="rounded-[1.4rem] overflow-hidden shadow-sm">
-                            <!-- 笔记主体 -->
+                            
                             <div class="bg-white/85 dark:bg-slate-700/80 border border-white/70 dark:border-slate-600/60 p-4 flex flex-col gap-2 relative group">
                                 <div class="flex justify-between items-start gap-2">
-                                    <!-- 文字内容：超过3行时截断，点击展开 -->
+                                    
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap break-words"
                                            :class="!expandedNotes.has(note.id) && note.text.length > 80 ? 'line-clamp-3' : ''">
                                             {{ note.text }}
                                         </p>
-                                        <!-- 展开/收起按钮（文字超过80字才显示）-->
+                                        
                                         <button v-if="note.text.length > 80"
                                                 @click="expandedNotes.has(note.id) ? expandedNotes.delete(note.id) : expandedNotes.add(note.id)"
                                                 class="mt-1 text-[10.5px] text-accent font-bold hover:underline">
@@ -2752,10 +2741,10 @@
                                 </div>
                                 <span class="text-[10px] text-muted font-mono">{{ formatTime(note.timestamp) }}</span>
                             </div>
-                            <!-- 对方回复评论区（如有） -->
+                            
                             <div v-if="note.replies && note.replies.length > 0" class="bg-accent/[0.04] border-x border-b border-white/60 px-4 py-2 space-y-2">
                                 <div v-for="rep in note.replies" :key="rep.id" class="flex items-start gap-2.5">
-                                    <!-- 对方头像小 -->
+                                    
                                     <div class="w-6 h-6 rounded-full overflow-hidden border border-white/60 shrink-0 mt-0.5 bg-accent/15 flex items-center justify-center">
                                         <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
                                         <span v-else class="text-[8px] font-bold text-accent">{{ chatDisplayName.charAt(0) }}</span>
@@ -2769,13 +2758,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- 等待回复提示 -->
+                            
                             <div v-else class="bg-accent/[0.03] border-x border-b border-white/50 px-4 py-1.5 text-[9.5px] text-muted/50 italic">
                                 {{ chatDisplayName }} 稍后会来看的...
                             </div>
                         </div>
                     </div>
-                    <!-- 底部提示 -->
+                    
                     <div class="px-4 py-2.5 text-[10px] text-accent/80 font-medium border-t border-white/60 bg-white/50 text-center shrink-0">
                         记录生活后，角色会在 3~5 小时后随机留言回复
                     </div>
@@ -2783,7 +2772,7 @@
             </div>
         </transition>
 
-        <!-- ===== 潮汐（月经记录，全屏页面）===== -->
+        
         <transition name="page-slide">
             <div v-if="modals.periodTracker" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
@@ -2793,7 +2782,7 @@
                     </div>
 
                     <div class="flex-1 overflow-y-auto p-5 space-y-4">
-                        <!-- 预测卡片 -->
+                        
                         <div class="bg-slate-50 dark:bg-slate-800/60 rounded-[1.5rem] p-5 border border-slate-100 dark:border-slate-700/50 text-center">
                             <template v-if="periodNextPredicted">
                                 <p class="text-[11px] text-muted">预计下次开始</p>
@@ -2809,7 +2798,7 @@
                             </template>
                         </div>
 
-                        <!-- 潮汐日历：点任意一天可以记录/查看那天 -->
+                        
                         <div class="bg-slate-50 dark:bg-slate-800/60 rounded-[1.5rem] p-4 border border-slate-100 dark:border-slate-700/50">
                             <div class="flex items-center justify-between mb-2">
                                 <button @click="periodCalPrevMonth" class="p-1.5 hover:text-accent hover:bg-accent/10 rounded-full transition"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
@@ -2834,7 +2823,7 @@
                             </div>
                         </div>
 
-                        <!-- 记录表单：点日历某一天后在这里出现 -->
+                        
                         <div v-if="!showPeriodForm">
                             <button @click="openPeriodForm" class="w-full py-3 bg-accent/10 text-accent rounded-2xl text-sm font-medium hover:bg-accent/20 transition flex items-center justify-center gap-1.5">
                                 <i data-lucide="plus" class="w-4 h-4"></i>记录今天
@@ -2879,7 +2868,7 @@
                             </div>
                         </div>
 
-                        <!-- 设置 -->
+                        
                         <div class="bg-slate-50 dark:bg-slate-800/60 rounded-[1.5rem] p-4 border border-slate-100 dark:border-slate-700/50 space-y-2.5">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs text-slate-600 dark:text-slate-300">提前提醒</span>
@@ -2903,19 +2892,19 @@
             </div>
         </transition>
 
-        <!-- ===== 图片预览 ===== -->
+        
         <transition name="fade">
             <div v-if="previewImg" @click="previewImg=''" class="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
                 <img :src="previewImg" class="max-w-full max-h-[90vh] rounded-3xl shadow-2xl border border-white/20 transition-transform transform hover:scale-[1.02]">
             </div>
         </transition>
 
-        <!-- ===== 来电弹窗 ===== -->
+        
         <transition name="call">
             <div v-if="callState.status === 'incoming'" class="call-overlay">
                 <div class="call-overlay-bg" :style="settings.callBgImage ? { backgroundImage: `url(${settings.callBgImage})` } : { background: 'linear-gradient(135deg, #1a1f3a 0%, #2d3561 50%, #1a1f3a 100%)' }"></div>
                 <div class="call-overlay-blur"></div>
-                <!-- 顶部信息 -->
+                
                 <div class="call-content mt-16 gap-5 flex flex-col items-center">
                     <p class="text-white/50 text-xs tracking-[0.25em] uppercase">视频通话邀请</p>
                     <div class="call-ring-anim w-20 h-20 rounded-[1.6rem] overflow-hidden border-2 border-white/25 shadow-2xl">
@@ -2927,7 +2916,7 @@
                         <p class="text-white/50 text-xs mt-1.5 tracking-wider">邀请你进行视频通话</p>
                     </div>
                 </div>
-                <!-- 接听/挂断 -->
+                
                 <div class="call-content mb-10 flex-row gap-20">
                     <div class="call-ctrl-btn" @click="declineCall">
                         <div class="call-answer-btn" style="background: rgba(255,70,70,0.9);">
@@ -2945,7 +2934,7 @@
             </div>
         </transition>
 
-        <!-- ===== 拨出等待弹窗 ===== -->
+        
         <transition name="call">
             <div v-if="callState.status === 'outgoing'" class="call-overlay">
                 <div class="call-overlay-bg" :style="settings.callBgImage ? { backgroundImage: `url(${settings.callBgImage})` } : { background: 'linear-gradient(135deg, #1a1f3a 0%, #2d3561 50%, #1a1f3a 100%)' }"></div>
@@ -2971,14 +2960,14 @@
             </div>
         </transition>
 
-        <!-- ===== 通话中界面 (新版·无摄像头) ===== -->
+        
 <transition name="call">
     <div v-if="callState.status === 'active'" class="call-overlay" :class="callWindowClass">
-        <!-- 背景图 -->
+        
         <div class="call-overlay-bg" :style="settings.callBgImage ? { backgroundImage: `url(${settings.callBgImage})` } : { background: 'linear-gradient(145deg, #0b0e1a 0%, #1a1f33 100%)' }"></div>
         <div class="call-overlay-blur"></div>
 
-        <!-- 顶部信息栏（保留） -->
+        
         <div class="call-info-bar">
             <div class="text-white/80 text-xs"> 视频通话中</div>
             <div class="flex items-center gap-2">
@@ -2986,7 +2975,7 @@
                 <span class="text-white font-bold text-sm font-mono">{{ formatCallDuration }}</span>
             </div>
             <div class="flex gap-2">
-                <!-- 切换窗口大小按钮 -->
+                
                 <button @click="cycleCallWindowSize" class="bg-white/15 hover:bg-white/25 rounded-full p-2 transition" title="切换窗口大小">
                     <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
                 </button>
@@ -2996,9 +2985,9 @@
             </div>
         </div>
 
-        <!-- 中央联系人信息（无摄像头画面） -->
+        
         <div class="call-content flex-1 flex flex-col items-center justify-center gap-4">
-            <!-- 对方头像（中） -->
+            
             <div class="w-20 h-20 rounded-[1.6rem] overflow-hidden border-2 border-white/25 shadow-2xl">
                 <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
                 <div v-else class="w-full h-full bg-accent/40 flex items-center justify-center text-white text-3xl font-light">{{ chatDisplayName.charAt(0) }}</div>
@@ -3009,23 +2998,23 @@
             </div>
         </div>
 
-        <!-- 底部控制按钮（与原版类似） -->
+        
         <div class="call-content mb-10 flex-row gap-6 px-6 flex-wrap justify-center">
-            <!-- 麦克风 -->
+            
             <div class="call-ctrl-btn" @click="callState.muted = !callState.muted">
                 <div class="call-ctrl-circle" :style="callState.muted ? 'background:rgba(255,255,255,0.25)' : 'background:rgba(255,255,255,0.12)'">
                     <i :data-lucide="callState.muted ? 'mic-off' : 'mic'" class="w-5 h-5 text-white"></i>
                 </div>
                 <span class="call-ctrl-label">{{ callState.muted ? '已静音' : '麦克风' }}</span>
             </div>
-            <!-- 扬声器 -->
+            
             <div class="call-ctrl-btn" @click="callState.speakerOn = !callState.speakerOn">
                 <div class="call-ctrl-circle" :style="callState.speakerOn ? 'background:rgba(124,148,204,0.35)' : 'background:rgba(255,255,255,0.12)'">
                     <i :data-lucide="callState.speakerOn ? 'volume-2' : 'volume-x'" class="w-5 h-5 text-white"></i>
                 </div>
                 <span class="call-ctrl-label">{{ callState.speakerOn ? '扬声器' : '听筒' }}</span>
             </div>
-            <!-- 挂断 -->
+            
             <div class="call-ctrl-btn" @click="hangupCall">
                 <div class="call-ctrl-circle" style="background:rgba(255,60,60,0.9); width:70px; height:70px;">
                     <i data-lucide="phone-off" class="w-7 h-7 text-white"></i>
@@ -3036,7 +3025,7 @@
     </div>
 </transition>
 
-        <!-- ===== 缩小化通话气泡 ===== -->
+        
         <transition name="bubble">
             <div v-if="callState.status === 'minimized'" class="call-mini-bubble" title="拖动移动 · 点击恢复">
                 <div class="call-mini-dot"></div>
@@ -3054,7 +3043,7 @@
         <input type="file" ref="imgInput" class="hidden" @change="onImageUpload">
     </div>
 
-    <!-- ===== 右键/长按菜单 ===== -->
+    
     <transition name="ctx">
         <div v-if="ctxMenu.show" class="msg-ctx-menu" :style="{ top: ctxMenu.y + 'px', left: ctxMenu.x + 'px' }">
             <div class="msg-ctx-item" @click="quoteMsg(ctxMenu.msg); closeMsgMenu()">
@@ -3089,7 +3078,7 @@
     </transition>
     <div v-if="ctxMenu.show" class="fixed inset-0 z-[690]" @click="closeMsgMenu" @contextmenu.prevent="closeMsgMenu"></div>
 
-    <!-- ===== 多选收藏操作栏 ===== -->
+    
     <transition name="fade">
         <div v-if="selectMode" class="absolute bottom-20 left-4 right-4 z-40 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl px-4 py-3 shadow-2xl border border-white/70 flex items-center justify-between">
             <span class="text-xs text-muted">已选 {{ selectedMsgIds.length }} 条</span>
@@ -3103,12 +3092,12 @@
         </div>
     </transition>
 
-    <!-- ===== 拍一拍 Toast ===== -->
+    
     <transition name="fade">
         <div v-if="pokeToast.show" class="poke-toast">{{ pokeToast.text }}</div>
     </transition>
 
-    <!-- ===== 拍一拍选择器 ===== -->
+    
     <transition name="poke-picker">
         <div v-if="pokePickerShow" class="poke-picker">
             <div class="poke-picker-title">选择拍一拍方式</div>
@@ -3121,23 +3110,12 @@
             </div>
         </div>
     </transition>
-    <!-- 点击空白关闭poke picker -->
+    
     <div v-if="pokePickerShow" class="fixed inset-0 z-[5]" @click="pokePickerShow = false"></div>
-
 
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-//  保活：三层简洁架构
-//  1. Web Worker 定时器 → ping SW（不受页面节流影响）
-//  2. visibilitychange → 切后台时通知 SW
-//  3. Wake Lock + 无声音频 → 阻止系统休眠
-//
-//  这三层由"设置 → 后台保活"开关统一控制（settings.bgKeepAlive）。
-//  这段代码在 Vue 挂载前就执行，所以先同步读一次 localStorage 里的开关状态；
-//  之后 Vue 里通过 window.__setKeepAlive(true/false) 实时切换，不需要刷新页面。
-// ═══════════════════════════════════════════════════
 
 const __readKeepAliveSetting = () => {
     try {
@@ -3149,7 +3127,6 @@ const __readKeepAliveSetting = () => {
 };
 let __keepAliveEnabled = __readKeepAliveSetting();
 
-// ── 层1：SW 通道 ────────────────────────────────────
 if ('serviceWorker' in navigator) {
     const startPing = () => {
         if (!__keepAliveEnabled) return;
@@ -3160,7 +3137,6 @@ if ('serviceWorker' in navigator) {
             if (ctrl) {
                 ctrl.postMessage({ type: 'ping', ts: Date.now() });
             } else {
-                // controller 丢失（SW 重启中），暂停等 controllerchange 重建
                 window.__swPingStarted = false;
                 safeClearInterval(window.__swPingId);
             }
@@ -3181,30 +3157,24 @@ if ('serviceWorker' in navigator) {
 
     navigator.serviceWorker.ready.then(onSWReady).catch(() => {});
 
-    // reload 场景：controller 可能已经存在，直接启动 ping 不等 ready
     if (navigator.serviceWorker.controller) {
-        // 用 setTimeout 0 确保 safeSetInterval 已定义
         setTimeout(() => startPing(), 0);
     }
 
-    // SW 重启或更新时重建 ping 通道
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.__swPingStarted = false;
         if (window.__swPingId) safeClearInterval(window.__swPingId);
         navigator.serviceWorker.ready.then(onSWReady).catch(() => {});
     });
 
-    // 接收 SW 消息
     navigator.serviceWorker.addEventListener('message', e => {
         if (!e.data) return;
         if (e.data.type === 'pong') window.__lastPong = Date.now();
         if (e.data.type === 'trigger-reply') window.__app_triggerAutoReply?.();
-        // 点击通知（不管是自己发的还是 OneSignal 真实推送的）都跳转到聊天界面
         if (e.data.type === 'navigate-to-chat') window.__app_navigateToChat?.();
     });
 }
 
-// ── 层2：切后台通知 SW + 回前台恢复音频 ────────────
 document.addEventListener('visibilitychange', () => {
     const ctrl = navigator.serviceWorker?.controller;
     if (document.visibilityState === 'hidden') {
@@ -3215,9 +3185,7 @@ document.addEventListener('visibilitychange', () => {
         }
     }
 });
-// ── 层3：Wake Lock + 静音音频（双保险）────────────────
 (function() {
-    // Wake Lock
     const lock = async () => {
         if (!__keepAliveEnabled) return;
         if (!('wakeLock' in navigator) || window.__wl?.released === false) return;
@@ -3231,7 +3199,6 @@ document.addEventListener('visibilitychange', () => {
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && __keepAliveEnabled) {
             lock();
-            // 回到前台时恢复所有音频
             window.__silentAudio?.play().catch(() => {});
             window.__silentAudioCtx?.state === 'suspended' &&
                 window.__silentAudioCtx.resume().catch(() => {});
@@ -3239,8 +3206,6 @@ document.addEventListener('visibilitychange', () => {
         }
     });
 
-    // ── 静音音频方案 A：<audio> 元素（兼容性最好，iOS 也支持）──
-    // 44字节最小静音 WAV，loop 循环，让系统认为标签页有活跃媒体流
     const SILENT_WAV = 'data:audio/wav;base64,' +
         'UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQAEAAgAZGF0YQQAAAA=';
     const silentAudio = new Audio(SILENT_WAV);
@@ -3248,12 +3213,6 @@ document.addEventListener('visibilitychange', () => {
     silentAudio.volume = 0.01;
     window.__silentAudio = silentAudio;
 
-    // ── Media Session：让系统真正"看见"这是一段媒体播放 ──────
-    // 光让 <audio> 自己 play() 是不够的：手机系统（尤其 iOS）判断一个网页
-    // 是否有"正当理由"在后台继续跑，很大程度上看它有没有通过 Media Session
-    // 注册成一个"正规"的媒体会话——不注册的话，锁屏/控制中心完全不会显示
-    // 任何东西，用户也就没法确认"后台真的在播放"，跟你看到的现象一致。
-    // 注册之后，锁屏上会出现一个不起眼的播放条，点开能看到"静语·星降 · 后台保活中"。
     const setupMediaSession = () => {
         if (!('mediaSession' in navigator)) return;
         try {
@@ -3266,8 +3225,6 @@ document.addEventListener('visibilitychange', () => {
                 ]
             });
             navigator.mediaSession.playbackState = 'playing';
-            // 用户如果在锁屏上误点了"暂停"，这里直接重新播放——
-            // 因为这段音频本来就不是给人听的，暂停了就失去保活作用了
             navigator.mediaSession.setActionHandler('play', () => {
                 silentAudio.play().catch(() => {});
                 navigator.mediaSession.playbackState = 'playing';
@@ -3286,10 +3243,8 @@ document.addEventListener('visibilitychange', () => {
         } catch (e) {}
     };
 
-    // 尝试立即播放（部分浏览器允许静默自动播放），仅在开关开启时
     if (__keepAliveEnabled) { silentAudio.play().then(setupMediaSession).catch(() => {}); }
 
-    // ── 静音音频方案 B：AudioContext 节点 ──────────────────
     let audioCtxOk = false;
     const startAudioCtx = () => {
         if (!__keepAliveEnabled || audioCtxOk) return;
@@ -3310,7 +3265,6 @@ document.addEventListener('visibilitychange', () => {
         audioCtxOk = false;
     };
 
-    // 首次用户交互后启动（自动播放策略要求）
     const startAll = () => {
         if (!__keepAliveEnabled) return;
         silentAudio.play().then(setupMediaSession).catch(() => {});
@@ -3320,27 +3274,19 @@ document.addEventListener('visibilitychange', () => {
         document.addEventListener(t, startAll, { passive: true })
     );
 
-    // ── 音频心跳：每 30s 检查一次，确保音频持续播放 ────────
-    // 切到后台后，浏览器可能暂停音频；心跳负责重新唤醒它
     setInterval(() => {
         if (!__keepAliveEnabled) return;
-        // 方案 A：Audio 元素暂停了就重播
         if (silentAudio.paused) {
             silentAudio.play().then(setupMediaSession).catch(() => {});
         }
-        // 方案 B：AudioContext 被挂起了就恢复
         if (window.__silentAudioCtx?.state === 'suspended') {
             window.__silentAudioCtx.resume().catch(() => {});
         }
-        // 保险起见，每次心跳都重新确认一下播放状态没被系统悄悄重置
         if ('mediaSession' in navigator && navigator.mediaSession.playbackState !== 'playing') {
             navigator.mediaSession.playbackState = 'playing';
         }
     }, 30000);
 
-    // ── 全局开关：供设置页"后台保活"勾选框实时调用 ──────────
-    // enabled=true  → 立刻启动 SW ping + Wake Lock + 静音音频
-    // enabled=false → 立刻停止三者，释放屏幕常亮、暂停静音音频
     window.__setKeepAlive = (enabled) => {
         __keepAliveEnabled = !!enabled;
         if (__keepAliveEnabled) {
@@ -3358,7 +3304,6 @@ document.addEventListener('visibilitychange', () => {
     };
 })();
 
-// ========= Web Worker 后台定时器（标签页切换时定时器不暂停）=========
 const workerCode = `
     let timers = {};
     self.onmessage = function(e) {
@@ -3399,7 +3344,6 @@ const safeSetInterval = (cb, delay) => {
     return id;
 };
 const safeClearInterval = (id) => { timerWorker.postMessage({ type: 'clearInterval', id }); delete workerTimers[id]; };
-// ========================================================
 
 const { createApp, ref, reactive, computed, watch, nextTick, onMounted } = Vue;
 localforage.config({ name: 'JingYuStarV6', storeName: 'fusion_v6' });
@@ -3418,7 +3362,6 @@ createApp({
         const letterContent = ref('');
         const pendingLetter = ref(null);
         let audioCtx;
-        // ===== 核心：离线推送调度函数 =====
         const scheduleOfflinePush = async (title, body, delayMs) => {
             if (!settings.pushNotify) return;
             const subId = window.OneSignal?.User?.PushSubscription?.id;
@@ -3436,8 +3379,6 @@ createApp({
         const notes = ref([]);
         const favorites = ref([]); // 消息收藏区：{id, type:'single'|'clip', items:[消息快照...], createdAt}
 
-        // ===== 潮汐（月经记录）=====
-        // 每条记录：{id, date:'YYYY-MM-DD', flow:'light'|'medium'|'heavy', mood:string, note:string}
         const periodRecords = ref([]);
         const periodFormDate = ref('');
         const periodFormFlow = ref('medium');
@@ -3464,7 +3405,6 @@ createApp({
         const notebookInputExpanded = ref(false);
         const emojiPoolText = ref('✨,🫐,🌿,☁️,🌸,⭐,🌙,🎨,🎵,🍬,🧸,💌,🎀,🔮,🎐');
 
-        // ===== 视频通话状态 =====
         const callState = reactive({
             status: 'idle',   // idle | incoming | outgoing | active | minimized
             caller: 'them',   // who initiated
@@ -3478,18 +3418,15 @@ createApp({
         let callRingInterval = null;
         let randomCallTimer = null;
 
-        // ===== 通话窗口尺寸 =====
         const callWindowSize = ref('fullscreen'); // 'fullscreen' | 'medium'
         const callWindowClass = computed(() => callWindowSize.value === 'medium' ? 'call-window-medium' : '');
         const cycleCallWindowSize = () => {
             callWindowSize.value = callWindowSize.value === 'fullscreen' ? 'medium' : 'fullscreen';
             if (callWindowSize.value === 'medium') {
                 nextTick(() => {
-                    // 清除旧的拖拽标记，重新初始化
                     const el = document.querySelector('.call-window-medium');
                     if (el) {
                         el._dragInit = false;
-                        // 设置居中初始位置（用像素，不用百分比，避免被CSS覆盖）
                         el.style.left = Math.round(window.innerWidth * 0.24) + 'px';
                         el.style.top = Math.round(window.innerHeight * 0.30) + 'px';
                     }
@@ -3501,13 +3438,11 @@ createApp({
             }
         };
 
-        // ===== 通话窗口拖拽（中屏，与缩小化气泡同一模式）=====
         const initCallWindowDrag = () => {
             nextTick(() => {
                 const el = document.querySelector('.call-window-medium');
                 if (!el || el._dragInit) return;
                 el._dragInit = true;
-                // 设置初始内联位置（避免被CSS百分比干扰）
                 const rect = el.getBoundingClientRect();
                 el.style.left = rect.left + 'px';
                 el.style.top = rect.top + 'px';
@@ -3544,7 +3479,6 @@ createApp({
             });
         };
 
-        // ===== 右键/长按菜单 =====
         const ctxMenu = reactive({ show: false, msg: null, x: 0, y: 0 });
         let longPressTimer = null;
         const showMsgMenu = (e, msg) => {
@@ -3566,7 +3500,6 @@ createApp({
         };
         const cancelLongPress = () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } };
 
-        // ===== 删除消息 =====
         const deleteMsg = (id) => {
             const idx = messages.value.findIndex(m => m.id === id);
             if (idx > -1) messages.value.splice(idx, 1);
@@ -3577,8 +3510,6 @@ createApp({
             }
         };
 
-        // ===== 消息操作：编辑 / 撤回 / 多选收藏 =====
-        // 撤回：只有"文字/图片"这种真实由用户或角色发出的消息、且在 2 分钟内才能撤回
         const canRecallMsg = (msg) => {
             if (!msg || msg.recalled) return false;
             if (msg.type !== 'text' && msg.type !== 'image') return false;
@@ -3607,7 +3538,6 @@ createApp({
             editingText.value = '';
         };
 
-        // ---- 多选模式 ----
         const enterSelectMode = (msg) => {
             selectMode.value = true;
             selectedMsgIds.value = msg ? [msg.id] : [];
@@ -3622,7 +3552,6 @@ createApp({
             else selectedMsgIds.value.push(msg.id);
         };
         const isMsgSelected = (msg) => selectedMsgIds.value.includes(msg.id);
-        // 多选模式下，点击消息行=切换勾选，并拦截掉气泡内原本的点击行为（比如图片预览/引用按钮）
         const onMsgRowClick = (e, msg) => {
             if (selectMode.value) {
                 e.stopPropagation();
@@ -3631,7 +3560,6 @@ createApp({
             }
         };
 
-        // ---- 收藏 ----
         const snapshotMsg = (msg) => ({
             id: msg.id, sender: msg.sender, type: msg.type, content: msg.content,
             timestamp: msg.timestamp, isSticker: msg.isSticker || false
@@ -3647,7 +3575,6 @@ createApp({
         };
         const favoriteSelected = () => {
             if (!selectedMsgIds.value.length) { exitSelectMode(); return; }
-            // 按消息在聊天记录里原本的先后顺序排列，而不是用户勾选的先后顺序
             const idSet = new Set(selectedMsgIds.value);
             const ordered = messages.value.filter(m => idSet.has(m.id)).map(snapshotMsg);
             if (!ordered.length) { exitSelectMode(); return; }
@@ -3664,10 +3591,7 @@ createApp({
             if (idx > -1) favorites.value.splice(idx, 1);
         };
 
-        // ===== 潮汐（月经记录）=====
         const ONE_DAY_MS = 24 * 3600 * 1000;
-        // 把记录按"连续天数"分组成一次次"周期"，取每次周期最早的一天当作"周期起始日"
-        // （比如连续记录了 5 天，只有第一天算作这次周期的起点，后面 4 天不重复计入）
         const periodStarts = computed(() => {
             if (!periodRecords.value.length) return [];
             const sorted = [...periodRecords.value].sort((a, b) => a.timestamp - b.timestamp);
@@ -3678,7 +3602,6 @@ createApp({
             }
             return starts;
         });
-        // 有 ≥2 次周期记录时，用实际平均值；否则用设置里的默认值
         const periodAvgCycleLength = computed(() => {
             const starts = periodStarts.value;
             if (starts.length < 2) return settings.periodCycleLength || 28;
@@ -3699,7 +3622,6 @@ createApp({
             const today = new Date(); today.setHours(0, 0, 0, 0);
             return Math.round((periodNextPredicted.value - today.getTime()) / ONE_DAY_MS);
         });
-        // 平均每次持续几天（从实际记录里算连续天数；数据不够就先按5天估）
         const periodAvgDuration = computed(() => {
             if (!periodRecords.value.length) return 5;
             const sorted = [...periodRecords.value].sort((a, b) => a.timestamp - b.timestamp);
@@ -3713,9 +3635,6 @@ createApp({
             const avg = Math.round(runs.reduce((a, b) => a + b, 0) / runs.length);
             return avg > 0 ? avg : 5;
         });
-        // 排卵日 = 下次预测经期开始日，往前推"黄体期天数"（黄体期长度因人而异但相对固定，
-        // 不像卵泡期那样会因为周期长短而大幅波动，所以从"下次经期"倒推比从"上次经期"顺推更准）
-        // 黄体期 = 排卵日次日 ~ 下次经期开始前一天，这段时间整体标出来
         const periodOvulationDay = computed(() => {
             if (!periodNextPredicted.value) return null;
             return periodNextPredicted.value - (settings.lutealPhaseLength || 14) * ONE_DAY_MS;
@@ -3725,7 +3644,6 @@ createApp({
             return { start: periodOvulationDay.value + ONE_DAY_MS, end: periodNextPredicted.value - ONE_DAY_MS };
         });
 
-        // ── 潮汐日历：用月历方式查看/记录，跟"记忆日历"是各自独立的一套月份导航 ──
         const periodCalDate = ref(new Date());
         const periodCalMonthYearText = computed(() => `${periodCalDate.value.getFullYear()}年 ${periodCalDate.value.getMonth() + 1}月`);
         const periodCalDays = computed(() => {
@@ -3754,7 +3672,6 @@ createApp({
         const periodCalNextMonth = () => { periodCalDate.value = new Date(periodCalDate.value.getFullYear(), periodCalDate.value.getMonth() + 1, 1); };
         const periodSelectedDay = ref(null); // 当前点选、正在查看/编辑的那一天（Date对象）
         const isPeriodSelectedDay = (date) => periodSelectedDay.value && date.toDateString() === periodSelectedDay.value.toDateString();
-        // 点一天：有记录就填进表单准备编辑，没有就直接开一个新表单，日期定死是点的这天
         const selectPeriodDay = (date) => {
             periodSelectedDay.value = date;
             const existing = periodRecords.value.find(r => new Date(r.timestamp).toDateString() === date.toDateString());
@@ -3800,8 +3717,6 @@ createApp({
             const idx = periodRecords.value.findIndex(r => r.id === id);
             if (idx > -1) periodRecords.value.splice(idx, 1);
         };
-        // 提前 N 天提醒一次；用 periodLastRemindedFor 记住"已经为这次预测提醒过"，
-        // 避免每次打开 app 都重复弹通知
         const checkPeriodReminder = () => {
             if (!settings.periodReminderEnabled) return;
             const predicted = periodNextPredicted.value;
@@ -3815,7 +3730,6 @@ createApp({
             }
         };
 
-        // ===== 拍一拍 =====
         const pokeToast = reactive({ show: false, text: '' });
         let pokeToastTimer = null;
         const pokePickerShow = ref(false);
@@ -3832,20 +3746,24 @@ createApp({
         const sendPoke = (pokeText) => {
             const msgText = pokeText
                 .replace(/\{me\}/g,"你")
-                .replace(/\{them\}/g,chatDisplayName.value);            
-          messages.value.push({
-                id: Date.now() + Math.random(),
+                .replace(/\{them\}/g,chatDisplayName.value);
+            const pokeMsgId = Date.now() + Math.random();
+            messages.value.push({
+                id: pokeMsgId,
                 sender: 'me', type: 'poke',
                 content: msgText,
-                timestamp: Date.now(), status: 'read', quote: null,
+                timestamp: Date.now(), status: 'sent', quote: null,
             });
             playSound('send');
             scrollToBottom(true);
+            safeSetTimeout(() => {
+                const m = messages.value.find(x => x.id === pokeMsgId);
+                if (m) { m.status = 'read'; nextTick(() => lucide.createIcons()); }
+            }, 2000);
             pokeToast.text = msgText;
             pokeToast.show = true;
             if (pokeToastTimer) clearTimeout(pokeToastTimer);
             pokeToastTimer = setTimeout(() => { pokeToast.show = false; }, 2100);
-            // 对方用文字回应
             safeSetTimeout(() => {
                 const pool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g => g.replies)];
                 const r = pool.length ? pool[Math.floor(Math.random() * pool.length)].text : '嗯？';
@@ -3858,11 +3776,11 @@ createApp({
             pokePickerShow.value = false;
         };
 
-        // ===== 对方随机主动拍一拍（独立定时器 20min~3h）=====
         let randomPokeTimer = null;
         const scheduleRandomPoke = () => {
             const delay = (Math.random() * 2.67 + 0.33) * 3600 * 1000; // 20min~3h
             randomPokeTimer = safeSetTimeout(() => {
+                if (settings.activeMsg) {
                 const opts = (settings.pokePresets || '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋').split(/[,，]/).map(s=>s.trim()).filter(s=>s);
                 const pokeWord = opts[Math.floor(Math.random() * opts.length)];
                 const theirMsg = pokeWord
@@ -3880,7 +3798,8 @@ createApp({
                 pokeToast.show = true;
                 if (pokeToastTimer) clearTimeout(pokeToastTimer);
                 pokeToastTimer = setTimeout(() => { pokeToast.show = false; }, 2500);
-                scheduleRandomPoke(); // 重新调度
+                }
+                scheduleRandomPoke(); // 无论这次有没有真的拍，都重新调度下一次
             }, delay);
         };
 
@@ -3903,7 +3822,6 @@ createApp({
             fragmentReplyChance: 0, // 随机把1~3条语料拼在一起组合成一句话发出的概率（0~100，0=关闭）
             noReplyChance: 0, // 已读不回的概率（0~100，0=关闭：消息照常已读+回复）
             avatarRadius: 40, bgImage: '', bgImageUrl: '', customCSS: '',
-            // ===== 桌面主页面 =====
             homeWallpaper: '', homeWallpaperUrl: '', // 主页面壁纸（跟聊天背景 bgImage 是分开的两张图）
             coupleCardImage: '', coupleCardImageUrl: '', // 情侣卡片上半部分的图片（半块背景图）
             coupleName: '', // 主页面标题，例如"我 & 哥哥"；留空则自动用 me/them 的名字拼
@@ -3914,7 +3832,8 @@ createApp({
             unreadChatCount: 0, // 主页面"聊天"图标角标数字：对方新消息且不在聊天页时累加，进聊天自动清零
             unreadLetterCount: 0, // 主页面"信笺"图标角标数字：收到回信时累加，写信/寄出时不触发，打开信笺自动清零
             unreadNoteCount: 0, // 主页面"日历"图标角标数字：日记收到回复时累加，打开日历自动清零
-            // ===== 潮汐（月经记录）=====
+            callDeclineChance: 0, // 我拨打视频通话时，对方拒接的概率（0~100，0=从不拒接）
+            hasEverHadMessages: false, // 这台设备是否曾经有过聊天记录，用来保护云同步不被意外的空数据覆盖
             periodCycleLength: 28, // 默认平均周期天数，记录多了之后会用实际平均值
             periodReminderEnabled: true,
             periodReminderDaysBefore: 2, // 提前几天提醒
@@ -3926,11 +3845,9 @@ createApp({
             pokePresets: '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋',
             pushNotify: true,
             bgKeepAlive: true,
-            // ===== 自动云备份（Netlify Blobs，已有通道，仅新增定时开关）=====
             autoBackupEnabled: true,
             autoBackupIntervalHours: 6,
             lastCloudBackupAt: 0,
-            // ===== GitHub 直传备份 =====
             githubBackupEnabled: false,
             githubToken: '',
             githubOwner: '',
@@ -3946,24 +3863,15 @@ createApp({
             notebook: false, batchInput: false, selectiveExport: false, favorites: false, periodTracker: false
         });
         const showLetterCompose = ref(false); // 信笺面板里"写信"展开区是否打开
-        // 桌面主页面 / 聊天界面 —— 'home' | 'chat'
         const currentScreen = ref('home');
         const goHome = () => { currentScreen.value = 'home'; };
-        // ✅ 修复"重启/进入聊天后停在最顶部"的问题：
-        //   聊天容器在主页面时是 display:none（v-show 隐藏），这时候读 scrollHeight
-        //   算出来的高度是不准的（隐藏元素不参与布局），所以 App 刚打开时执行的那次
-        //   scrollToBottom() 实际上是无效的。真正需要滚动到底部的时机，是"切换到聊天
-        //   界面、容器变为可见的那一刻"，所以在这里重新滚一次。
         const openChat = () => {
             currentScreen.value = 'chat';
             settings.unreadChatCount = 0;
             nextTick(() => scrollToBottom());
         };
         const coupleTitle = computed(() => settings.coupleName?.trim() || `${profiles.me.name} & ${profiles.them.name}`);
-        // 聊天里显示的名字：设了"聊天备注"就优先用备注，没设就用角色名本身。
-        // 主页面的 coupleTitle 只认角色名，不受这个备注影响——两者刻意分开。
         const chatDisplayName = computed(() => profiles.them.remark?.trim() || profiles.them.name);
-        // ===== 相伴天数 & 今日日期（弹窗和主页面都会用到）=====
         const daysTogether = computed(() => {
             if (!settings.relationshipStartDate) return null;
             const start = new Date(settings.relationshipStartDate + 'T00:00:00');
@@ -3975,13 +3883,9 @@ createApp({
             const d = new Date(homeClockNow.value);
             return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
         });
-        // ===== 每日情话：语料库里设置好一堆句子，每天随机显示其中一条 =====
         const dailyQuoteList = computed(() =>
             (settings.dailyQuotesText || '').split(',').map(s => s.trim()).filter(Boolean)
         );
-        // 按"今天的日期字符串"做一次简单哈希来选序号——
-        // 效果是每天看起来随机跳到语料池里不同的一条（不是死板地按顺序 1,2,3...轮），
-        // 但同一天内不管刷新多少次都选到同一条，不会出现"重进App换了一条"的诡异感。
         const hashDateSeed = (str) => {
             let hash = 0;
             for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) | 0;
@@ -3993,10 +3897,8 @@ createApp({
             const todayStr = new Date().toDateString();
             return list[hashDateSeed(todayStr) % list.length];
         });
-        // 主页面副标题：现在完全由「语料库 → 每日情话」驱动，没配置就不显示
         const homeSubtitle = computed(() => todaysQuote.value);
 
-        // ===== 每日情话弹窗：每天第一次打开时弹一次 =====
         const showDailyQuotePopup = ref(false);
         const checkDailyQuotePopup = () => {
             if (!todaysQuote.value) return; // 没配置语料池就不弹
@@ -4005,7 +3907,6 @@ createApp({
             settings.lastDailyQuoteShownDate = todayStr;
             showDailyQuotePopup.value = true;
         };
-        // 主页面顶部的实时时钟：每 15 秒刷新一次就够了，没必要按秒刷新增加开销
         const homeClockNow = ref(Date.now());
         let homeClockTimer = null;
         const homeTimeText = computed(() => new Date(homeClockNow.value).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }));
@@ -4018,11 +3919,6 @@ createApp({
         const selectiveItems = reactive({ messages: true, corpus: true, stickers: false, notes: false });
         const expandedNotes = ref(new Set()); // 展开的笔记 id
 
-        // 语料库默认数据：
-        // ── 语料库数据模型 ─────────────────────────────────────────
-        // ungroupedReplies：无分组的词句，直接显示，不属于任何分组
-        // replyGroups：用户自建分组，每个分组有 id / name / replies[]
-        // 两者完全独立，addReply 永远写入 ungroupedReplies
         const ungroupedReplies = ref([{text:'我在听'},{text:'今天天气真好'}]);
         const replyGroups = ref([]);
         const currentGroupId = ref('');
@@ -4031,27 +3927,21 @@ createApp({
         const stickerGroups = ref([{ id: 'sg1', name: '默认', stickers: [] }]);
         const currentStickerGroupId = ref('sg1');
 
-        // 设置面板分栏：聊天 / 美化 / 数据
         const settingsTab = ref('chat');
         const corpusEditing = ref(false);   // 管理模式（显示重命名/删除）
-        // 语料库分栏：回复语料 / 表情包 / 状态预设 / 拍一拍预设，四个板块合并到一个入口里
         const corpusTab = ref('replies');
         const collapsedGroups = ref([]);    // 已折叠的分组 id 列表
 
-        // 用户分组（即 replyGroups 本身，保持语义一致）
         const userGroups = computed(() => replyGroups.value);
 
-        // filteredReplies：仅搜索时使用，全库平铺
         const filteredReplies = computed(() => {
             if (!searchQuery.value) return [];
             const q = searchQuery.value.toLowerCase();
             const out = [];
-            // 先搜未分组
             ungroupedReplies.value.forEach(r => {
                 if (r.text.toLowerCase().includes(q))
                     out.push({ reply: r, groupId: null, groupName: '' });
             });
-            // 再搜各分组
             replyGroups.value.forEach(g => {
                 g.replies.forEach(r => {
                     if (r.text.toLowerCase().includes(q))
@@ -4076,7 +3966,6 @@ createApp({
         };
         const currentStickerGroup = computed(() => stickerGroups.value.find(g=>g.id===currentStickerGroupId.value)||stickerGroups.value[0]);
 
-        // ===== 日历系统 =====
         const calendarDate = ref(new Date());
         const selectedDateObj = ref(new Date());
         const currentMonthYearText = computed(() => `${calendarDate.value.getFullYear()}年 ${calendarDate.value.getMonth() + 1}月`);
@@ -4091,7 +3980,6 @@ createApp({
             for (let i = 1; i <= daysInMonth; i++) {
                 const date = new Date(year, month, i);
                 const hasNote = notes.value.some(n => new Date(n.timestamp).toDateString() === date.toDateString());
-                // ✅ 跟"潮汐"联动：这一天有没有记录经期，主日历上也用一个小圆点标出来
                 const isPeriodDay = periodRecords.value.some(r => new Date(r.timestamp).toDateString() === date.toDateString());
                 days.push({ date, number: i, hasNote, isPeriodDay });
             }
@@ -4105,21 +3993,16 @@ createApp({
             return notes.value.filter(n => new Date(n.timestamp).toDateString() === selectedDateObj.value.toDateString()).sort((a,b)=>a.timestamp-b.timestamp);
         });
 
-        // ===== 数据持久化 =====
     const DB_KEY = 'app_fusion_v6';
     const LS_KEY = 'app_fusion_v6_backup';
 
-    // ===== 云端同步：持久化设备ID（跨会话不变，用于在服务器上认领这台设备的数据）=====
     let CLOUD_DEVICE_ID = localStorage.getItem('app_fusion_device_id');
     if (!CLOUD_DEVICE_ID) {
         CLOUD_DEVICE_ID = 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
         localStorage.setItem('app_fusion_device_id', CLOUD_DEVICE_ID);
     }
-    // OneSignal 推送订阅ID，OneSignal 就绪并订阅成功后会被写入（见 initNotification）
     const cloudSubId = ref('');
 
-    // 把云端备份数据写入本地各个 ref —— 抽成一个函数，
-    // 这样"本地无数据时自动兜底恢复"和"手动输入其他设备ID恢复"可以共用同一套逻辑，不用写两遍
     const applyCloudBackup = (cloud) => {
         if (!cloud) return;
         if (cloud.messages) messages.value = cloud.messages;
@@ -4136,7 +4019,6 @@ createApp({
         if (cloud.emojiPoolText !== undefined) emojiPoolText.value = cloud.emojiPoolText;
     };
 
-    // ===== 换设备手动恢复：在设置里输入"旧设备的ID"，从云端把那台设备的存档拉过来 =====
     const restoreFromDeviceId = ref(''); // 用户输入的、要恢复的那台旧设备的ID
     const restoringFromDevice = ref(false);
     const githubBackupExpanded = ref(false); // GitHub 备份区块默认收起，个人用户大多用不到
@@ -4179,13 +4061,19 @@ createApp({
         emojiPoolText: emojiPoolText.value
 });
 
-    // ===== 云端同步：把数据备份到 Netlify Blobs，并把推送所需信息交给后端 =====
-    // 做了 4 秒防抖，避免每次输入都请求；网络失败也不影响本地聊天，只是静默重试
     let cloudSyncTimer = null;
     const syncToCloud = () => {
-        if (cloudSyncTimer) clearTimeout(cloudSyncTimer);
-        cloudSyncTimer = setTimeout(async () => {
+        if (cloudSyncTimer) safeClearTimeout(cloudSyncTimer);
+        cloudSyncTimer = safeSetTimeout(async () => {
             try {
+                // 客户端这边也加一道保护：如果本地已经有过不少消息、但这一刻 messages 突然是空的，
+                // 大概率是某种异常瞬间状态，而不是真的清空了——跳过这次同步，避免把云端备份冲成空的。
+                // （服务端 sync-save.js 也有同样的保护，这里是双重保险）
+                if (messages.value.length === 0 && (settings.hasEverHadMessages)) {
+                    console.warn('[云端同步] messages 为空但之前有过记录，跳过本次同步以保护云端备份');
+                    return;
+                }
+                if (messages.value.length > 0) settings.hasEverHadMessages = true;
                 const payload = buildSavePayload();
                 payload.deviceId = CLOUD_DEVICE_ID;
                 payload.subscriptionId = cloudSubId.value || '';
@@ -4200,7 +4088,6 @@ createApp({
         }, 4000);
     };
 
-    // 立即执行一次云端备份（不走 4 秒防抖），供"立即备份"按钮 / 定时自动备份使用
     const syncToCloudNow = async () => {
         try {
             const payload = buildSavePayload();
@@ -4218,10 +4105,6 @@ createApp({
         }
     };
 
-    // ===== GitHub 直传备份 =====
-    // 用 GitHub 的 Contents API 把当前存档写成一个 JSON 文件提交到指定仓库。
-    // 需要在设置里填：Token（建议用只授权这一个仓库 contents 读写权限的 Fine-grained token）
-    // / 仓库拥有者 / 仓库名 / 分支 / 文件路径。
     const backupToGitHub = async () => {
         if (!settings.githubToken || !settings.githubOwner || !settings.githubRepo) {
             return { ok: false, error: '请先在设置里填写 GitHub Token / 仓库拥有者 / 仓库名' };
@@ -4234,7 +4117,6 @@ createApp({
             'Accept': 'application/vnd.github+json'
         };
         try {
-            // 1. 先查文件是否已存在，取 sha 才能"更新"而不是报 409 冲突
             let sha = null;
             try {
                 const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
@@ -4245,9 +4127,8 @@ createApp({
                     const errBody = await getRes.text().catch(() => '');
                     return { ok: false, error: `查询文件失败（HTTP ${getRes.status}）${errBody.slice(0,200)}` };
                 }
-            } catch (e) { /* 查询失败就当作文件不存在，走创建流程 */ }
+            } catch (e) {  }
 
-            // 2. 把存档 JSON 转成 UTF-8 安全的 base64
             const payload = buildSavePayload();
             const jsonStr = JSON.stringify(payload, null, 2);
             const base64Content = btoa(unescape(encodeURIComponent(jsonStr)));
@@ -4279,7 +4160,6 @@ createApp({
         }
     };
 
-    // 手动点击"立即备份"按钮：本地 + Netlify 云端 + （如果开启了）GitHub，一次性都做一遍
     const manualBackupNow = async () => {
         const cloudOk = await syncToCloudNow();
         settings.lastCloudBackupAt = Date.now();
@@ -4291,8 +4171,6 @@ createApp({
         alert(`${cloudOk ? '云端备份成功' : '云端备份请求失败（不影响本地聊天数据）'}${githubMsg}`);
     };
 
-    // 定时自动备份：按 settings.autoBackupIntervalHours 的间隔，周期性做一次
-    // 本地 + 云端 + GitHub（如果开启）备份，不需要用户手动点按钮
     let autoBackupTimer = null;
     const restartAutoBackupTimer = () => {
         if (autoBackupTimer) safeClearInterval(autoBackupTimer);
@@ -4305,7 +4183,6 @@ createApp({
         }, hours * 3600 * 1000);
     };
 
-    // 真正写本地盘（localStorage + IndexedDB）+ 触发云端同步
     const writeLocalSave = async () => {
         const data = buildSavePayload();
         try {
@@ -4318,16 +4195,9 @@ createApp({
         } catch (e) {
             console.warn('localforage 保存失败', e);
         }
-        // 云端备份（异步防抖，不阻塞、不影响本地体验）
         syncToCloud();
     };
 
-    // saveData(false)：日常自动保存，做 500ms 防抖 —— 深度 watch 挂在整个聊天记录/
-    // 语料库/设置等大对象上，任何一次编辑（哪怕只是设置里打一个字）都会触发它；
-    // 不防抖的话，每敲一个字都要把整份存档重新 JSON.stringify 一遍再写盘，
-    // 数据量一大就会明显卡顿。500ms 内的连续编辑只在最后落一次盘。
-    // saveData(true)：强制立即保存，绕开防抖 —— 用在切后台/关闭页面这类
-    // "必须马上落盘"的场景（flushSave），防止防抖窗口内数据丢失。
     let localSaveTimer = null;
     const saveData = async (force = false) => {
         if (!force && showSplash.value) return;
@@ -4352,9 +4222,6 @@ createApp({
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') flushSave();
     });
-        // 「后台保活」开关：勾选/取消时立刻生效，不需要刷新页面
-        // （真正的 SW ping / Wake Lock / 静音音频逻辑在文件末尾的顶层 <script> 里，
-        //  这里只是把 Vue 里的设置值同步过去）
         watch(() => settings.bgKeepAlive, (enabled) => {
             window.__setKeepAlive?.(enabled);
         });
@@ -4371,10 +4238,6 @@ createApp({
             }
         }, { immediate: true });
 
-        // smooth=false（默认）：直接跳到底部，不做平滑滚动动画——
-        //   聊天记录一多，从顶部平滑滚到底部本身就要跑很久，看起来就像卡顿。
-        //   只有"已经在聊天里、新消息到达"这种"就差一小段"的场景才传 smooth=true，
-        //   让新消息的出现显得连贯，而不是硬跳。
         const scrollToBottom = async (smooth = false) => {
             await nextTick();
             const el = document.getElementById('chat-container');
@@ -4392,13 +4255,8 @@ createApp({
             }
         };
 
-        // ===== 消息通知（后台推送）=====
-
-        // 通知权限状态（响应式，供设置页面实时显示）
         const notifPermStatus = ref(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
-        // iOS 检测
         const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-        // 是否已安装为 PWA（iOS 需要这个才能收到通知）
         const isInstalledPWA = window.matchMedia('(display-mode: standalone)').matches
             || window.navigator.standalone === true;
 
@@ -4409,7 +4267,6 @@ createApp({
                 return;
             }
 
-            // 路径一：OneSignal 就绪 → 用它订阅（支持服务端推送）
             if (window.__oneSignalReady) {
                 try {
                     const granted = await window.OneSignal.Notifications.requestPermission();
@@ -4417,7 +4274,6 @@ createApp({
                     if (granted) {
                         await window.OneSignal.User.PushSubscription.optIn().catch(() => {});
                         console.log('[通知] ✅ OneSignal 订阅成功');
-                        // 记录订阅ID，并立即同步一次到云端，确保后端定时任务/信箱推送能找到这台设备
                         cloudSubId.value = window.OneSignal?.User?.PushSubscription?.id || '';
                         if (cloudSubId.value) syncToCloud();
                         return;
@@ -4428,7 +4284,6 @@ createApp({
                 }
             }
 
-            // 路径二：降级 → 原生浏览器权限请求
             if (Notification.permission === 'default') {
                 try {
                     const result = await Notification.requestPermission();
@@ -4440,15 +4295,8 @@ createApp({
             }
         };
 
-        // OneSignal 真正就绪时触发一次通知初始化——这个监听器在这里（setup 同步阶段）
-        // 就立刻注册好，不会错过 OneSignal 提前就绪时派发的事件。
-        // 比"固定等 3.2 秒再赌一把 OneSignal 是不是好了"要准确，也不会重复调用。
         window.addEventListener('onesignal-ready', () => initNotification());
 
-        // ===== 应用内消息横幅：page可见、但用户不在聊天页面（主页面/设置/语料库...）时用这个提醒 =====
-        // 系统通知（下面的 showNotification）只在页面被切到后台时才会弹，
-        // 页面明明开着、只是用户在主页面或者别的功能页里，之前是完全没有提示的——
-        // 这里补上应用内横幅，点一下就直接跳回聊天。
         const inAppBanner = reactive({ show: false, title: '', body: '' });
         let inAppBannerTimer = null;
         const showInAppBanner = (title, body) => {
@@ -4462,7 +4310,6 @@ createApp({
             inAppBanner.show = false;
             if (inAppBannerTimer) { safeClearTimeout(inAppBannerTimer); inAppBannerTimer = null; }
         };
-        // 点横幅：关掉可能挡在前面的功能面板，切到聊天，滚动到最新消息
         const openInAppBannerTarget = () => {
             dismissInAppBanner();
             modals.settings = false; modals.replyManager = false; modals.letterHistory = false;
@@ -4471,13 +4318,9 @@ createApp({
             openChat();
         };
 
-        // showNotification：弹出系统通知
-        // 三路径容错：ctrl.postMessage → reg.showNotification → native Notification
         const showNotification = async (title, body) => {
             if (!settings.pushNotify) return;
             if (document.visibilityState === 'visible') {
-                // 页面是开着的，但如果人不在聊天页面（比如在主页面、设置里），
-                // 系统通知不会弹，这时候改用应用内横幅提醒一下，点了直接跳转聊天
                 if (currentScreen.value !== 'chat') showInAppBanner(title, body);
                 return;
             }
@@ -4487,8 +4330,6 @@ createApp({
                 return;
             }
 
-            // 图标必须是绝对 HTTPS URL，不能是 data URL
-            // 系统通知由 OS 渲染，无法加载 data: 协议，会导致图标不显示
             const NOTIF_ICON = location.origin + '/icon-192.png';
             const avatarUrl = profiles.them.avatar;
             const icon = (avatarUrl && avatarUrl.startsWith('https://'))
@@ -4502,22 +4343,18 @@ createApp({
                 data: { type: 'chat' }
             };
 
-            // ── 路径1：通过 ctrl.postMessage 让 SW 在 waitUntil 里发（最可靠）──
             const ctrl = navigator.serviceWorker?.controller;
             if (ctrl) {
                 ctrl.postMessage({ type: 'show-notification', title, ...opts });
                 return;
             }
 
-            // ── 路径2：ctrl 为 null，但 reg 存在 → 直接用 reg.showNotification() ──
-            // 场景：SW 刚重启 / 首次加载时 clients.claim() 还未完成
             const reg = window.__swReg
                 ?? await navigator.serviceWorker?.ready.catch(() => null);
             if (reg) {
                 try { await reg.showNotification(title, opts); return; } catch(e) {}
             }
 
-            // ── 路径3：降级 → 原生 Notification API ──────────────────────────
             try {
                 const n = new Notification(title, opts);
                 n.onclick = () => { window.focus(); n.close(); };
@@ -4525,7 +4362,6 @@ createApp({
             } catch(e) {}
         };
 
-        // ===== 音效播放 =====
         const playSound = (type) => {
             if(!settings.sound) return;
             const volumeRatio = (settings.soundVolume != null ? settings.soundVolume : 100) / 100;
@@ -4568,7 +4404,6 @@ createApp({
         };
         const testSound = () => { playSound('receive'); };
 
-        // ===== 通话铃声 =====
         const playCallRingBeep = () => {
             if (!settings.sound) return;
             try {
@@ -4595,8 +4430,6 @@ createApp({
             if (callRingInterval) { safeClearInterval(callRingInterval); callRingInterval = null; }
         };
 
-        // ===== 视频通话系统 =====
-        // 发起通话（by='me' 我拨 / 'them' 对方来电）
         const initiateCall = (by = 'me') => {
             if (callState.status !== 'idle') return;
             callState.caller = by;
@@ -4605,21 +4438,32 @@ createApp({
             callState.speakerOn = true;
 
             if (by === 'me') {
-                // 拨出 → 等待接听（1.5~4秒随机对方接听）
                 callState.status = 'outgoing';
                 const waitTime = (Math.random() * 2.5 + 1.5) * 1000;
                 callRingTimer = safeSetTimeout(() => {
-                    if (callState.status === 'outgoing') {
+                    if (callState.status !== 'outgoing') return;
+                    const declineChance = settings.callDeclineChance || 0;
+                    if (declineChance > 0 && Math.random() * 100 < declineChance) {
+                        callState.status = 'idle';
+                        const msg = {
+                            id: Date.now() + Math.random(),
+                            sender: 'them', type: 'call',
+                            content: `${chatDisplayName.value} 拒绝了通话`,
+                            callAccepted: false,
+                            timestamp: Date.now(), status: 'read', quote: null,
+                        };
+                        messages.value.push(msg);
+                        showNotification(chatDisplayName.value, msg.content);
+                        scrollToBottom(true);
+                        nextTick(() => lucide.createIcons());
+                    } else {
                         startActiveCall();
                     }
                 }, waitTime);
             } else {
-                // 对方来电
                 callState.status = 'incoming';
                 startCallRinging();
-                // 通知
                 showNotification(`${chatDisplayName.value} 来电`, '视频通话邀请，点击查看');
-                // 30秒无人接听自动挂断
                 callRingTimer = safeSetTimeout(() => {
                     if (callState.status === 'incoming') {
                         declineCall(true); // 自动挂断
@@ -4649,7 +4493,6 @@ createApp({
         const declineCall = (auto = false) => {
             stopCallRinging();
             if (callRingTimer) { safeClearTimeout(callRingTimer); callRingTimer = null; }
-            // 记录通话记录
             const msg = {
                 id: Date.now() + Math.random(),
                 sender: callState.caller === 'them' ? 'them' : 'me',
@@ -4661,7 +4504,6 @@ createApp({
                 quote: null,
             };
             messages.value.push(msg);
-            // ✅ 未接/拒接来电也弹通知，跟其他消息一样走统一的 showNotification（不再自己重复写一遍 SW 推送逻辑）
             showNotification(chatDisplayName.value, msg.content);
             callState.status = 'idle';
             scrollToBottom(true);
@@ -4679,7 +4521,6 @@ createApp({
             callDurationSeconds.value = 0;
             callWindowSize.value = 'fullscreen';
 
-            // 记录通话记录到聊天
             if (wasActive) {
                 const m = Math.floor(duration / 60);
                 const s = duration % 60;
@@ -4696,7 +4537,6 @@ createApp({
                 };
                 messages.value.push(msg);
                 scrollToBottom(true);
-                // ✅ 通话结束也弹通知——比如挂断那一下手机正好切到别的 app 了，回来才看到时长
                 showNotification(chatDisplayName.value, msg.content);
             }
             nextTick(() => lucide.createIcons());
@@ -4715,7 +4555,6 @@ createApp({
             }
         };
 
-        // ===== 缩小化气泡拖拽 =====
         const initMiniBubbleDrag = () => {
             nextTick(() => {
                 const el = document.querySelector('.call-mini-bubble');
@@ -4767,14 +4606,13 @@ createApp({
         const scheduleRandomCall = () => {
             const delay = (Math.random() * 5 + 1) * 3600 * 1000; // 1~6 小时
             randomCallTimer = safeSetTimeout(() => {
-                if (callState.status === 'idle') {
+                if (settings.activeMsg && callState.status === 'idle') {
                     initiateCall('them');
                 }
                 scheduleRandomCall(); // 无论有没有打成功都重新调度
             }, delay);
         };
 
-        // ===== 通话背景图 =====
         const uploadCallBg = (e) => {
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -4788,7 +4626,6 @@ createApp({
             settings.callBgImage = url;
         };
 
-        // ===== Emoji 渲染 =====
         const renderContent = (text) => {
             if (!text) return '';
             let escaped = text
@@ -4805,7 +4642,6 @@ createApp({
             return escaped;
         };
 
-        // ===== 发送消息 =====
         const sendMsg = async (sender, type, content = null, quoteOverride = null, extra = {}) => {
         let txt = content;
         if (type === 'text' && sender === 'me') {
@@ -4834,27 +4670,21 @@ createApp({
 
         messages.value.push(msg);
         playSound(sender === 'me' ? 'send' : 'receive');
-        // ✅ 消息是用户最不能接受丢失的数据，这里不等 500ms 防抖，直接强制落盘一次。
-        //   （防抖仍然用于设置里的高频编辑场景，两者不冲突）
         saveData(true);
 
-        // ✅ 正确的后台通知（使用已有的 showNotification）
         if (sender === 'them') {
              const notifyBody = type === 'text' ? txt : '[图片消息]';
              showNotification(chatDisplayName.value, notifyBody);
-             // 不在聊天页面时，主页面"聊天"图标显示未读角标；进聊天会自动清掉
              if (currentScreen.value !== 'chat') settings.unreadChatCount = (settings.unreadChatCount || 0) + 1;
     }
 
          scrollToBottom(true);
 
         if (sender === 'me') {
-             // ✅ 更新已读状态
              safeSetTimeout(() => {
                  const m = messages.value.find(x => x.id === msg.id);
-                if (m) m.status = 'read';
+                if (m) { m.status = 'read'; nextTick(() => lucide.createIcons()); }
              }, 2000);
-            // ✅ 触发自动回复——但有一定概率"已读不回"：已读状态照常更新，就是不回复这条
             const skipReply = (settings.noReplyChance || 0) > 0 && Math.random() * 100 < settings.noReplyChance;
             if (!skipReply) {
                 triggerAutoReply();
@@ -4863,17 +4693,16 @@ createApp({
     };
         const quoteMsg = (msg) => { quotingMsg.value = msg; };
         const forceBotReply = () => { triggerAutoReply(true); };
-        // 全局引用：供 SW Background Sync 消息触发自动回复使用
         window.__app_triggerAutoReply = () => triggerAutoReply();
-        // 点击通知跳转聊天：不管通知是页面自己弹的还是 OneSignal 真实推送的，
-        // 点击后最终都会调用这个桥接函数，统一切到聊天界面
         window.__app_navigateToChat = () => openChat();
 
-        // ===== 自动回复逻辑 =====
+        let typingSafetyTimer = null; // isTyping 卡死保护的兜底计时器
         const triggerAutoReply = (force = false) => {
             if(isTyping.value) return;
             isTyping.value = true;
             scrollToBottom(true);
+            if (typingSafetyTimer) safeClearTimeout(typingSafetyTimer);
+            typingSafetyTimer = safeSetTimeout(() => { isTyping.value = false; }, 60000);
             const baseDelay = force ? 400 : (Math.random()*(settings.delayMax-settings.delayMin)+settings.delayMin)*1000;
             safeSetTimeout(()=>{
                 const textPool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g=>g.replies)];
@@ -4882,7 +4711,11 @@ createApp({
                 const replyCount = force ? 1 : (Math.floor(Math.random() * 3) + 1);
                 let currentIndex = 0;
                 const sendNext = () => {
-                    if (currentIndex >= replyCount) { isTyping.value = false; return; }
+                    if (currentIndex >= replyCount) {
+                        isTyping.value = false;
+                        if (typingSafetyTimer) { safeClearTimeout(typingSafetyTimer); typingSafetyTimer = null; }
+                        return;
+                    }
                     isTyping.value = false;
                     const useSticker = Math.random() < 0.2 && stickerPool.length > 0;
                     let quoteObj = null;
@@ -4890,11 +4723,8 @@ createApp({
                         const lastUserMsg = [...messages.value].reverse().find(m => m.sender === 'me' && m.type === 'text');
                         if (lastUserMsg) quoteObj = lastUserMsg;
                     }
-                    // 单独发送 emoji 的概率：15%（需要 emoji 池非空且不走贴纸逻辑）
                     const useEmojiOnly = !useSticker && emojiArray.length > 0 && Math.random() < 0.15;
 
-                    // 统一的"发完这一条，继续/结束这一轮回复"逻辑，
-                    // 分片发送（下面）走完自己的节奏后也调用这个来接上原有循环
                     const advance = () => {
                         currentIndex++;
                         if (currentIndex < replyCount) {
@@ -4909,13 +4739,10 @@ createApp({
                         sendMsg('them', 'image', s.dataURL, quoteObj, { isSticker: true });
                         advance();
                     } else if (useEmojiOnly) {
-                        // ✅ 角色可以单独发一个 emoji，不附带文字
                         const e = emojiArray[Math.floor(Math.random() * emojiArray.length)];
                         sendMsg('them', 'text', e, quoteObj);
                         advance();
                     } else if (textPool.length) {
-                        // ✅ 有一定概率随机把 1~3 条语料拼在一起，组合成一句话发出来
-                        //   （而不是每次都只发语料库里的一整条），更像临场现想到什么说什么
                         let t;
                         if ((settings.fragmentReplyChance || 0) > 0 && textPool.length > 1 && Math.random() * 100 < settings.fragmentReplyChance) {
                             const pickCount = Math.min(textPool.length, Math.floor(Math.random() * 3) + 1); // 1~3 条
@@ -4932,7 +4759,6 @@ createApp({
                         } else {
                             t = textPool[Math.floor(Math.random() * textPool.length)].text;
                         }
-                        // ✅ emoji 附加在文字末尾的概率改为 45%
                         if(emojiArray.length > 0 && Math.random() < 0.45) t += ' ' + emojiArray[Math.floor(Math.random() * emojiArray.length)];
                         sendMsg('them', 'text', t, quoteObj);
                         advance();
@@ -4945,7 +4771,6 @@ createApp({
             }, baseDelay);
         };
 
-        // ===== 状态自动刷新（1~5 小时）=====
         const scheduleStatusRefresh = () => {
             const delay = (Math.random() * 4 + 1) * 3600 * 1000; // 1~5 小时
             safeSetTimeout(() => {
@@ -4954,15 +4779,12 @@ createApp({
             }, delay);
         };
 
-        // ===== 日记日历提醒（3~5小时后 2~5 条，直接评论到笔记）=====
         const scheduleNoteReminder = (noteId, overrideDelay = null) => {
             if(noteReminderTimer !== null) safeClearTimeout(noteReminderTimer);
             const delay = overrideDelay !== null ? overrideDelay : (Math.random() * 2 + 3) * 3600 * 1000;
-            // 💡 只有在新写日记（overrideDelay为null）时，才呼叫后端，避免刷新页面重复发通知
             if (overrideDelay === null) {
                 scheduleOfflinePush(chatDisplayName.value, "我看了你的日记，有话对你说...", delay);
             }
-            // 保存绝对触发时间，用于页面刷新后恢复
             const targetNote = notes.value.find(n => n.id === noteId);
             if (targetNote && overrideDelay === null) {
                 targetNote._reminderTargetAt = Date.now() + delay;
@@ -4985,7 +4807,6 @@ createApp({
                     const text = idx === 0 ? `${prefixes[Math.floor(Math.random()*prefixes.length)]} ${txt}` : txt;
                     t2.replies.push({ id: Date.now()+Math.random(), text, timestamp: Date.now() });
                     playSound('receive');
-                    // ✅ 日历/日记回复也要弹系统通知（之前只有聊天消息和时光信箱信件会弹通知）
                     showNotification(chatDisplayName.value + ' · 日记回复', text);
                     if (idx === 0) settings.unreadNoteCount = (settings.unreadNoteCount || 0) + 1; // 主页面"日历"角标：一次回复事件计一次
                     idx++;
@@ -4995,7 +4816,6 @@ createApp({
             }, delay);
         };
 
-        // 页面刷新后恢复未触发的笔记提醒定时器
         const restoreNoteReminders = () => {
             const now = Date.now();
             notes.value.forEach(note => {
@@ -5006,7 +4826,6 @@ createApp({
             });
         };
 
-        // ===== 笔记操作 =====
         const addNote = () => {
             if(newNoteText.value.trim()) {
                 const now = new Date();
@@ -5021,14 +4840,6 @@ createApp({
         };
         const deleteNote = (id) => { const idx = notes.value.findIndex(n=>n.id===id); if(idx>-1) notes.value.splice(idx, 1); };
 
-        // ===== 时光信箱 =====
-        // 修复：接受可选的 overrideDelay 参数，解决页面刷新后定时器丢失问题
-        // 修复2：letterTimerActive 防重复调度锁 + startIndex 断点续传——
-        //   之前的问题是：如果切后台期间页面被系统整个杀死重启（比如接电话），
-        //   onMounted 会重新执行 restorePendingLetter()，但此时可能已经有一个
-        //   仍在等待的定时器在跑，两边都会各自把全部回信从头发一遍，导致重复消息。
-        //   现在用 letterTimerActive 锁住"同一时间只有一路在跑"，
-        //   并用 sentCount 记录已经发出的条数，恢复时从断点继续，而不是从头重发。
         let letterTimerActive = false;
         const scheduleLetterReplies = (letterId, replyTexts, overrideDelay = null, startIndex = 0) => {
             if (letterTimerActive) return; // 已有一路在跑，不重复调度
@@ -5053,7 +4864,6 @@ createApp({
                     settings.unreadLetterCount = (settings.unreadLetterCount || 0) + 1; // 回信收到了，主页面"信笺"图标显示角标
                 }
             };
-            // 断点续传场景（startIndex>0）：说明第一条早就该发了，只需按正常的条间间隔接上，不用再等 baseDelay
             safeSetTimeout(sendNext, startIndex > 0 ? (Math.random()*3+1)*60*1000 : baseDelay);
         };
 
@@ -5070,18 +4880,14 @@ createApp({
                 if(pool.length) replies.push(pool[Math.floor(Math.random()*pool.length)]);
                 else replies.push('收到信了，晚些回复你。');
             }
-            // 保存绝对触发时间戳，页面刷新后精确恢复
             const totalDelay = 10*3600*1000 + Math.random()*14*3600*1000;
             pendingLetter.value = { letterId: id, replies, scheduled: true, sentAt: Date.now(), targetAt: Date.now() + totalDelay, sentCount: 0 };
-            // 💡 呼叫云函数处理长信的离线推送
             scheduleOfflinePush("时光信箱", "我收到你的信了，这是我的回信。", totalDelay);
             scheduleLetterReplies(id, replies, totalDelay);
             letterContent.value = '';
             showLetterCompose.value = false;
         };
 
-        // 修复：使用 targetAt 精确计算剩余等待时间，避免每次刷新重新随机延迟
-        // 修复2：如果之前已经发出了一部分回信（p.sentCount），从断点续传，不从头重发
         const restorePendingLetter = () => {
             if (letterTimerActive) return; // 已经有一路定时器在跑，不需要再恢复一次
             const p = pendingLetter.value;
@@ -5092,7 +4898,6 @@ createApp({
             if (p.targetAt) {
                 remaining = Math.max(p.targetAt - Date.now(), 5000);
             } else if (p.sentAt) {
-                // 兼容旧数据：sentAt 方式，取 10~24h 中位值 17h
                 const fallbackTotal = 17 * 3600 * 1000;
                 remaining = Math.max(fallbackTotal - (Date.now() - p.sentAt), 5000);
             } else {
@@ -5101,42 +4906,25 @@ createApp({
             scheduleLetterReplies(p.letterId, p.replies, remaining, startIndex);
         };
 
-        // ===== 回到前台修复：iOS 上切后台（尤其是接电话）返回时，
-        //      WebView 经常会"画面冻结"——底层数据其实已经更新，但屏幕停留在
-        //      切走前那一刻的截图，看起来就像"时间没变、新消息没加载"，
-        //      直到用户手动点一下/滑一下才会刷新。
-        //      这里在回到前台时做三件事：
-        //      1. 强制触发一次浏览器重排（reflow），逼着 WebView 重新绘制
-        //      2. 补一次 restorePendingLetter / restoreNoteReminders —— 万一
-        //         页面在后台被系统整个杀死重启，定时器全部丢失，这里能接上
-        //         （上面已加锁，不会和仍存活的定时器重复调度）
-        //      3. 滚动到底部，把等待中的新消息带入可视区域
         const forceUIRefresh = () => {
             restorePendingLetter();
             restoreNoteReminders();
             scrollToBottom();
             nextTick(() => {
-                // 强制重排：短暂隐藏再显示，触发 WebKit 重新绘制整棵树
                 const el = document.getElementById('app') || document.body;
                 const prevDisplay = el.style.display;
                 el.style.display = 'none';
                 void el.offsetHeight; // 读取一次布局属性，强制回流
                 el.style.display = prevDisplay || '';
-                // 注：这里不再重复调用 lucide.createIcons() ——
-                // 图标的创建已经由下面 messages.length / modals 的 watch 统一负责，
-                // 每次切后台/切回来都再扫一遍全 DOM 属于重复劳动，删掉能省一点开销。
             });
         };
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') forceUIRefresh();
         });
-        // bfcache（前进后退缓存）恢复场景：visibilitychange 不一定会触发，
-        // 但 pageshow 的 event.persisted 会告诉我们页面是从缓存恢复的
         window.addEventListener('pageshow', (e) => {
             if (e.persisted) forceUIRefresh();
         });
 
-        // ===== 表情包操作 =====
         const batchImportStickers = (e) => {
             const files = Array.from(e.target.files);
             files.forEach(file => {
@@ -5145,7 +4933,6 @@ createApp({
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        // 3× DPR：显示 90px → 存储 270px，高清无损
                         const DPR = 3;
                         const DISPLAY_MAX = 90;
                         let w = img.width, h = img.height;
@@ -5170,8 +4957,6 @@ createApp({
         const deleteSticker = (s) => { const idx = currentStickerGroup.value.stickers.indexOf(s); if(idx>-1) currentStickerGroup.value.stickers.splice(idx,1); };
         const addStickerGroup = () => { const name = prompt('分组名'); if(name) stickerGroups.value.push({ id: 'sg_'+Date.now(), name, stickers: [] }); };
 
-        // ===== 语料库操作 =====
-        // ── 分组管理 ──────────────────────────────────────────────
         const addGroup = () => {
             const n = prompt('新建分组名称');
             if (n?.trim()) {
@@ -5184,14 +4969,11 @@ createApp({
         };
         const deleteGroup = (g) => {
             if (!confirm(`删除分组「${g.name}」？\n分组内 ${g.replies.length} 条语料将移入无分组区域。`)) return;
-            // 删除分组时把该组的词句移回 ungroupedReplies，而非丢弃
             ungroupedReplies.value.push(...g.replies);
             const idx = replyGroups.value.indexOf(g);
             if (idx > -1) replyGroups.value.splice(idx, 1);
         };
 
-        // ── 词句增删 ──────────────────────────────────────────────
-        // addReply：永远添加到无分组区域（ungroupedReplies），不进任何分组
         const newReplyGroupId = ref(null); // null = 无分组，string = 分组 id
 
         const addReply = () => {
@@ -5207,8 +4989,6 @@ createApp({
             newReplyText.value = '';
         };
 
-        // removeReply：item = { reply, groupId }
-        // groupId === null 表示在 ungroupedReplies 里
         const removeReply = (item) => {
             if (item.groupId === null) {
                 const idx = ungroupedReplies.value.indexOf(item.reply);
@@ -5219,12 +4999,9 @@ createApp({
             }
         };
 
-        // ── 批量移动 ──────────────────────────────────────────────
-        // target = { id, replies } 或 null（表示移回无分组）
         const doMoveToGroup = (target) => {
             if (!selectedReplies.value.length) { showMovePanel.value = false; return; }
             selectedReplies.value.forEach(item => {
-                // 从来源移除
                 if (item.groupId === null) {
                     const i = ungroupedReplies.value.indexOf(item.reply);
                     if (i > -1) ungroupedReplies.value.splice(i, 1);
@@ -5232,7 +5009,6 @@ createApp({
                     const sg = replyGroups.value.find(g => g.id === item.groupId);
                     if (sg) { const i = sg.replies.indexOf(item.reply); if (i > -1) sg.replies.splice(i, 1); }
                 }
-                // 放入目标
                 if (target === null) {
                     ungroupedReplies.value.push(item.reply);
                 } else if (target.id !== item.groupId) {
@@ -5252,7 +5028,6 @@ createApp({
             doMoveToGroup(g);
         };
 
-        // ── 批量删除 ──────────────────────────────────────────────
         const deleteSelectedReplies = () => {
             if (!selectedReplies.value.length) return;
             selectedReplies.value.forEach(item => removeReply(item));
@@ -5260,7 +5035,6 @@ createApp({
             selectAll.value = false;
         };
 
-        // ── 全选 ──────────────────────────────────────────────────
         const toggleSelectAll = () => {
             if (selectAll.value) {
                 selectedReplies.value = []; selectAll.value = false;
@@ -5277,18 +5051,15 @@ createApp({
             }
         };
 
-        // ── 全库去重 ───────────────────────────────────────────────
         const deduplicateAll = () => {
             const seen = new Set();
             let removed = 0;
-            // 未分组先处理（优先保留）
             const before0 = ungroupedReplies.value.length;
             ungroupedReplies.value = ungroupedReplies.value.filter(r => {
                 if (seen.has(r.text)) return false;
                 seen.add(r.text); return true;
             });
             removed += before0 - ungroupedReplies.value.length;
-            // 各分组
             replyGroups.value.forEach(g => {
                 const b = g.replies.length;
                 g.replies = g.replies.filter(r => { if (seen.has(r.text)) return false; seen.add(r.text); return true; });
@@ -5310,7 +5081,6 @@ createApp({
             modals.batchInput = false;
         };
 
-        // ===== 图片上传 =====
         const triggerImageUpload = () => imgInput.value.click();
         const onImageUpload = (e) => {
             const f = e.target.files[0]; if(!f) return;
@@ -5320,7 +5090,6 @@ createApp({
             e.target.value = '';
         };
 
-        // ===== 资料编辑 =====
         const editProfile = (role) => {
             const n = prompt('昵称', profiles[role].name);
             if(n) profiles[role].name = n;
@@ -5337,7 +5106,6 @@ createApp({
             }
         };
 
-        // ===== 背景图 =====
         const uploadBg = (e) => {
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -5351,7 +5119,6 @@ createApp({
             settings.bgImage = url;
         };
 
-        // ===== 主页面壁纸（跟上面的聊天背景是两张独立的图）=====
         const uploadHomeWallpaper = (e) => {
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -5365,7 +5132,6 @@ createApp({
             settings.homeWallpaper = url;
         };
 
-        // ===== 情侣卡片图片（主页面卡片上半部分的那一小块图）=====
         const uploadCoupleCardImage = (e) => {
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -5379,7 +5145,6 @@ createApp({
             settings.coupleCardImage = url;
         };
 
-        // ===== 分类导出 / 导入 =====
         const doSelectiveExport = () => {
             const items = selectiveItems;
             if (!items.messages && !items.corpus && !items.stickers && !items.notes) return;
@@ -5424,7 +5189,6 @@ createApp({
                 try {
                     const data = JSON.parse(ev.target.result);
                     const inc = data._includes || {};
-                    // 根据文件里实际有什么来决定导入什么，同时尊重用户勾选
                     const shouldImport = {
                         messages: selectiveItems.messages && !!data.messages,
                         corpus: selectiveItems.corpus && (!!data.ungroupedReplies || !!data.replyGroups),
@@ -5446,7 +5210,6 @@ createApp({
                         if (data.ungroupedReplies) ungroupedReplies.value = data.ungroupedReplies;
                         if (data.replyGroups) replyGroups.value = data.replyGroups;
                         if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
-                        // 兼容旧全量备份格式
                         const oldUG = replyGroups.value.find(g=>g.id==='__ungroup__');
                         if (oldUG) { ungroupedReplies.value.push(...oldUG.replies); replyGroups.value = replyGroups.value.filter(g=>g.id!=='__ungroup__'); }
                     }
@@ -5465,14 +5228,10 @@ createApp({
             reader.readAsText(file);
         };
 
-        // ===== 全局导出 / 导入 =====
         const globalExport = () => {
-            // 复用 buildSavePayload，不用每个字段再手写一遍 JSON.parse(JSON.stringify(...))
             const data = buildSavePayload();
             data._version = 'lorstar41_backup_v1';
             data._exportedAt = new Date().toISOString();
-            // ⚠️ 导出的 JSON 文件很容易被分享/上传到别处，所以把 GitHub Token 抹掉，避免密钥泄露。
-            // buildSavePayload 已经深拷贝过 settings，这里改的是导出副本，不影响本机继续自动备份用的真实 Token。
             data.settings.githubToken = '';
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
@@ -5514,7 +5273,6 @@ createApp({
             e.target.value = '';
         };
 
-        // ===== 工具函数 =====
         const clearChat = () => { if(confirm('真的要清空所有对话吗？此操作无法恢复哦。')) { messages.value = []; modals.settings = false; } };
         const exportChat = () => {
             const str = messages.value.map(m=>`[${formatTime(m.timestamp)}] ${profiles[m.sender].name}: ${m.type==='text'?m.content:'[图片]'}`).join('\n');
@@ -5571,7 +5329,6 @@ createApp({
             modals.settings = false;
         };
 
-        // ===== 主动消息定时器 =====
         const restartActiveMsgTimer = () => {
             if(activeIntervalTimer) safeClearInterval(activeIntervalTimer);
             if(settings.activeMsg) {
@@ -5579,20 +5336,13 @@ createApp({
             }
         };
         watch(() => [settings.activeMsg, settings.activeInterval], restartActiveMsgTimer);
-        // 自动备份开关/间隔改变时，实时重启定时器
         watch(() => [settings.autoBackupEnabled, settings.autoBackupIntervalHours], restartAutoBackupTimer);
 
-        // ===== 生命周期 =====
         onMounted(async () => {
-        // 请求系统通知权限（原生兜底，OneSignal 就绪后 initNotification 里还会走一次正式流程）
         if ("Notification" in window && Notification.permission !== "denied") {
             Notification.requestPermission();
         }
 
-        // ✅ 处理"App 完全被系统关掉之后，靠点通知重新打开"的情形——
-        //   这种情况下没有任何页面在运行、SW 的 postMessage 桥接用不上，
-        //   只能靠 SW 在 notificationclick 时打开这个带参数的 URL，
-        //   这里在启动时检查一下，有这个参数就直接跳到聊天界面。
         try {
             const params = new URLSearchParams(location.search);
             if (params.get('openChat') === '1') {
@@ -5601,11 +5351,6 @@ createApp({
             }
         } catch (e) {}
 
-        // ✅ 请求"持久化存储"：默认情况下，浏览器在设备存储紧张时，
-        //    可能会静默清掉不常用网站的 localStorage / IndexedDB（这大概率是
-        //    "重启后聊天记录回到最开始"的根本原因之一，而不是代码逻辑本身的问题）。
-        //    申请下来之后，浏览器就不会再无提示地清空这个网站的数据。
-        //    大多数浏览器会自动准予（不弹窗），部分浏览器需要用户已经"添加到主屏幕"过。
         try {
             if (navigator.storage?.persist) {
                 const already = await navigator.storage.persisted?.();
@@ -5621,14 +5366,12 @@ createApp({
         let idbData = null;
             let lsData = null;
 
-        // 1. 读取 IndexedDB
             try {
                 idbData = await localforage.getItem(DB_KEY);
             } catch (e) {
                 console.warn('localforage 读取失败', e);
             }
 
-            // 2. 读取 localStorage 兜底
             try {
                 const raw = localStorage.getItem(LS_KEY);
                 lsData = raw ? JSON.parse(raw) : null;
@@ -5636,7 +5379,6 @@ createApp({
                 console.warn('localStorage 读取失败', e);
             }
 
-        // 3. 核心修复：对比时间戳，永远取最新的一份数据
         let data = null;
         if (idbData && lsData) {
             const t1 = new Date(idbData._savedAt || 0).getTime();
@@ -5645,9 +5387,6 @@ createApp({
         } else {
             data = idbData || lsData;
         }
-        // 诊断日志：如果以后又出现"重启丢失聊天记录"，打开浏览器控制台看这一行，
-        // 能立刻知道问题出在哪一层——是两边storage都读到null（说明数据真的被清了），
-        // 还是读到了但messages是空数组（说明是保存时的问题）。
         console.log('[存储诊断] IndexedDB:', idbData ? `有数据(${idbData.messages?.length||0}条消息)` : '无数据',
                     '| localStorage:', lsData ? `有数据(${lsData.messages?.length||0}条消息)` : '无数据');
         if (data) {
@@ -5671,19 +5410,16 @@ createApp({
             }
         }
 
-        // ===== 云端数据：拉取备份 + 离线期间服务器代发的"待处理消息" =====
         try {
             const res = await fetch('/.netlify/functions/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID));
             if (res.ok) {
                 const cloud = await res.json();
 
-                // 本地完全没有数据时（换设备/清过缓存），用云端备份兜底恢复一次
                 if (!data && cloud && cloud.messages) {
                     applyCloudBackup(cloud);
                     console.log('[云端同步] 本地无数据，已从云端恢复备份');
                 }
 
-                // 把离开期间（定时任务离线推送）产生的消息补进聊天记录里
                 if (cloud && Array.isArray(cloud.pendingMessages) && cloud.pendingMessages.length) {
                     for (const m of cloud.pendingMessages) {
                         messages.value.push({
@@ -5717,7 +5453,6 @@ createApp({
                 checkDailyQuotePopup();
                 restartActiveMsgTimer();
                 restartAutoBackupTimer();
-                // 主页面时钟：每15秒刷新一次
                 homeClockTimer = safeSetInterval(() => { homeClockNow.value = Date.now(); }, 15000);
                 scheduleStatusRefresh();
                 scheduleRandomCall();
@@ -5726,12 +5461,6 @@ createApp({
             });
         }, 5500);
     });
-        // ⚠️ 性能修复：这里之前是 deep:true 深度监听整个 messages 数组，
-        //   意味着"任何一条消息的任何属性变化"（标记已读、编辑、撤回...）
-        //   都会触发一次全 DOM 的图标重建扫描——聊天记录越长，这个扫描越贵，
-        //   这是"聊天记录一多就卡"的主要原因之一。
-        //   实际上只有"新增/删除消息"时才需要重建图标（新气泡上有新图标），
-        //   消息内部属性变化不需要。改成只监听数组长度，开销降低一个数量级。
         watch([() => messages.value.length, modals], () => nextTick(() => lucide.createIcons()), { deep: true });
 
         return {
@@ -5764,20 +5493,15 @@ createApp({
             todaysQuote, homeSubtitle, showDailyQuotePopup, daysTogether, todayDateText,
             manualBackupNow, backupToGitHub,
             CLOUD_DEVICE_ID, restoreFromDeviceId, restoringFromDevice, restoreFromOtherDevice, copyDeviceId, githubBackupExpanded,
-            // 视频通话
             callState, formatCallDuration,
             initiateCall, acceptCall, declineCall, hangupCall,
             minimizeCall, restoreCall,
             uploadCallBg, applyCallBgUrl,
-            // 通话窗口尺寸
             callWindowSize, callWindowClass, cycleCallWindowSize,
-            // 右键/长按菜单 & 删除
             ctxMenu, showMsgMenu, closeMsgMenu,
             deleteMsg, copyMsgText,
             startLongPress, cancelLongPress,
-            // 消息收藏 / 多选 / 编辑 / 撤回
             favorites, favoriteSingleMsg, favoriteSelected, removeFavorite,
-            // 潮汐（月经记录）
             periodRecords, periodFormDate, periodFormFlow, periodFormMood, periodFormNote, showPeriodForm,
             periodMoodOptions, periodFlowOptions, periodStarts, periodAvgCycleLength, periodNextPredicted,
             periodDaysUntilNext, openPeriodForm, savePeriodRecord, deletePeriodRecord,
@@ -5786,10 +5510,8 @@ createApp({
             selectMode, selectedMsgIds, enterSelectMode, exitSelectMode, toggleSelectMsg, isMsgSelected, onMsgRowClick,
             editingMsgId, editingText, startEditMsg, confirmEditMsg, cancelEditMsg,
             canRecallMsg, recallMsg,
-            // 拍一拍
             pokeToast, sendPoke, showPokePicker, confirmPoke,
             pokePickerShow, pokePickerSelected, pokeOptions,
-            // 应用内消息横幅
             inAppBanner, dismissInAppBanner, openInAppBannerTarget,
         };
     }
