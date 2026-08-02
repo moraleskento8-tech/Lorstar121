@@ -157,6 +157,35 @@
         .dark .bg-bubbleSend { background: rgba(108, 116, 161, 0.9); }
         .dark .bg-bubbleReceive { background: rgba(35, 40, 63, 0.9); }
 
+        /* ===== 塔罗牌翻牌效果 ===== */
+        .tarot-card { perspective: 1000px; width: 100%; aspect-ratio: 3 / 5; cursor: pointer; }
+        .tarot-card-inner {
+            position: relative; width: 100%; height: 100%;
+            transition: transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        .tarot-card.flipped .tarot-card-inner { transform: rotateY(180deg); }
+        .tarot-card-face {
+            position: absolute; inset: 0;
+            backface-visibility: hidden; -webkit-backface-visibility: hidden;
+            border-radius: 14px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: 0 4px 16px -4px rgba(124,148,204,0.35);
+        }
+        .tarot-card-back-face {
+            background: linear-gradient(145deg, #7c94cc 0%, #3d4a7a 55%, #232a4d 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tarot-card-back-face::before {
+            content: ''; position: absolute; inset: 6px;
+            border: 1px solid rgba(255,255,255,0.35); border-radius: 10px;
+        }
+        .tarot-card-front-face {
+            background: #fff; transform: rotateY(180deg);
+        }
+        .tarot-card-front-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .tarot-card-front-face.is-reversed img { transform: rotate(180deg); }
+
         .quote-inline-btn {
             position: absolute; bottom: 6px; right: 10px;
             width: 22px; height: 22px; border-radius: 50%;
@@ -1457,6 +1486,10 @@
                         <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="star" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">收藏</span>
                     </button>
+                    <button @click="modals.tarot = true" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="wand-2" class="w-6 h-6"></i></div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">占卜</span>
+                    </button>
                     <button @click="modals.settings = true" class="flex flex-col items-center gap-1.5">
                         <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="sliders-horizontal" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">设置</span>
@@ -2679,15 +2712,16 @@
                         <div class="calendar-grid" style="gap:2px;">
                             <div v-for="(day, idx) in calendarDays" :key="idx" @click="day && selectDate(day.date)"
                                 class="calendar-cell" style="font-size:11px; width:100%; aspect-ratio:1;"
-                                :class="{'invisible': !day, 'active': day && isSelectedDate(day.date), 'has-note': day && day.hasNote}">
+                                :class="{'invisible': !day, 'active': day && isSelectedDate(day.date), 'has-note': day && day.hasNote, 'is-predicted': day && day.isPredicted}">
                                 <span v-if="day">{{ day.number }}</span>
                                 <div v-if="day && day.hasNote" class="note-dot"></div>
                                 <div v-if="day && day.isPeriodDay" class="period-dot"></div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 mt-1.5 justify-center">
+                        <div class="flex items-center gap-3 mt-1.5 justify-center flex-wrap">
                             <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full bg-accent/20 border border-accent/30"></div><span>有记录</span></div>
                             <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full" style="background:rgb(244,114,182);"></div><span>经期</span></div>
+                            <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full border border-dashed" style="border-color:rgba(244,114,182,0.7);"></div><span>预测经期</span></div>
                             <div class="flex items-center gap-1 text-[9px] text-muted"><div class="w-2 h-2 rounded-full bg-accent"></div><span>选中</span></div>
                         </div>
                     </div>
@@ -2811,7 +2845,7 @@
                             <div class="calendar-grid" style="gap:2px;">
                                 <div v-for="(day, idx) in periodCalDays" :key="idx" @click="day && selectPeriodDay(day.date)"
                                      class="calendar-cell" style="font-size:11px;"
-                                     :class="{'invisible': !day, 'active': day && isPeriodSelectedDay(day.date), 'has-record': day && day.record, 'is-predicted': day && day.isPredicted, 'is-ovulation': day && day.isOvulation, 'is-luteal': day && day.isLuteal}">
+                                     :class="{'invisible': !day, 'active': day && isPeriodSelectedDay(day.date), 'has-record': day && day.inRange, 'is-predicted': day && day.isPredicted, 'is-ovulation': day && day.isOvulation, 'is-luteal': day && day.isLuteal}">
                                     <span v-if="day">{{ day.number }}</span>
                                 </div>
                             </div>
@@ -2883,9 +2917,112 @@
                                 <input type="number" v-model.number="settings.periodCycleLength" min="15" max="60" class="w-16 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1.5 text-center text-xs outline-none">
                             </div>
                             <div class="flex justify-between items-center">
+                                <span class="text-xs text-muted">经期天数（只记录单天时按此天数显示为完整周期）</span>
+                                <input type="number" v-model.number="settings.periodDurationDays" min="1" max="14" class="w-16 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1.5 text-center text-xs outline-none">
+                            </div>
+                            <div class="flex justify-between items-center">
                                 <span class="text-xs text-muted">黄体期天数（用来倒推排卵日，因人而异，医学平均约14天）</span>
                                 <input type="number" v-model.number="settings.lutealPhaseLength" min="10" max="18" class="w-16 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1.5 text-center text-xs outline-none">
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        
+        <transition name="page-slide">
+            <div v-if="modals.tarot" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
+                <div class="w-full h-full flex flex-col overflow-hidden">
+                    <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
+                        <button @click="modals.tarot = false; tarotShowHistory = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <h3 class="font-bold text-base text-slate-700 dark:text-white flex-1">占卜</h3>
+                        <button @click="tarotShowHistory = !tarotShowHistory" class="p-1.5 rounded-full transition" :class="tarotShowHistory ? 'text-accent' : 'text-slate-400 hover:text-accent'">
+                            <i data-lucide="history" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-5">
+
+                        
+                        <div v-if="tarotShowHistory" class="space-y-2.5">
+                            <p v-if="!tarotHistory.length" class="text-center text-sm text-muted py-10">还没有抽牌记录</p>
+                            <div v-for="h in tarotHistory" :key="h.id" class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 border border-slate-100 dark:border-slate-700/50">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-[10px] text-muted">{{ tarotHistoryDateText(h.timestamp) }} · {{ tarotSpreadLabels[h.spreadType] || h.spreadType }}</span>
+                                    <button @click="tarotDeleteHistoryItem(h.id)" class="text-slate-300 hover:text-red-400 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                </div>
+                                <p v-if="h.question" class="text-[11px] text-slate-500 dark:text-slate-300 mb-1.5">「{{ h.question }}」</p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span v-for="(c, i) in h.cards" :key="i" class="text-[11px] px-2 py-1 rounded-full bg-accent/10 text-accent">
+                                        {{ tarotFindCard(c.cardId)?.nameCn }}{{ c.reversed ? '（逆位）' : '（正位）' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div v-else-if="!tarotDrawnCards.length" class="flex flex-col items-center justify-center h-full gap-7 py-10">
+                            <div class="w-28 h-44 rounded-2xl relative shadow-[0_8px_30px_-6px_rgba(124,148,204,0.5)]"
+                                 style="background: linear-gradient(145deg, #7c94cc 0%, #3d4a7a 55%, #232a4d 100%);">
+                                <div class="absolute inset-[6px] rounded-xl border border-white/30 flex items-center justify-center">
+                                    <i data-lucide="sparkles" class="w-8 h-8 text-white/80"></i>
+                                </div>
+                            </div>
+                            <div class="text-center px-6">
+                                <p class="text-sm font-medium text-slate-600 dark:text-slate-300">静下心来，想一件想问的事</p>
+                                <p class="text-xs text-muted mt-1.5">然后抽一张牌，看看星辰的暗示</p>
+                            </div>
+                            <div class="w-full space-y-2.5 px-2">
+                                <input v-model="tarotQuestion" maxlength="50" placeholder="想问点什么？（选填）"
+                                       class="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-600 rounded-xl px-3.5 py-2.5 text-sm outline-none text-center text-slate-600 dark:text-slate-200">
+                                <button @click="tarotDraw('single')" class="w-full py-3 bg-accent text-white rounded-2xl text-sm font-medium hover:opacity-90 transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i>抽一张牌
+                                </button>
+                                <button @click="tarotDraw('three')" class="w-full py-3 bg-accent/10 text-accent rounded-2xl text-sm font-medium hover:bg-accent/20 transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="layout-grid" class="w-4 h-4"></i>抽三张牌（过去·现在·未来）
+                                </button>
+                            </div>
+                        </div>
+
+                        
+                        <div v-else class="space-y-5">
+                            <p v-if="tarotQuestion" class="text-center text-xs text-muted">「{{ tarotQuestion }}」</p>
+                            <div class="grid gap-3" :class="tarotDrawnCards.length === 3 ? 'grid-cols-3' : 'grid-cols-1 max-w-[200px] mx-auto'">
+                                <div v-for="(item, idx) in tarotDrawnCards" :key="idx" class="flex flex-col items-center gap-2">
+                                    <span v-if="tarotDrawnCards.length === 3" class="text-[10px] text-muted">{{ ['过去','现在','未来'][idx] }}</span>
+                                    <div class="tarot-card" :class="{ flipped: item.revealed }" @click="tarotReveal(idx)">
+                                        <div class="tarot-card-inner">
+                                            <div class="tarot-card-face tarot-card-back-face">
+                                                <i data-lucide="sparkles" class="w-6 h-6 text-white/70"></i>
+                                            </div>
+                                            <div class="tarot-card-face tarot-card-front-face" :class="{ 'is-reversed': item.reversed }">
+                                                <img :src="item.card.img" :alt="item.card.nameCn" loading="lazy">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span v-if="item.revealed" class="text-[11px] font-medium text-slate-600 dark:text-slate-300 text-center">
+                                        {{ item.card.nameCn }}<span :class="item.reversed ? 'text-red-400' : 'text-accent'">{{ item.reversed ? ' · 逆位' : ' · 正位' }}</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            
+                            <div v-if="tarotDrawnCards.some(c => c.revealed)" class="space-y-2.5">
+                                <div v-for="(item, idx) in tarotDrawnCards" :key="'m'+idx" v-show="item.revealed" class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 border border-slate-100 dark:border-slate-700/50">
+                                    <p class="text-xs font-bold text-slate-600 dark:text-slate-200 mb-1">
+                                        {{ item.card.nameCn }}（{{ item.card.nameEn }}）· {{ item.reversed ? '逆位' : '正位' }}
+                                    </p>
+                                    <p class="text-xs text-muted leading-relaxed">{{ item.reversed ? item.card.reversed : item.card.upright }}</p>
+                                </div>
+                            </div>
+
+                            <button v-if="tarotAllRevealed" @click="tarotResetDraw" class="w-full py-3 bg-accent/10 text-accent rounded-2xl text-sm font-medium hover:bg-accent/20 transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>重新抽牌
+                            </button>
+                            <button v-else @click="tarotResetDraw" class="w-full py-2.5 text-muted text-xs text-center hover:text-accent transition">
+                                取消，重新选择
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -3345,6 +3482,88 @@ const safeSetInterval = (cb, delay) => {
 };
 const safeClearInterval = (id) => { timerWorker.postMessage({ type: 'clearInterval', id }); delete workerTimers[id]; };
 
+// ===== 塔罗牌完整78张牌数据（韦特塔罗 Rider-Waite-Smith，公共领域）=====
+const TAROT_DECK = [
+    { id: 'major_00', arcana: 'major', suit: null, nameCn: '愚人', nameEn: 'The Fool', upright: '新的开始、冒险精神、天真烂漫、对未知抱有信任，敢于迈出未经规划的一步。', reversed: '鲁莽冲动、考虑不周、犹豫不决、因害怕风险而错失机会，或行事轻率带来麻烦。', upKeywords: ['新开始', '自由', '冒险', '纯真'], revKeywords: ['鲁莽', '轻率', '犹豫', '考虑不周'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_00_Fool.jpg' },
+    { id: 'major_01', arcana: 'major', suit: null, nameCn: '魔术师', nameEn: 'The Magician', upright: '创造力、行动力、资源整合、拥有实现目标所需的一切工具，是把想法变成现实的时刻。', reversed: '能力被误用、操纵欺骗、计划落空、缺乏自信或滥用自身才能。', upKeywords: ['创造', '行动力', '自信', '掌控资源'], revKeywords: ['欺骗', '操纵', '眼高手低', '能力被浪费'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_01_Magician.jpg' },
+    { id: 'major_02', arcana: 'major', suit: null, nameCn: '女祭司', nameEn: 'The High Priestess', upright: '直觉、潜意识、神秘知识、内在智慧，提醒你倾听内心而非急于行动。', reversed: '秘密曝光、直觉被忽视、表里不一、情绪压抑或信息被隐瞒。', upKeywords: ['直觉', '静观', '潜意识', '神秘'], revKeywords: ['秘密', '压抑', '失衡', '隐瞒'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_02_High_Priestess.jpg' },
+    { id: 'major_03', arcana: 'major', suit: null, nameCn: '女皇', nameEn: 'The Empress', upright: '丰饶富足、母性关怀、创造与滋养、感官享受，代表成长与生命力。', reversed: '创造力受阻、过度依赖、忽视自我、情感或物质上的匮乏。', upKeywords: ['丰饶', '滋养', '创造', '感性'], revKeywords: ['停滞', '依赖', '忽视自我', '匮乏'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_03_Empress.jpg' },
+    { id: 'major_04', arcana: 'major', suit: null, nameCn: '皇帝', nameEn: 'The Emperor', upright: '权威、结构秩序、领导力、稳固的规则与保护，代表理性和掌控力。', reversed: '专制强硬、僵化固执、滥用权力、缺乏纪律或权威受到挑战。', upKeywords: ['权威', '秩序', '领导', '稳定'], revKeywords: ['专制', '僵化', '失控', '滥权'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_04_Emperor.jpg' },
+    { id: 'major_05', arcana: 'major', suit: null, nameCn: '教皇', nameEn: 'The Hierophant', upright: '传统、体制教育、精神导师、遵循既定规范，寻求认可与归属。', reversed: '打破常规、质疑权威、非传统观念、教条僵化或叛逆独立。', upKeywords: ['传统', '信仰', '教育', '规范'], revKeywords: ['叛逆', '教条', '质疑', '非常规'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_05_Hierophant.jpg' },
+    { id: 'major_06', arcana: 'major', suit: null, nameCn: '恋人', nameEn: 'The Lovers', upright: '爱情与和谐、重要的选择、价值观的契合，代表关系中的连结与吸引。', reversed: '关系失衡、价值观冲突、优柔寡断、诱惑或不忠带来的裂痕。', upKeywords: ['爱情', '连结', '选择', '和谐'], revKeywords: ['失衡', '冲突', '诱惑', '犹豫'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_06_Lovers.jpg' },
+    { id: 'major_07', arcana: 'major', suit: null, nameCn: '战车', nameEn: 'The Chariot', upright: '意志力、掌控方向、克服阻力、坚定前行并取得胜利。', reversed: '方向迷失、缺乏自制、进退两难、意志力涣散或受挫。', upKeywords: ['意志力', '胜利', '掌控', '前进'], revKeywords: ['失控', '迷失方向', '受挫', '内耗'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_07_Chariot.jpg' },
+    { id: 'major_08', arcana: 'major', suit: null, nameCn: '力量', nameEn: 'Strength', upright: '内在的勇气、温柔而坚定的力量、耐心与自我克制，以柔克刚。', reversed: '自我怀疑、缺乏信心、情绪失控、滥用力量或过度压抑。', upKeywords: ['勇气', '耐心', '柔韧', '自制'], revKeywords: ['怯懦', '失控', '自我怀疑', '压抑'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_08_Strength.jpg' },
+    { id: 'major_09', arcana: 'major', suit: null, nameCn: '隐者', nameEn: 'The Hermit', upright: '内省、独处求索、寻求真理与智慧，暂时远离喧嚣以看清方向。', reversed: '孤立封闭、逃避现实、过度退缩，或是拒绝他人的建议与陪伴。', upKeywords: ['内省', '孤独', '智慧', '指引'], revKeywords: ['孤僻', '逃避', '封闭', '迷失'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_09_Hermit.jpg' },
+    { id: 'major_10', arcana: 'major', suit: null, nameCn: '命运之轮', nameEn: 'Wheel of Fortune', upright: '命运转折、周期变化、机遇降临，提醒万事皆有起伏，把握时机。', reversed: '运势不佳、事与愿违、抗拒变化，或反复陷入相同的循环。', upKeywords: ['转折', '机遇', '周期', '命运'], revKeywords: ['厄运', '停滞', '抗拒变化', '循环受困'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_10_Wheel_of_Fortune.jpg' },
+    { id: 'major_11', arcana: 'major', suit: null, nameCn: '正义', nameEn: 'Justice', upright: '公平公正、因果平衡、理性决断，代表责任与法律层面的裁决。', reversed: '不公不义、逃避责任、判断有失偏颇，或面临不公平的对待。', upKeywords: ['公正', '平衡', '因果', '责任'], revKeywords: ['偏颇', '不公', '逃避责任', '失衡'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_11_Justice.jpg' },
+    { id: 'major_12', arcana: 'major', suit: null, nameCn: '倒吊人', nameEn: 'The Hanged Man', upright: '换个角度看问题、主动放下、暂停等待，通过牺牲换取新的领悟。', reversed: '拖延停滞、无谓的牺牲、抗拒改变视角，陷入僵局无法自拔。', upKeywords: ['换位思考', '放下', '等待', '顿悟'], revKeywords: ['停滞', '无谓牺牲', '抗拒', '僵局'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_12_Hanged_Man.jpg' },
+    { id: 'major_13', arcana: 'major', suit: null, nameCn: '死神', nameEn: 'Death', upright: '结束与新生、转变、告别旧阶段，为新的开始腾出空间。', reversed: '抗拒改变、停滞不前、无法放手过去，导致转变受阻。', upKeywords: ['结束', '转变', '蜕变', '重生'], revKeywords: ['抗拒', '停滞', '执着过去', '恐惧改变'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_13_Death.jpg' },
+    { id: 'major_14', arcana: 'major', suit: null, nameCn: '节制', nameEn: 'Temperance', upright: '平衡调和、耐心融合、循序渐进，代表适度与内外的和谐统一。', reversed: '失衡冲突、走向极端、缺乏耐心，或不同元素之间难以调和。', upKeywords: ['平衡', '调和', '耐心', '融合'], revKeywords: ['失衡', '极端', '急躁', '冲突'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_14_Temperance.jpg' },
+    { id: 'major_15', arcana: 'major', suit: null, nameCn: '恶魔', nameEn: 'The Devil', upright: '束缚与执念、物欲诱惑、被恐惧或习惯所困，需正视内心的阴影。', reversed: '挣脱束缚、觉察诱惑、打破恶性循环，重新找回自主权。', upKeywords: ['束缚', '诱惑', '执念', '阴影'], revKeywords: ['挣脱', '觉醒', '打破循环', '解放'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_15_Devil.jpg' },
+    { id: 'major_16', arcana: 'major', suit: null, nameCn: '高塔', nameEn: 'The Tower', upright: '突发的巨变、旧有结构崩塌、真相揭露，带来震撼但也带来清醒。', reversed: '逃避崩溃、抗拒必要的改变，或是灾难性变化仍在延续与积累。', upKeywords: ['剧变', '崩塌', '顿悟', '真相'], revKeywords: ['逃避', '延迟的灾难', '抗拒', '余波未消'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_16_Tower.jpg' },
+    { id: 'major_17', arcana: 'major', suit: null, nameCn: '星星', nameEn: 'The Star', upright: '希望与疗愈、灵感涌现、对未来抱有信心，代表平静与祝福。', reversed: '失望沮丧、信心受挫、理想幻灭，或暂时看不到希望的方向。', upKeywords: ['希望', '疗愈', '信心', '灵感'], revKeywords: ['失望', '幻灭', '迷茫', '信心不足'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_17_Star.jpg' },
+    { id: 'major_18', arcana: 'major', suit: null, nameCn: '月亮', nameEn: 'The Moon', upright: '潜意识、幻觉与不确定、恐惧与直觉交织，提醒需谨慎辨别真伪。', reversed: '迷雾散去、真相渐明、走出焦虑，或仍深陷困惑与自我欺骗之中。', upKeywords: ['幻觉', '潜意识', '不安', '直觉'], revKeywords: ['困惑', '欺骗', '焦虑', '逐渐清晰'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_18_Moon.jpg' },
+    { id: 'major_19', arcana: 'major', suit: null, nameCn: '太阳', nameEn: 'The Sun', upright: '喜悦成功、活力充沛、真诚坦率，代表明朗、丰收与好运。', reversed: '暂时受挫、过度乐观、光环褪去，或成功尚未完全显现。', upKeywords: ['喜悦', '成功', '活力', '真诚'], revKeywords: ['受挫', '浮夸', '延迟的成功', '阴霾'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_19_Sun.jpg' },
+    { id: 'major_20', arcana: 'major', suit: null, nameCn: '审判', nameEn: 'Judgement', upright: '觉醒与反思、重大决定、清算过往，迎来一次精神层面的重生。', reversed: '自我否定、逃避反省、错失觉醒的机会，或过度苛责自己与他人。', upKeywords: ['觉醒', '重生', '反思', '决定'], revKeywords: ['逃避', '自我否定', '苛责', '错失机会'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_20_Judgement.jpg' },
+    { id: 'major_21', arcana: 'major', suit: null, nameCn: '世界', nameEn: 'The World', upright: '圆满完成、目标达成、整合统一，代表一个阶段的圆满结束。', reversed: '功亏一篑、未竟之事、延误完成，或需要补齐最后的缺口。', upKeywords: ['圆满', '完成', '整合', '成就'], revKeywords: ['未完成', '延误', '缺憾', '停滞'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/RWS_Tarot_21_World.jpg' },
+    { id: 'wands_01', arcana: 'minor', suit: 'wands', nameCn: '权杖Ace', nameEn: 'Ace of Wands', upright: '新的灵感与创造契机、充满热情的起点、行动的种子已经种下。', reversed: '灵感受阻、计划延迟、动力不足，或错失一个开始的时机。', upKeywords: ['灵感', '起点', '热情', '潜力'], revKeywords: ['延迟', '动力不足', '错失时机', '受阻'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands01.jpg' },
+    { id: 'wands_02', arcana: 'minor', suit: 'wands', nameCn: '权杖二', nameEn: 'Two of Wands', upright: '规划未来、站在十字路口做出选择、掌握资源准备向外拓展。', reversed: '缺乏规划、畏惧未知、犹豫不前，或过度依赖既有的安全感。', upKeywords: ['规划', '选择', '展望', '掌控'], revKeywords: ['犹豫', '畏惧', '缺乏远见', '止步不前'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands02.jpg' },
+    { id: 'wands_03', arcana: 'minor', suit: 'wands', nameCn: '权杖三', nameEn: 'Three of Wands', upright: '拓展视野、静待成果、合作伙伴关系逐渐展开，前景可期。', reversed: '计划受阻、合作延误、缺乏耐心，或过于乐观而忽视潜在风险。', upKeywords: ['拓展', '展望', '合作', '进展'], revKeywords: ['延误', '受阻', '盲目乐观', '缺耐心'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands03.jpg' },
+    { id: 'wands_04', arcana: 'minor', suit: 'wands', nameCn: '权杖四', nameEn: 'Four of Wands', upright: '庆祝与团圆、稳固的基础、家庭与社群带来的和谐喜悦。', reversed: '关系不稳、庆祝延后、根基动摇，或家庭内部出现摩擦。', upKeywords: ['庆祝', '和谐', '稳固', '团聚'], revKeywords: ['动荡', '延后', '摩擦', '不稳定'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands04.jpg' },
+    { id: 'wands_05', arcana: 'minor', suit: 'wands', nameCn: '权杖五', nameEn: 'Five of Wands', upright: '竞争与摩擦、意见分歧、良性的较量激发出更多创意与活力。', reversed: '冲突升级、无意义的争执、内耗严重，或竞争变得恶性。', upKeywords: ['竞争', '分歧', '较量', '活力'], revKeywords: ['冲突', '内耗', '恶性竞争', '混乱'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands05.jpg' },
+    { id: 'wands_06', arcana: 'minor', suit: 'wands', nameCn: '权杖六', nameEn: 'Six of Wands', upright: '获得认可的胜利、公开的荣耀、努力得到回报，备受瞩目。', reversed: '缺乏认可、傲慢自大、暂时受挫，或胜利被他人质疑。', upKeywords: ['胜利', '认可', '荣耀', '自信'], revKeywords: ['受挫', '傲慢', '被质疑', '缺乏认可'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands06.jpg' },
+    { id: 'wands_07', arcana: 'minor', suit: 'wands', nameCn: '权杖七', nameEn: 'Seven of Wands', upright: '坚守立场、面对挑战、在压力下勇敢捍卫自己的观点与成果。', reversed: '力不从心、放弃立场、被压力击垮，或在防守中逐渐处于劣势。', upKeywords: ['坚持', '捍卫', '勇气', '应对挑战'], revKeywords: ['妥协', '无力', '被压垮', '处于劣势'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands07.jpg' },
+    { id: 'wands_08', arcana: 'minor', suit: 'wands', nameCn: '权杖八', nameEn: 'Eight of Wands', upright: '事情快速推进、消息迅速传来、行动力强，进展一日千里。', reversed: '延迟受阻、沟通不畅、进度停滞，或因急躁而欲速则不达。', upKeywords: ['迅速', '进展', '沟通', '行动'], revKeywords: ['延迟', '停滞', '误解', '急躁'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands08.jpg' },
+    { id: 'wands_09', arcana: 'minor', suit: 'wands', nameCn: '权杖九', nameEn: 'Nine of Wands', upright: '坚韧不拔、历经磨练后的最后坚持，保持警觉、即将迎来成果。', reversed: '身心俱疲、过度防备、固执己见，或因猜疑而难以信任他人。', upKeywords: ['坚韧', '警觉', '毅力', '防备'], revKeywords: ['疲惫', '多疑', '固执', '防御过度'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Tarot_Nine_of_Wands.jpg' },
+    { id: 'wands_10', arcana: 'minor', suit: 'wands', nameCn: '权杖十', nameEn: 'Ten of Wands', upright: '责任沉重、身兼多职、努力接近终点但也承受着巨大压力。', reversed: '不堪重负、无法放手、拒绝分担责任，导致身心俱疲。', upKeywords: ['责任', '负担', '坚持', '接近完成'], revKeywords: ['超负荷', '无法放手', '压垮', '逃避'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands10.jpg' },
+    { id: 'wands_11', arcana: 'minor', suit: 'wands', nameCn: '权杖侍从', nameEn: 'Page of Wands', upright: '充满热情的消息或灵感、渴望学习与探索的年轻活力。', reversed: '三分钟热度、消息延误、计划不成熟，或缺乏耐心难以坚持。', upKeywords: ['热情', '探索', '消息', '活力'], revKeywords: ['三分钟热度', '不成熟', '延误', '缺乏耐心'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands11.jpg' },
+    { id: 'wands_12', arcana: 'minor', suit: 'wands', nameCn: '权杖骑士', nameEn: 'Knight of Wands', upright: '行动迅速、充满冒险精神、热情主动地追求目标勇往直前。', reversed: '冲动鲁莽、虎头蛇尾、行事欠考虑，或因急躁而与人产生摩擦。', upKeywords: ['冒险', '果敢', '热情', '主动'], revKeywords: ['冲动', '鲁莽', '虎头蛇尾', '急躁'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands12.jpg' },
+    { id: 'wands_13', arcana: 'minor', suit: 'wands', nameCn: '权杖王后', nameEn: 'Queen of Wands', upright: '自信独立、充满魅力与感染力、以热情和决心影响他人。', reversed: '善妒苛求、缺乏安全感、情绪易怒，或过度以自我为中心。', upKeywords: ['自信', '魅力', '决心', '独立'], revKeywords: ['善妒', '苛刻', '易怒', '不安'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands13.jpg' },
+    { id: 'wands_14', arcana: 'minor', suit: 'wands', nameCn: '权杖国王', nameEn: 'King of Wands', upright: '极具远见的领导者、果断成熟、以魅力与实力带领他人前行。', reversed: '专断跋扈、冲动固执、滥用权威，或因过度自信而独断专行。', upKeywords: ['领导力', '远见', '果断', '魅力'], revKeywords: ['专断', '固执', '跋扈', '冲动'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wands14.jpg' },
+    { id: 'cups_01', arcana: 'minor', suit: 'cups', nameCn: '圣杯Ace', nameEn: 'Ace of Cups', upright: '情感的新开端、爱意涌现、内心充盈，是滋养心灵的美好契机。', reversed: '情感受阻、内心空虚、错失表达情感的机会，或关系尚未开花结果。', upKeywords: ['爱', '新开始', '情感充盈', '滋养'], revKeywords: ['空虚', '压抑', '错失机会', '情感受阻'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups01.jpg' },
+    { id: 'cups_02', arcana: 'minor', suit: 'cups', nameCn: '圣杯二', nameEn: 'Two of Cups', upright: '彼此吸引的连结、伙伴关系和谐、真诚的情感交流与互相理解。', reversed: '关系失衡、沟通破裂、彼此疏远，或一段关系正走向分离。', upKeywords: ['连结', '和谐', '互相理解', '伙伴'], revKeywords: ['失衡', '疏远', '破裂', '分离'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups02.jpg' },
+    { id: 'cups_03', arcana: 'minor', suit: 'cups', nameCn: '圣杯三', nameEn: 'Three of Cups', upright: '友谊与欢庆、共同的喜悦、社群支持带来的归属与满足感。', reversed: '过度放纵、闲言碎语、三角关系或群体中的孤立与摩擦。', upKeywords: ['友谊', '欢庆', '归属', '分享'], revKeywords: ['放纵', '八卦', '孤立', '摩擦'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups03.jpg' },
+    { id: 'cups_04', arcana: 'minor', suit: 'cups', nameCn: '圣杯四', nameEn: 'Four of Cups', upright: '情感倦怠、沉思反省、对眼前的事物感到麻木而忽视新的机会。', reversed: '重新燃起兴趣、把握新机会、走出情感的停滞与冷漠状态。', upKeywords: ['倦怠', '冷漠', '反思', '错失机会'], revKeywords: ['觉醒', '重燃兴趣', '把握新机', '走出停滞'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups04.jpg' },
+    { id: 'cups_05', arcana: 'minor', suit: 'cups', nameCn: '圣杯五', nameEn: 'Five of Cups', upright: '悲伤失落、沉浸于遗憾之中，却忽略了仍然拥有的部分。', reversed: '接受失去、走出悲伤、原谅自己与他人，逐渐重拾希望。', upKeywords: ['失落', '遗憾', '悲伤', '专注负面'], revKeywords: ['释怀', '疗愈', '接受', '重拾希望'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups05.jpg' },
+    { id: 'cups_06', arcana: 'minor', suit: 'cups', nameCn: '圣杯六', nameEn: 'Six of Cups', upright: '怀旧与纯真、回忆过往的美好、来自故人或旧日情谊的温暖。', reversed: '沉溺过去、逃避当下、幼稚天真，或对过往抱有不切实际的怀念。', upKeywords: ['怀旧', '纯真', '温情', '回忆'], revKeywords: ['沉溺过去', '逃避现实', '幼稚', '不切实际'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups06.jpg' },
+    { id: 'cups_07', arcana: 'minor', suit: 'cups', nameCn: '圣杯七', nameEn: 'Seven of Cups', upright: '选择繁多、充满幻想与可能性，需要辨别哪些是真正值得追求的。', reversed: '选择困难症解除、看清幻象、专注一个明确目标并付诸行动。', upKeywords: ['幻想', '选择', '可能性', '诱惑'], revKeywords: ['清晰', '专注', '看清幻象', '果断'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups07.jpg' },
+    { id: 'cups_08', arcana: 'minor', suit: 'cups', nameCn: '圣杯八', nameEn: 'Eight of Cups', upright: '放下既有成就、追寻更深层的意义，主动离开不再满足的处境。', reversed: '犹豫不决、害怕改变而停滞不前，或半途而废回到旧有的处境。', upKeywords: ['放下', '追寻意义', '转身离开', '内在探索'], revKeywords: ['犹豫', '停滞', '半途而废', '逃避'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups08.jpg' },
+    { id: 'cups_09', arcana: 'minor', suit: 'cups', nameCn: '圣杯九', nameEn: 'Nine of Cups', upright: '心愿达成、满足与享受、物质与情感层面都感到满意的时刻。', reversed: '自满自足、表面满足内心空虚，或愿望尚未真正实现。', upKeywords: ['满足', '心想事成', '享受', '自信'], revKeywords: ['自满', '空虚', '炫耀', '未真正满足'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups09.jpg' },
+    { id: 'cups_10', arcana: 'minor', suit: 'cups', nameCn: '圣杯十', nameEn: 'Ten of Cups', upright: '圆满和谐的家庭生活、情感上的幸福美满、长久的幸福感。', reversed: '家庭失和、理想破灭、关系表面和谐但内里存在裂痕。', upKeywords: ['幸福', '圆满', '和谐', '家庭'], revKeywords: ['失和', '破裂', '表里不一', '失望'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups10.jpg' },
+    { id: 'cups_11', arcana: 'minor', suit: 'cups', nameCn: '圣杯侍从', nameEn: 'Page of Cups', upright: '情感上的天真好奇、来自内心或他人的温柔讯息、直觉萌发。', reversed: '情绪化不成熟、想法不切实际，或因过度敏感而容易受伤。', upKeywords: ['天真', '好奇', '讯息', '直觉'], revKeywords: ['情绪化', '不成熟', '敏感', '不切实际'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups11.jpg' },
+    { id: 'cups_12', arcana: 'minor', suit: 'cups', nameCn: '圣杯骑士', nameEn: 'Knight of Cups', upright: '浪漫的追寻者、以真诚与理想主义的方式表达情感与愿望。', reversed: '情绪反复、不切实际的浪漫、言过其实，或因善变而令人难以信任。', upKeywords: ['浪漫', '理想主义', '真诚', '追求'], revKeywords: ['善变', '言过其实', '不切实际', '情绪化'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups12.jpg' },
+    { id: 'cups_13', arcana: 'minor', suit: 'cups', nameCn: '圣杯王后', nameEn: 'Queen of Cups', upright: '富有同理心、情感成熟、直觉敏锐，善于关怀与滋养他人。', reversed: '情绪不稳定、过度依赖他人情绪、缺乏边界感而容易被消耗。', upKeywords: ['同理心', '直觉', '关怀', '成熟'], revKeywords: ['情绪不稳', '过度依赖', '缺乏边界', '敏感脆弱'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups13.jpg' },
+    { id: 'cups_14', arcana: 'minor', suit: 'cups', nameCn: '圣杯国王', nameEn: 'King of Cups', upright: '情感稳重、以智慧与包容平衡理性与感性，善于处理人际关系。', reversed: '情绪压抑、表里不一、以操控他人情绪为手段，或喜怒无常。', upKeywords: ['成熟稳重', '智慧', '包容', '平衡'], revKeywords: ['压抑', '操控', '喜怒无常', '表里不一'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cups14.jpg' },
+    { id: 'swords_01', arcana: 'minor', suit: 'swords', nameCn: '宝剑Ace', nameEn: 'Ace of Swords', upright: '思维清晰、真相浮现、突破性的新想法带来决断的力量。', reversed: '思维混乱、判断失误、沟通不畅，或滥用言语与逻辑伤害他人。', upKeywords: ['清晰', '突破', '真相', '决断'], revKeywords: ['混乱', '误判', '滥用', '伤害'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords01.jpg' },
+    { id: 'swords_02', arcana: 'minor', suit: 'swords', nameCn: '宝剑二', nameEn: 'Two of Swords', upright: '左右为难、暂时的僵局、需要在信息不全时做出艰难的抉择。', reversed: '犹豫不决被打破、信息渐明、僵局瓦解，或因逃避而决策失控。', upKeywords: ['僵局', '抉择', '权衡', '蒙蔽'], revKeywords: ['决策瓦解', '真相显现', '失控', '逃避后果'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords02.jpg' },
+    { id: 'swords_03', arcana: 'minor', suit: 'swords', nameCn: '宝剑三', nameEn: 'Three of Swords', upright: '心痛与伤害、悲伤但清醒的认知、直面痛苦以求真正的疗愈。', reversed: '伤痛渐愈、走出悲伤、原谅过往，但也可能是旧伤复发。', upKeywords: ['心痛', '悲伤', '背叛', '清醒'], revKeywords: ['疗愈', '释怀', '旧伤复发', '走出阴影'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords03.jpg' },
+    { id: 'swords_04', arcana: 'minor', suit: 'swords', nameCn: '宝剑四', nameEn: 'Four of Swords', upright: '休整恢复、暂停沉淀、给身心一个喘息与恢复元气的空间。', reversed: '被迫复出、休息不足、拖延恢复，或停滞过久导致停滞不前。', upKeywords: ['休息', '恢复', '沉淀', '静养'], revKeywords: ['强迫复出', '休息不足', '拖延', '停滞'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords04.jpg' },
+    { id: 'swords_05', arcana: 'minor', suit: 'swords', nameCn: '宝剑五', nameEn: 'Five of Swords', upright: '冲突后的胜利代价高昂、赢了争论却输了关系，需反思得失。', reversed: '化解冲突、寻求和解、放下执念，或持续陷入互相伤害的争斗。', upKeywords: ['冲突', '代价', '胜负', '紧张'], revKeywords: ['和解', '释怀', '持续对抗', '修复关系'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords05.jpg' },
+    { id: 'swords_06', arcana: 'minor', suit: 'swords', nameCn: '宝剑六', nameEn: 'Six of Swords', upright: '渡过难关、告别过去走向平静、带着经验驶向更平稳的水域。', reversed: '难以放下过去、转变受阻、逃避问题而无法真正前行。', upKeywords: ['过渡', '平静', '远行', '释然'], revKeywords: ['滞留', '抗拒', '逃避', '未解决的问题'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords06.jpg' },
+    { id: 'swords_07', arcana: 'minor', suit: 'swords', nameCn: '宝剑七', nameEn: 'Seven of Swords', upright: '策略与心机、独自行动、需要谨慎应对可能存在的欺瞒。', reversed: '谎言败露、良心不安、策略失败，或坦白面对自己的欺瞒行为。', upKeywords: ['策略', '独行', '欺瞒', '谨慎'], revKeywords: ['败露', '坦白', '失败', '良心不安'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords07.jpg' },
+    { id: 'swords_08', arcana: 'minor', suit: 'swords', nameCn: '宝剑八', nameEn: 'Eight of Swords', upright: '受限受困、感觉被自己的想法束缚，实际出路往往就在眼前。', reversed: '挣脱束缚、重获自由、看清自我设限，勇于迈出第一步。', upKeywords: ['受限', '困境', '自我设限', '无助感'], revKeywords: ['挣脱', '解脱', '觉察', '重获自由'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords08.jpg' },
+    { id: 'swords_09', arcana: 'minor', suit: 'swords', nameCn: '宝剑九', nameEn: 'Nine of Swords', upright: '焦虑失眠、内心的恐惧与担忧被放大，多为过度忧虑而非现实。', reversed: '走出焦虑、直面恐惧后释然，或忧虑持续加剧演变为绝望。', upKeywords: ['焦虑', '恐惧', '失眠', '忧虑'], revKeywords: ['释然', '直面恐惧', '绝望加剧', '走出阴霾'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords09.jpg' },
+    { id: 'swords_10', arcana: 'minor', suit: 'swords', nameCn: '宝剑十', nameEn: 'Ten of Swords', upright: '痛苦的终结、触底反弹的时刻，最艰难的阶段已经过去。', reversed: '缓慢的复原、抗拒接受结束，或痛苦仍在延续尚未见底。', upKeywords: ['结束', '触底', '痛苦', '背叛'], revKeywords: ['复原', '抗拒接受', '延续的痛苦', '缓慢恢复'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords10.jpg' },
+    { id: 'swords_11', arcana: 'minor', suit: 'swords', nameCn: '宝剑侍从', nameEn: 'Page of Swords', upright: '求知好奇、机敏警觉、渴望通过学习与沟通获取新的信息。', reversed: '言语伤人、传播八卦、思虑过度，或因信息片面而妄下判断。', upKeywords: ['好奇', '机敏', '求知', '警觉'], revKeywords: ['八卦', '伤人', '多疑', '误判'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords11.jpg' },
+    { id: 'swords_12', arcana: 'minor', suit: 'swords', nameCn: '宝剑骑士', nameEn: 'Knight of Swords', upright: '行动果断、思维敏捷、直言不讳地朝目标全力冲刺。', reversed: '鲁莽冒进、言辞尖锐、缺乏耐心，或因一意孤行而四处树敌。', upKeywords: ['果断', '敏捷', '直接', '冲劲'], revKeywords: ['鲁莽', '尖锐', '树敌', '冲动行事'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords12.jpg' },
+    { id: 'swords_13', arcana: 'minor', suit: 'swords', nameCn: '宝剑王后', nameEn: 'Queen of Swords', upright: '理智独立、洞察敏锐、以清晰的逻辑和坦率的言辞待人处事。', reversed: '尖酸刻薄、情感疏离、过度苛刻，或以冷漠掩饰内心的伤痛。', upKeywords: ['理智', '独立', '坦率', '洞察'], revKeywords: ['尖刻', '疏离', '苛刻', '冷漠'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords13.jpg' },
+    { id: 'swords_14', arcana: 'minor', suit: 'swords', nameCn: '宝剑国王', nameEn: 'King of Swords', upright: '理性权威、逻辑严谨、以公正客观的判断力做出决策并加以领导。', reversed: '滥用权力、冷酷无情、操纵言辞，或以理性为名行专断之实。', upKeywords: ['理性', '权威', '公正', '逻辑'], revKeywords: ['冷酷', '操纵', '专断', '滥权'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Swords14.jpg' },
+    { id: 'pentacles_01', arcana: 'minor', suit: 'pentacles', nameCn: '星币Ace', nameEn: 'Ace of Pentacles', upright: '物质与事业上的新机遇、稳固的开端，带来实际可见的收获。', reversed: '错失良机、计划落空、财务不稳，或过于急功近利而根基不稳。', upKeywords: ['新机遇', '稳固', '收获', '实际'], revKeywords: ['错失机会', '不稳定', '落空', '急功近利'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents01.jpg' },
+    { id: 'pentacles_02', arcana: 'minor', suit: 'pentacles', nameCn: '星币二', nameEn: 'Two of Pentacles', upright: '灵活应变、在多项事务间寻求平衡、随机应变地调整节奏。', reversed: '顾此失彼、失去平衡、事务过多难以周全，导致混乱失控。', upKeywords: ['平衡', '灵活', '应变', '调整'], revKeywords: ['失衡', '混乱', '负担过重', '顾此失彼'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents02.jpg' },
+    { id: 'pentacles_03', arcana: 'minor', suit: 'pentacles', nameCn: '星币三', nameEn: 'Three of Pentacles', upright: '团队协作、精益求精、凭借专业技能获得他人的认可与合作。', reversed: '协作不佳、标准不一、缺乏团队精神，或专业能力受到质疑。', upKeywords: ['协作', '专业', '精进', '认可'], revKeywords: ['分歧', '质疑', '缺乏配合', '标准不一'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents03.jpg' },
+    { id: 'pentacles_04', arcana: 'minor', suit: 'pentacles', nameCn: '星币四', nameEn: 'Four of Pentacles', upright: '稳固安全、掌控财务、珍视既有的成果并加以保护。', reversed: '过度守财、患得患失、固步自封，或因害怕失去而错失流动的机会。', upKeywords: ['稳固', '保守', '安全感', '掌控'], revKeywords: ['吝啬', '执着', '故步自封', '患得患失'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents04.jpg' },
+    { id: 'pentacles_05', arcana: 'minor', suit: 'pentacles', nameCn: '星币五', nameEn: 'Five of Pentacles', upright: '物质困顿、健康或经济上的困境，但也提醒外界仍有可寻的援助。', reversed: '走出困境、寻得援助、逐渐恢复，或因固执而拒绝接受帮助。', upKeywords: ['困顿', '匮乏', '孤立', '艰难'], revKeywords: ['复原', '获得援助', '走出低谷', '接受帮助'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents05.jpg' },
+    { id: 'pentacles_06', arcana: 'minor', suit: 'pentacles', nameCn: '星币六', nameEn: 'Six of Pentacles', upright: '慷慨分享、给予与接受之间的平衡、公平的资源流动与互助。', reversed: '施与受失衡、附带条件的给予、经济上受制于人或分配不公。', upKeywords: ['慷慨', '分享', '互助', '公平'], revKeywords: ['失衡', '附加条件', '依赖', '不公'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents06.jpg' },
+    { id: 'pentacles_07', arcana: 'minor', suit: 'pentacles', nameCn: '星币七', nameEn: 'Seven of Pentacles', upright: '耐心等待收成、评估已投入的努力，静观其变以判断下一步。', reversed: '缺乏耐心、投入未见回报、半途而废，或对结果感到失望。', upKeywords: ['耐心', '评估', '投入', '静待'], revKeywords: ['焦躁', '无回报', '放弃', '失望'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents07.jpg' },
+    { id: 'pentacles_08', arcana: 'minor', suit: 'pentacles', nameCn: '星币八', nameEn: 'Eight of Pentacles', upright: '专注勤奋、精益求精地磨练技能，通过踏实积累走向精通。', reversed: '敷衍了事、缺乏动力、技艺停滞不前，或因追求完美而止步不前。', upKeywords: ['专注', '勤奋', '精进', '匠心'], revKeywords: ['敷衍', '懈怠', '停滞', '完美主义受阻'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents08.jpg' },
+    { id: 'pentacles_09', arcana: 'minor', suit: 'pentacles', nameCn: '星币九', nameEn: 'Nine of Pentacles', upright: '独立自足、享受努力后的成果，物质与精神上的富足与优雅。', reversed: '过度依赖他人、表面光鲜内里空虚，或经济上出现意外的波动。', upKeywords: ['独立', '富足', '自律', '享受成果'], revKeywords: ['依赖', '虚荣', '波动', '表里不一'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents09.jpg' },
+    { id: 'pentacles_10', arcana: 'minor', suit: 'pentacles', nameCn: '星币十', nameEn: 'Ten of Pentacles', upright: '家族传承、长久的财富与稳定、代代相传的富足与安全感。', reversed: '家族纠纷、财务受损、传承中断，或因财产问题引发家庭矛盾。', upKeywords: ['传承', '富足', '稳定', '家族'], revKeywords: ['纠纷', '中断', '财务受损', '矛盾'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents10.jpg' },
+    { id: 'pentacles_11', arcana: 'minor', suit: 'pentacles', nameCn: '星币侍从', nameEn: 'Page of Pentacles', upright: '脚踏实地的学习者、对新的物质或事业机会充满好奇与务实的态度。', reversed: '拖延懒散、缺乏计划、三心二意，或对机会缺乏足够的重视。', upKeywords: ['务实', '学习', '机遇', '专注'], revKeywords: ['拖延', '懒散', '缺乏计划', '三心二意'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents11.jpg' },
+    { id: 'pentacles_12', arcana: 'minor', suit: 'pentacles', nameCn: '星币骑士', nameEn: 'Knight of Pentacles', upright: '勤恳踏实、按部就班、以稳健和责任心推进长期目标。', reversed: '固执僵化、进展缓慢、因循守旧，或因过度谨慎而错失良机。', upKeywords: ['踏实', '稳健', '责任', '坚持'], revKeywords: ['固执', '拖沓', '守旧', '错失机会'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents12.jpg' },
+    { id: 'pentacles_13', arcana: 'minor', suit: 'pentacles', nameCn: '星币王后', nameEn: 'Queen of Pentacles', upright: '务实亲切、善于持家理财、以踏实和关怀兼顾事业与生活。', reversed: '过度操劳、忽视自我、以物质衡量一切，或因焦虑而缺乏安全感。', upKeywords: ['务实', '持家', '关怀', '踏实'], revKeywords: ['操劳', '焦虑', '物质化', '忽视自我'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents13.jpg' },
+    { id: 'pentacles_14', arcana: 'minor', suit: 'pentacles', nameCn: '星币国王', nameEn: 'King of Pentacles', upright: '事业有成、财富稳固、以踏实与远见建立长久的物质保障。', reversed: '贪婪固执、过度看重物质、顽固保守，或因财富而迷失初衷。', upKeywords: ['富足', '稳健', '成就', '远见'], revKeywords: ['贪婪', '固执', '物质至上', '保守僵化'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents14.jpg' },
+];
+
 const { createApp, ref, reactive, computed, watch, nextTick, onMounted } = Vue;
 localforage.config({ name: 'JingYuStarV6', storeName: 'fusion_v6' });
 
@@ -3404,6 +3623,13 @@ createApp({
         let noteReminderTimer = null;
         const notebookInputExpanded = ref(false);
         const emojiPoolText = ref('✨,🫐,🌿,☁️,🌸,⭐,🌙,🎨,🎵,🍬,🧸,💌,🎀,🔮,🎐');
+
+        // ===== 塔罗牌 =====
+        const tarotDrawnCards = ref([]); // 当前这次抽出的牌：[{ card, reversed, revealed }]
+        const tarotSpreadType = ref('single'); // 'single' | 'three'
+        const tarotHistory = ref([]); // 抽牌历史：[{ id, timestamp, spreadType, question, cards:[{cardId, reversed}] }]
+        const tarotShowHistory = ref(false);
+        const tarotQuestion = ref(''); // 本次占卜的问题（选填）
 
         const callState = reactive({
             status: 'idle',   // idle | incoming | outgoing | active | minimized
@@ -3623,7 +3849,7 @@ createApp({
             return Math.round((periodNextPredicted.value - today.getTime()) / ONE_DAY_MS);
         });
         const periodAvgDuration = computed(() => {
-            if (!periodRecords.value.length) return 5;
+            if (!periodRecords.value.length) return settings.periodDurationDays || 5;
             const sorted = [...periodRecords.value].sort((a, b) => a.timestamp - b.timestamp);
             const runs = [];
             let runLen = 1;
@@ -3632,9 +3858,32 @@ createApp({
                 if (gapDays <= 1) { runLen++; } else { runs.push(runLen); runLen = 1; }
             }
             runs.push(runLen);
-            const avg = Math.round(runs.reduce((a, b) => a + b, 0) / runs.length);
-            return avg > 0 ? avg : 5;
+            const multiDayRuns = runs.filter(r => r > 1);
+            if (!multiDayRuns.length) return settings.periodDurationDays || 5; // 只记录过单天时，按设置的经期天数补满
+            const avg = Math.round(multiDayRuns.reduce((a, b) => a + b, 0) / multiDayRuns.length);
+            return avg > 0 ? avg : (settings.periodDurationDays || 5);
         });
+        const periodRanges = computed(() => {
+            // 把零散记录合并成一段段完整周期区间：{start, end}
+            // 若某次只记录了1天，按平均经期天数往后补满，让日历显示为一整个周期而不是单独一天
+            if (!periodRecords.value.length) return [];
+            const sorted = [...periodRecords.value].sort((a, b) => a.timestamp - b.timestamp);
+            const runs = [];
+            let runStart = sorted[0].timestamp, runEnd = sorted[0].timestamp;
+            for (let i = 1; i < sorted.length; i++) {
+                const gapDays = Math.round((sorted[i].timestamp - runEnd) / ONE_DAY_MS);
+                if (gapDays <= 1) { runEnd = sorted[i].timestamp; }
+                else { runs.push({ start: runStart, end: runEnd }); runStart = sorted[i].timestamp; runEnd = sorted[i].timestamp; }
+            }
+            runs.push({ start: runStart, end: runEnd });
+            const avgDur = periodAvgDuration.value;
+            return runs.map(r => {
+                const loggedDays = Math.round((r.end - r.start) / ONE_DAY_MS) + 1;
+                const end = loggedDays < avgDur ? r.start + (avgDur - 1) * ONE_DAY_MS : r.end;
+                return { start: r.start, end };
+            });
+        });
+        const isInPeriodRange = (ts) => periodRanges.value.some(r => ts >= r.start && ts <= r.end);
         const periodOvulationDay = computed(() => {
             if (!periodNextPredicted.value) return null;
             return periodNextPredicted.value - (settings.lutealPhaseLength || 14) * ONE_DAY_MS;
@@ -3661,10 +3910,11 @@ createApp({
                 const date = new Date(year, month, i);
                 const ts = date.getTime();
                 const record = periodRecords.value.find(r => new Date(r.timestamp).toDateString() === date.toDateString());
+                const inRange = isInPeriodRange(ts);
                 const isPredicted = predictedStart !== null && ts >= predictedStart && ts <= predictedEnd;
                 const isOvulation = ovulationTs !== null && date.toDateString() === new Date(ovulationTs).toDateString();
                 const isLuteal = !isOvulation && luteal !== null && ts >= luteal.start && ts <= luteal.end;
-                days.push({ date, number: i, record: record || null, isPredicted, isOvulation, isLuteal });
+                days.push({ date, number: i, record: record || null, inRange, isPredicted, isOvulation, isLuteal });
             }
             return days;
         });
@@ -3728,6 +3978,50 @@ createApp({
                 showNotification('潮汐提醒', daysLeft === 0 ? '预计今天是下次周期的开始' : `预计还有 ${daysLeft} 天，记得留意身体状态`);
                 settings.periodLastRemindedFor = predictedKey;
             }
+        };
+
+        // ===== 塔罗牌抽牌功能 =====
+        const tarotSpreadLabels = { single: '单张指引', three: '过去·现在·未来' };
+        const tarotDraw = (type) => {
+            const count = type === 'three' ? 3 : 1;
+            tarotSpreadType.value = type;
+            const pool = [...TAROT_DECK];
+            const picked = [];
+            for (let i = 0; i < count; i++) {
+                const idx = Math.floor(Math.random() * pool.length);
+                picked.push(pool.splice(idx, 1)[0]);
+            }
+            tarotDrawnCards.value = picked.map(card => ({
+                card,
+                reversed: Math.random() < 0.5,
+                revealed: false
+            }));
+            tarotHistory.value.unshift({
+                id: 'tarot_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                timestamp: Date.now(),
+                spreadType: type,
+                question: tarotQuestion.value.trim(),
+                cards: tarotDrawnCards.value.map(c => ({ cardId: c.card.id, reversed: c.reversed }))
+            });
+            if (tarotHistory.value.length > 50) tarotHistory.value.length = 50; // 只保留最近50次
+            tarotShowHistory.value = false;
+        };
+        const tarotReveal = (index) => {
+            const item = tarotDrawnCards.value[index];
+            if (item && !item.revealed) item.revealed = true;
+        };
+        const tarotAllRevealed = computed(() =>
+            tarotDrawnCards.value.length > 0 && tarotDrawnCards.value.every(c => c.revealed)
+        );
+        const tarotResetDraw = () => { tarotDrawnCards.value = []; tarotQuestion.value = ''; };
+        const tarotDeleteHistoryItem = (id) => {
+            const idx = tarotHistory.value.findIndex(h => h.id === id);
+            if (idx > -1) tarotHistory.value.splice(idx, 1);
+        };
+        const tarotFindCard = (cardId) => TAROT_DECK.find(c => c.id === cardId);
+        const tarotHistoryDateText = (ts) => {
+            const d = new Date(ts);
+            return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
         const pokeToast = reactive({ show: false, text: '' });
@@ -3839,6 +4133,7 @@ createApp({
             periodReminderDaysBefore: 2, // 提前几天提醒
             periodLastRemindedFor: '', // 记录"已经为哪一次预测提醒过"，避免同一次预测反复提醒
             lutealPhaseLength: 14, // 黄体期天数，用来从"下次预测经期"倒推排卵日
+            periodDurationDays: 5, // 经期天数，只记录了单天时按此天数补满显示为完整周期
             customFontUrl: '', fontFamily: "'Quicksand', 'Noto Serif SC', sans-serif", fontSize: 15,
             soundUrl: '', sendSoundUrl: '', soundVolume: 100,
             callBgImage: '', callBgUrl: '',
@@ -3860,7 +4155,8 @@ createApp({
         const modals = reactive({
             settings: false, replyManager: false, stickerPicker: false,
             letterHistory: false,
-            notebook: false, batchInput: false, selectiveExport: false, favorites: false, periodTracker: false
+            notebook: false, batchInput: false, selectiveExport: false, favorites: false, periodTracker: false,
+            tarot: false
         });
         const showLetterCompose = ref(false); // 信笺面板里"写信"展开区是否打开
         const currentScreen = ref('home');
@@ -3975,13 +4271,17 @@ createApp({
             const month = calendarDate.value.getMonth();
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const predictedStart = periodNextPredicted.value;
+            const predictedEnd = predictedStart !== null ? predictedStart + (periodAvgDuration.value - 1) * ONE_DAY_MS : null;
             const days = [];
             for (let i = 0; i < firstDay; i++) days.push(null);
             for (let i = 1; i <= daysInMonth; i++) {
                 const date = new Date(year, month, i);
+                const ts = date.getTime();
                 const hasNote = notes.value.some(n => new Date(n.timestamp).toDateString() === date.toDateString());
-                const isPeriodDay = periodRecords.value.some(r => new Date(r.timestamp).toDateString() === date.toDateString());
-                days.push({ date, number: i, hasNote, isPeriodDay });
+                const isPeriodDay = isInPeriodRange(ts);
+                const isPredicted = !isPeriodDay && predictedStart !== null && ts >= predictedStart && ts <= predictedEnd;
+                days.push({ date, number: i, hasNote, isPeriodDay, isPredicted });
             }
             return days;
         });
@@ -4017,6 +4317,7 @@ createApp({
         if (cloud.favorites) favorites.value = cloud.favorites;
                     if (cloud.periodRecords) periodRecords.value = cloud.periodRecords;
         if (cloud.emojiPoolText !== undefined) emojiPoolText.value = cloud.emojiPoolText;
+        if (cloud.tarotHistory) tarotHistory.value = cloud.tarotHistory;
     };
 
     const restoreFromDeviceId = ref(''); // 用户输入的、要恢复的那台旧设备的ID
@@ -4058,7 +4359,8 @@ createApp({
         notes: JSON.parse(JSON.stringify(notes.value)),
         favorites: JSON.parse(JSON.stringify(favorites.value)),
         periodRecords: JSON.parse(JSON.stringify(periodRecords.value)),
-        emojiPoolText: emojiPoolText.value
+        emojiPoolText: emojiPoolText.value,
+        tarotHistory: JSON.parse(JSON.stringify(tarotHistory.value))
 });
 
     let cloudSyncTimer = null;
@@ -4211,7 +4513,7 @@ createApp({
     };
 
     watch(
-        [messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, favorites, periodRecords, emojiPoolText],
+        [messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, favorites, periodRecords, emojiPoolText, tarotHistory],
         () => { saveData(); },
         { deep: true }
     );
@@ -4314,7 +4616,7 @@ createApp({
             dismissInAppBanner();
             modals.settings = false; modals.replyManager = false; modals.letterHistory = false;
             modals.favorites = false; modals.notebook = false; modals.periodTracker = false;
-            modals.selectiveExport = false; modals.batchInput = false;
+            modals.selectiveExport = false; modals.batchInput = false; modals.tarot = false;
             openChat();
         };
 
@@ -5262,6 +5564,7 @@ createApp({
                     if (data.favorites) favorites.value = data.favorites;
                     if (data.periodRecords) periodRecords.value = data.periodRecords;
                     if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
+                    if (data.tarotHistory) tarotHistory.value = data.tarotHistory;
                     applyFontSettings(); toggleTheme(); applyCSS();
                     modals.settings = false;
                     alert('导入成功！数据已恢复。');
@@ -5407,6 +5710,7 @@ createApp({
             if (data.favorites) favorites.value = data.favorites;
             if (data.periodRecords) periodRecords.value = data.periodRecords;
             if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
+            if (data.tarotHistory) tarotHistory.value = data.tarotHistory;
 
             const oldUngroup = replyGroups.value.find(g => g.id === '__ungroup__');
             if (oldUngroup) {
@@ -5416,7 +5720,7 @@ createApp({
         }
 
         try {
-            const res = await fetch('/.netlify/functions/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID));
+            const res = await fetch('/.netlify/functions/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
             if (res.ok) {
                 const cloud = await res.json();
 
@@ -5518,6 +5822,9 @@ createApp({
             pokeToast, sendPoke, showPokePicker, confirmPoke,
             pokePickerShow, pokePickerSelected, pokeOptions,
             inAppBanner, dismissInAppBanner, openInAppBannerTarget,
+            tarotDrawnCards, tarotSpreadType, tarotHistory, tarotShowHistory, tarotSpreadLabels, tarotQuestion,
+            tarotDraw, tarotReveal, tarotAllRevealed, tarotResetDraw, tarotDeleteHistoryItem,
+            tarotFindCard, tarotHistoryDateText,
         };
     }
 }).mount('#app');
