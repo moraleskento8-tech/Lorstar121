@@ -186,6 +186,14 @@
         .tarot-card-front-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .tarot-card-front-face.is-reversed img { transform: rotate(180deg); }
 
+        /* ===== 词云 ===== */
+        .word-cloud-wrap {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+            gap: 0.55em 0.85em; line-height: 1.3; padding: 0.5rem 0.25rem;
+        }
+        .word-cloud-item { white-space: nowrap; transition: transform 0.15s ease; }
+        .word-cloud-item:active { transform: scale(0.94); }
+
         .quote-inline-btn {
             position: absolute; bottom: 6px; right: 10px;
             width: 22px; height: 22px; border-radius: 50%;
@@ -1420,24 +1428,24 @@
              :style="settings.homeWallpaper ? { backgroundImage: `url(${settings.homeWallpaper})` } : {}">
             <div class="flex-1 flex flex-col px-5 pt-12 pb-8 gap-9">
                 
-                <div class="rounded-[1.75rem] shadow-[0_2px_8px_rgba(124,148,204,0.1),0_16px_40px_-12px_rgba(124,148,204,0.35)] border border-white/60 dark:border-slate-600/40 relative mt-7 shrink-0 overflow-hidden">
-                    <div class="h-32 bg-cover bg-center" :class="!settings.coupleCardImage ? 'bg-gradient-to-br from-accent/25 to-sky-100/40 dark:from-accent/20 dark:to-slate-700/40' : ''"
+                <div class="rounded-[1.5rem] shadow-[0_1px_4px_rgba(124,148,204,0.08),0_10px_28px_-10px_rgba(124,148,204,0.3)] border border-white/60 dark:border-slate-600/40 relative mt-6 shrink-0 overflow-hidden">
+                    <div class="h-[120px] bg-cover bg-center" :class="!settings.coupleCardImage ? 'bg-gradient-to-br from-accent/20 to-sky-100/35 dark:from-accent/15 dark:to-slate-700/35' : ''"
                          :style="settings.coupleCardImage ? { backgroundImage: `url(${settings.coupleCardImage})` } : {}"></div>
-                    <div class="bg-white dark:bg-slate-800 pt-8 pb-6 px-6 text-center">
-                        <h1 class="text-base font-bold text-slate-700 dark:text-slate-100">{{ coupleTitle }}</h1>
-                        <p v-if="homeSubtitle" class="text-[11px] text-muted mt-1.5">{{ homeSubtitle }}</p>
-                        <div v-if="daysTogether" class="inline-flex items-center gap-1 mt-2.5 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-[10px] font-medium">
+                    <div class="bg-white dark:bg-slate-800 pt-6 pb-5 px-6 text-center">
+                        <h1 class="text-[15px] font-bold text-slate-700 dark:text-slate-100">{{ coupleTitle }}</h1>
+                        <p v-if="homeSubtitle" class="text-[11px] text-muted mt-1">{{ homeSubtitle }}</p>
+                        <div v-if="daysTogether" class="inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-[10px] font-medium">
                             <i data-lucide="heart" class="w-2.5 h-2.5"></i>相伴 {{ daysTogether }} 天
                         </div>
                     </div>
-                    <div class="absolute top-[84px] left-1/2 -translate-x-1/2 flex">
-                        <div class="w-16 h-16 rounded-full overflow-hidden border-[3px] border-white shadow-md -mr-3 relative z-10">
+                    <div class="absolute top-[80px] left-1/2 -translate-x-1/2 flex">
+                        <div class="w-14 h-14 rounded-full overflow-hidden border-[2.5px] border-white shadow-md -mr-2.5 relative z-10">
                             <img v-if="profiles.me.avatar" :src="profiles.me.avatar" class="w-full h-full object-cover">
-                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-base">{{ profiles.me.name.charAt(0) }}</div>
+                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">{{ profiles.me.name.charAt(0) }}</div>
                         </div>
-                        <div class="w-16 h-16 rounded-full overflow-hidden border-[3px] border-white shadow-md relative">
+                        <div class="w-14 h-14 rounded-full overflow-hidden border-[2.5px] border-white shadow-md relative">
                             <img v-if="profiles.them.avatar" :src="profiles.them.avatar" class="w-full h-full object-cover">
-                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-base">{{ profiles.them.name.charAt(0) }}</div>
+                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">{{ profiles.them.name.charAt(0) }}</div>
                         </div>
                     </div>
                 </div>
@@ -1542,6 +1550,9 @@
                     <i data-lucide="phone-call" class="w-4 h-4"></i>
                 </button>
                 <button @click="modals.replyManager = true" class="jelly-btn"><i data-lucide="library" class="w-4 h-4"></i></button>
+                <button @click="modals.wordCloud = true" class="jelly-btn" title="词云">
+                    <i data-lucide="cloud" class="w-4 h-4"></i>
+                </button>
                 <button @click="modals.favorites = true" class="jelly-btn" title="收藏">
                     <i data-lucide="star" class="w-4 h-4"></i>
                 </button>
@@ -1889,6 +1900,16 @@
                                         <input type="number" v-model.number="settings.delayMin" class="w-12 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
                                         <span class="text-muted text-xs">~</span>
                                         <input type="number" v-model.number="settings.delayMax" class="w-12 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
+                                    <div class="min-w-0 pr-2">
+                                        <span class="text-sm block text-slate-600 dark:text-slate-300">连续发送等待</span>
+                                        <span class="text-[10.5px] text-muted">停止发送多久后才回复，避免打断连发</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <input type="range" v-model.number="settings.batchWaitMs" min="1000" max="6000" step="250" class="w-16 accent-accent">
+                                        <span class="text-xs font-bold text-accent w-9 text-right">{{ ((settings.batchWaitMs||2500)/1000).toFixed(1) }}s</span>
                                     </div>
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
@@ -2997,7 +3018,11 @@
                                                 <i data-lucide="sparkles" class="w-6 h-6 text-white/70"></i>
                                             </div>
                                             <div class="tarot-card-face tarot-card-front-face" :class="{ 'is-reversed': item.reversed }">
-                                                <img :src="item.card.img" :alt="item.card.nameCn" loading="lazy">
+                                                <img v-if="!item.imgFailed" :src="item.card.img" :alt="item.card.nameCn" @error="item.imgFailed = true">
+                                                <div v-else class="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-accent/15 to-sky-100/40 dark:from-accent/20 dark:to-slate-700/40 p-2 text-center">
+                                                    <i data-lucide="sparkles" class="w-5 h-5 text-accent/70"></i>
+                                                    <span class="text-[10px] font-medium text-slate-500 dark:text-slate-300 leading-tight">{{ item.card.nameCn }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -3023,6 +3048,41 @@
                             <button v-else @click="tarotResetDraw" class="w-full py-2.5 text-muted text-xs text-center hover:text-accent transition">
                                 取消，重新选择
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        
+        <transition name="page-slide">
+            <div v-if="modals.wordCloud" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
+                <div class="w-full h-full flex flex-col overflow-hidden">
+                    <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
+                        <button @click="modals.wordCloud = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 -ml-1.5 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <h3 class="font-bold text-base text-slate-700 dark:text-white flex-1">词云</h3>
+                    </div>
+
+                    <div class="px-5 pt-4 shrink-0">
+                        <div class="grid grid-cols-2 gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 rounded-2xl p-1">
+                            <button @click="wordCloudTab = 'me'" class="py-2 rounded-xl text-xs font-medium transition"
+                                :class="wordCloudTab === 'me' ? 'bg-white dark:bg-slate-700 text-accent shadow-sm' : 'text-muted'">{{ profiles.me.name }}</button>
+                            <button @click="wordCloudTab = 'them'" class="py-2 rounded-xl text-xs font-medium transition"
+                                :class="wordCloudTab === 'them' ? 'bg-white dark:bg-slate-700 text-accent shadow-sm' : 'text-muted'">{{ chatDisplayName }}</button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-5">
+                        <div v-if="(wordCloudTab === 'me' ? wordCloudMe : wordCloudThem).length" class="word-cloud-wrap">
+                            <span v-for="(w, i) in (wordCloudTab === 'me' ? wordCloudMe : wordCloudThem)" :key="w.text"
+                                class="word-cloud-item" :style="{ fontSize: w.size + 'px', opacity: 0.55 + (w.size / 34) * 0.45 }"
+                                :class="i === 0 ? 'text-accent font-bold' : 'text-slate-500 dark:text-slate-300 font-medium'">
+                                {{ w.text }}
+                            </span>
+                        </div>
+                        <div v-else class="h-full flex flex-col items-center justify-center gap-2.5 text-muted/50">
+                            <i data-lucide="cloud" class="w-10 h-10 stroke-[1]"></i>
+                            <span class="text-xs">还没有足够的消息</span>
                         </div>
                     </div>
                 </div>
@@ -3404,13 +3464,11 @@ document.addEventListener('visibilitychange', () => {
 
     const startAll = () => {
         if (!__keepAliveEnabled) return;
-        silentAudio.play().then(setupMediaSession).catch(() => {});
+    // 不管播放是否成功，都立即设置媒体会话
+        setupMediaSession(); 
+        silentAudio.play().catch(() => {});
         startAudioCtx();
     };
-    ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(t =>
-        document.addEventListener(t, startAll, { passive: true })
-    );
-
     setInterval(() => {
         if (!__keepAliveEnabled) return;
         if (silentAudio.paused) {
@@ -3564,7 +3622,7 @@ const TAROT_DECK = [
     { id: 'pentacles_14', arcana: 'minor', suit: 'pentacles', nameCn: '星币国王', nameEn: 'King of Pentacles', upright: '事业有成、财富稳固、以踏实与远见建立长久的物质保障。', reversed: '贪婪固执、过度看重物质、顽固保守，或因财富而迷失初衷。', upKeywords: ['富足', '稳健', '成就', '远见'], revKeywords: ['贪婪', '固执', '物质至上', '保守僵化'], img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pents14.jpg' },
 ];
 
-const { createApp, ref, reactive, computed, watch, nextTick, onMounted } = Vue;
+const { createApp, ref, reactive, computed, watch, nextTick, onMounted, toRaw } = Vue;
 localforage.config({ name: 'JingYuStarV6', storeName: 'fusion_v6' });
 
 createApp({
@@ -3994,7 +4052,8 @@ createApp({
             tarotDrawnCards.value = picked.map(card => ({
                 card,
                 reversed: Math.random() < 0.5,
-                revealed: false
+                revealed: false,
+                imgFailed: false
             }));
             tarotHistory.value.unshift({
                 id: 'tarot_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -4113,6 +4172,7 @@ createApp({
         const settings = reactive({
             isDark: false, showAvatar: true, showNickname: false, sound: true,
             delayMin: 1, delayMax: 3, activeMsg: false, activeInterval: 30,
+            batchWaitMs: 2500, // 连续发送消息时，停止发送后等待多久才触发对方回复（毫秒）
             fragmentReplyChance: 0, // 随机把1~3条语料拼在一起组合成一句话发出的概率（0~100，0=关闭）
             noReplyChance: 0, // 已读不回的概率（0~100，0=关闭：消息照常已读+回复）
             avatarRadius: 40, bgImage: '', bgImageUrl: '', customCSS: '',
@@ -4156,7 +4216,7 @@ createApp({
             settings: false, replyManager: false, stickerPicker: false,
             letterHistory: false,
             notebook: false, batchInput: false, selectiveExport: false, favorites: false, periodTracker: false,
-            tarot: false
+            tarot: false, wordCloud: false
         });
         const showLetterCompose = ref(false); // 信笺面板里"写信"展开区是否打开
         const currentScreen = ref('home');
@@ -4166,6 +4226,29 @@ createApp({
             settings.unreadChatCount = 0;
             nextTick(() => scrollToBottom());
         };
+        // ===== 词云：统计双方最常发送的消息 =====
+        const buildWordCloud = (sender) => {
+            const freq = new Map();
+            for (const m of messages.value) {
+                if (m.type !== 'text' || m.sender !== sender) continue;
+                const text = (m.content || '').trim();
+                if (!text) continue;
+                freq.set(text, (freq.get(text) || 0) + 1);
+            }
+            const arr = [...freq.entries()].map(([text, count]) => ({ text, count }));
+            arr.sort((a, b) => b.count - a.count || a.text.localeCompare(b.text));
+            const top = arr.slice(0, 24);
+            if (!top.length) return [];
+            const max = top[0].count, min = top[top.length - 1].count;
+            return top.map(item => ({
+                ...item,
+                size: max === min ? 17 : 12 + Math.round(((item.count - min) / (max - min)) * 20)
+            }));
+        };
+        const wordCloudMe = computed(() => buildWordCloud('me'));
+        const wordCloudThem = computed(() => buildWordCloud('them'));
+        const wordCloudTab = ref('me'); // 'me' | 'them'
+
         const coupleTitle = computed(() => settings.coupleName?.trim() || `${profiles.me.name} & ${profiles.them.name}`);
         const chatDisplayName = computed(() => profiles.them.remark?.trim() || profiles.them.name);
         const daysTogether = computed(() => {
@@ -4345,22 +4428,34 @@ createApp({
         navigator.clipboard?.writeText(CLOUD_DEVICE_ID).then(() => alert('已复制本机设备ID')).catch(() => {});
     };
 
+    // 轻量clone：优先用浏览器原生 structuredClone（比 JSON.stringify+JSON.parse 的双重序列化快很多，
+    // 尤其是聊天记录、表情包里存了大量 base64 图片数据的时候），不支持时自动回退到原来的JSON方式。
+    const cloneData = (x) => {
+        if (x === null || x === undefined) return x;
+        const raw = toRaw(x);
+        try {
+            return structuredClone(raw);
+        } catch (e) {
+            return JSON.parse(JSON.stringify(raw));
+        }
+    };
+
     const buildSavePayload = () => ({
         _version: 'lorstar41_backup_v2',
         _savedAt: new Date().toISOString(),
-        messages: JSON.parse(JSON.stringify(messages.value)),
-        profiles: JSON.parse(JSON.stringify(profiles)),
-        settings: JSON.parse(JSON.stringify(settings)),
-        ungroupedReplies: JSON.parse(JSON.stringify(ungroupedReplies.value)),
-        replyGroups: JSON.parse(JSON.stringify(replyGroups.value)),
-        stickerGroups: JSON.parse(JSON.stringify(stickerGroups.value)),
-        letterHistory: JSON.parse(JSON.stringify(letterHistory.value)),
-        pendingLetter: pendingLetter.value ? JSON.parse(JSON.stringify(pendingLetter.value)) : null,
-        notes: JSON.parse(JSON.stringify(notes.value)),
-        favorites: JSON.parse(JSON.stringify(favorites.value)),
-        periodRecords: JSON.parse(JSON.stringify(periodRecords.value)),
+        messages: cloneData(messages.value),
+        profiles: cloneData(profiles),
+        settings: cloneData(settings),
+        ungroupedReplies: cloneData(ungroupedReplies.value),
+        replyGroups: cloneData(replyGroups.value),
+        stickerGroups: cloneData(stickerGroups.value),
+        letterHistory: cloneData(letterHistory.value),
+        pendingLetter: pendingLetter.value ? cloneData(pendingLetter.value) : null,
+        notes: cloneData(notes.value),
+        favorites: cloneData(favorites.value),
+        periodRecords: cloneData(periodRecords.value),
         emojiPoolText: emojiPoolText.value,
-        tarotHistory: JSON.parse(JSON.stringify(tarotHistory.value))
+        tarotHistory: cloneData(tarotHistory.value)
 });
 
     let cloudSyncTimer = null;
@@ -4511,6 +4606,20 @@ createApp({
         if (localSaveTimer) safeClearTimeout(localSaveTimer);
         localSaveTimer = safeSetTimeout(writeLocalSave, 500);
     };
+         // 强制显示系统媒体播放控件
+        if ('mediaSession' in navigator) {
+            try {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: '静语·星降',
+                    artist: '后台保持连接中',
+                    artwork: [
+                        { src: location.origin + '/icon-192.png', sizes: '192x192' },
+                         { src: location.origin + '/icon-512.png', sizes: '512x512' }
+                    ]
+                });
+                navigator.mediaSession.playbackState = 'playing';
+            } catch(e) {}
+        }
 
     watch(
         [messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, favorites, periodRecords, emojiPoolText, tarotHistory],
@@ -4972,7 +5081,7 @@ createApp({
 
         messages.value.push(msg);
         playSound(sender === 'me' ? 'send' : 'receive');
-        saveData(true);
+        saveData(); // 防抖保存：连续发送/连续回复时会合并成一次写入，减少卡顿；关闭/切后台时 flushSave 会强制兜底保存
 
         if (sender === 'them') {
              const notifyBody = type === 'text' ? txt : '[图片消息]';
@@ -4989,7 +5098,10 @@ createApp({
              }, 2000);
             const skipReply = (settings.noReplyChance || 0) > 0 && Math.random() * 100 < settings.noReplyChance;
             if (!skipReply) {
-                triggerAutoReply();
+                queueAutoReply();
+            } else {
+                pendingBatchCount = 0;
+                if (batchReplyTimer) { safeClearTimeout(batchReplyTimer); batchReplyTimer = null; }
             }
         }
     };
@@ -4998,9 +5110,30 @@ createApp({
         window.__app_triggerAutoReply = () => triggerAutoReply();
         window.__app_navigateToChat = () => openChat();
 
+        // 连续发送批次收集：用户在 BATCH_WAIT_MS 静默期内发送的多条消息会被视为"一个整体"，
+        // 静默期结束后才统一触发一次自动回复，避免每条消息各自触发一轮回复导致对方一下子回复太多。
+        let pendingBatchCount = 0;
+        let batchReplyTimer = null;
+        const queueAutoReply = () => {
+            pendingBatchCount++;
+            if (batchReplyTimer) safeClearTimeout(batchReplyTimer);
+            const waitMs = Math.max(500, Number(settings.batchWaitMs) || 2500); // 停止连续发送后等待的静默时间，可在设置里调
+            batchReplyTimer = safeSetTimeout(() => {
+                const batchSize = pendingBatchCount;
+                pendingBatchCount = 0;
+                batchReplyTimer = null;
+                triggerAutoReply(false, batchSize);
+            }, waitMs);
+        };
+
         let typingSafetyTimer = null; // isTyping 卡死保护的兜底计时器
-        const triggerAutoReply = (force = false) => {
-            if(isTyping.value) return;
+        const MAX_REPLY_COUNT = 5; // 一次回复整体上不超过5条
+        const triggerAutoReply = (force = false, batchSize = 1, retry = 0) => {
+            if (isTyping.value) {
+                // 上一轮回复还没结束：稍后重试一次，而不是直接丢弃这一批回复（最多重试40次≈32秒，避免卡死）
+                if (retry < 40) safeSetTimeout(() => triggerAutoReply(force, batchSize, retry + 1), 800);
+                return;
+            }
             isTyping.value = true;
             scrollToBottom(true);
             if (typingSafetyTimer) safeClearTimeout(typingSafetyTimer);
@@ -5010,7 +5143,15 @@ createApp({
                 const textPool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g=>g.replies)];
                 const stickerPool = stickerGroups.value.flatMap(g=>g.stickers);
                 const emojiArray = emojiPoolText.value.split(/[,，]/).map(e=>e.trim()).filter(e=>e);
-                const replyCount = force ? 1 : (Math.floor(Math.random() * 3) + 1);
+                // 基础回复1~3条；若用户这一批连续发了较多条消息，适当多回复几条，但整体不超过 MAX_REPLY_COUNT
+                let replyCount;
+                if (force) {
+                    replyCount = 1;
+                } else {
+                    const base = Math.floor(Math.random() * 3) + 1;
+                    const bonus = batchSize > 1 ? Math.floor(Math.random() * Math.min(batchSize - 1, MAX_REPLY_COUNT - 1)) : 0;
+                    replyCount = Math.min(MAX_REPLY_COUNT, base + bonus);
+                }
                 let currentIndex = 0;
                 const sendNext = () => {
                     if (currentIndex >= replyCount) {
@@ -5825,6 +5966,7 @@ createApp({
             tarotDrawnCards, tarotSpreadType, tarotHistory, tarotShowHistory, tarotSpreadLabels, tarotQuestion,
             tarotDraw, tarotReveal, tarotAllRevealed, tarotResetDraw, tarotDeleteHistoryItem,
             tarotFindCard, tarotHistoryDateText,
+            wordCloudMe, wordCloudThem, wordCloudTab,
         };
     }
 }).mount('#app');
