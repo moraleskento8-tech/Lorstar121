@@ -28,6 +28,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/localforage@1.10.0/dist/localforage.min.js"></script>
     <script src="https://unpkg.com/@formkit/auto-animate@0.8.0/index.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Noto+Serif+SC:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
@@ -1737,15 +1738,23 @@
                 <button @click="showPokePicker" class="p-2.5 text-muted hover:text-purple-500 hover:bg-purple-50/60 rounded-xl transition-all" title="拍一拍">
                     <i data-lucide="hand" class="w-5 h-5"></i>
                 </button>
+                <button @click="toggleBatchComposeMode" :class="batchComposeMode ? 'text-accent bg-white/80 shadow-inner' : 'text-muted'" class="relative p-2.5 rounded-xl transition-all hover:bg-white/60" title="多条模式：开启后回车只换行不发送，每换一行就是单独一条消息，发送时依次发出，对方只统一回复一次（最多5条）">
+                    <i data-lucide="messages-square" class="w-5 h-5"></i>
+                    <span v-if="batchComposeMode && batchInputPartsCount > 1" class="absolute -top-1 -right-1 bg-accent text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">{{ batchInputPartsCount }}</span>
+                </button>
+            </div>
+            <div v-if="batchComposeMode" class="mb-2 px-3 py-1.5 rounded-xl bg-accent/10 text-accent text-[11px] font-medium flex items-center gap-1.5">
+                <i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i>
+                多条模式已开启：回车换行，每一行都会作为单独一条消息依次发出
             </div>
             <div class="flex items-end gap-2 bg-white/80 dark:bg-slate-800/80 p-2 rounded-[1.8rem] shadow-inner border border-white/70">
                 <textarea v-model="inputText"
-                          @keydown.enter.exact.prevent="sendMsg('me', 'text')"
+                          @keydown.enter="onComposerEnterKeydown"
                           @keydown.esc="quotingMsg = null"
                           placeholder="说点什么吧..."
-                          rows="1"
+                          :rows="batchComposeMode ? 3 : 1"
                           class="flex-1 bg-transparent border-none focus:ring-0 py-2.5 px-4 text-sm resize-none max-h-32 text-slate-700 dark:text-slate-200 placeholder-slate-400 font-medium"></textarea>
-                <button @click="sendMsg('me', 'text')" :disabled="!inputText.trim()" class="w-11 h-11 bg-accent text-white flex items-center justify-center rounded-[1.3rem] disabled:opacity-40 shadow-lg shadow-accent/20 hover:bg-opacity-90 transition-all active:scale-95 shrink-0">
+                <button @click="handleSendClick" :disabled="!inputText.trim()" class="w-11 h-11 bg-accent text-white flex items-center justify-center rounded-[1.3rem] disabled:opacity-40 shadow-lg shadow-accent/20 hover:bg-opacity-90 transition-all active:scale-95 shrink-0">
                     <i data-lucide="send-horizonal" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -3064,21 +3073,40 @@
                     </div>
 
                     <div class="px-5 pt-4 shrink-0">
-                        <div class="grid grid-cols-2 gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 rounded-2xl p-1">
-                            <button @click="wordCloudTab = 'me'" class="py-2 rounded-xl text-xs font-medium transition"
-                                :class="wordCloudTab === 'me' ? 'bg-white dark:bg-slate-700 text-accent shadow-sm' : 'text-muted'">{{ profiles.me.name }}</button>
+                        <div class="grid grid-cols-3 gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 rounded-2xl p-1">
+                            <button @click="wordCloudTab = 'all'" class="py-2 rounded-xl text-xs font-medium transition"
+                                :class="wordCloudTab === 'all' ? 'bg-white dark:bg-slate-700 text-accent shadow-sm' : 'text-muted'">全部</button>
                             <button @click="wordCloudTab = 'them'" class="py-2 rounded-xl text-xs font-medium transition"
                                 :class="wordCloudTab === 'them' ? 'bg-white dark:bg-slate-700 text-accent shadow-sm' : 'text-muted'">{{ chatDisplayName }}</button>
+                            <button @click="wordCloudTab = 'me'" class="py-2 rounded-xl text-xs font-medium transition"
+                                :class="wordCloudTab === 'me' ? 'bg-white dark:bg-slate-700 text-accent shadow-sm' : 'text-muted'">{{ profiles.me.name }}</button>
+                        </div>
+                        <div v-if="wordCloudList.length" class="flex items-center justify-center gap-4 mt-3 text-[11px] text-muted">
+                            <span class="flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i>{{ wordCloudMessageCount }} 条</span>
+                            <span class="flex items-center gap-1"><i data-lucide="type" class="w-3.5 h-3.5"></i>{{ wordCloudWordCount }} 词</span>
                         </div>
                     </div>
 
                     <div class="flex-1 overflow-y-auto p-5">
-                        <div v-if="(wordCloudTab === 'me' ? wordCloudMe : wordCloudThem).length" class="word-cloud-wrap">
-                            <span v-for="(w, i) in (wordCloudTab === 'me' ? wordCloudMe : wordCloudThem)" :key="w.text"
-                                class="word-cloud-item" :style="{ fontSize: w.size + 'px', opacity: 0.55 + (w.size / 34) * 0.45 }"
-                                :class="i === 0 ? 'text-accent font-bold' : 'text-slate-500 dark:text-slate-300 font-medium'">
-                                {{ w.text }}
-                            </span>
+                        <div v-if="wordCloudList.length">
+                            <div class="relative w-full" style="height: 280px;">
+                                <canvas ref="wordCloudCanvas" class="w-full h-full"></canvas>
+                            </div>
+                            <div class="mt-6 bg-white/70 dark:bg-slate-800/60 rounded-2xl p-4 border border-white/60 dark:border-slate-700/50">
+                                <div class="flex items-center gap-1.5 mb-3 text-slate-600 dark:text-slate-200 text-xs font-bold">
+                                    <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i> 高频词 TOP10
+                                </div>
+                                <div class="space-y-2.5">
+                                    <div v-for="(w, i) in wordCloudTop10" :key="w.text" class="flex items-center gap-3">
+                                        <span class="text-[11px] font-bold text-muted w-5 shrink-0">{{ String(i + 1).padStart(2, '0') }}</span>
+                                        <span class="text-xs font-semibold text-slate-600 dark:text-slate-200 w-14 shrink-0 truncate">{{ w.text }}</span>
+                                        <div class="flex-1 h-2 rounded-full bg-slate-100 dark:bg-slate-700/60 overflow-hidden">
+                                            <div class="h-full rounded-full bg-accent" :style="{ width: (w.count / wordCloudTop10Max * 100) + '%' }"></div>
+                                        </div>
+                                        <span class="text-[11px] text-muted w-8 text-right shrink-0">{{ w.count }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div v-else class="h-full flex flex-col items-center justify-center gap-2.5 text-muted/50">
                             <i data-lucide="cloud" class="w-10 h-10 stroke-[1]"></i>
@@ -3633,6 +3661,12 @@ createApp({
         const globalImportInput = ref(null);
         const messages = ref([]);
         const inputText = ref('');
+        // 连续发送（多条消息）模式：开启后，输入框里按 Enter 只会换行，不会直接发送，
+        // 这样手机用户才能真正打出多行内容；每一行都会被当成单独一条消息，点发送按钮时依次发出。
+        const batchComposeMode = ref(false);
+        const toggleBatchComposeMode = () => {
+            batchComposeMode.value = !batchComposeMode.value;
+        };
         const isTyping = ref(false);
         const previewImg = ref('');
         const letterHistory = ref([]);
@@ -4226,28 +4260,170 @@ createApp({
             settings.unreadChatCount = 0;
             nextTick(() => scrollToBottom());
         };
-        // ===== 词云：统计双方最常发送的消息 =====
+        // ===== 词云：基于内置词库做真正的分词统计（正向最大匹配），不含表情/emoji，
+        //       避免"姐姐/姐姐我/我姐姐"这种滑动取词导致的重复刷屏问题 =====
+        const WORD_CLOUD_EMOJI_RE = /(\p{Emoji_Presentation}|\p{Extended_Pictographic}|\uFE0F)/gu;
+        const WORD_CLOUD_URL_RE = /https?:\/\/\S+/g;
+        const WORD_CLOUD_SPLIT_RE = /[\s,，。！？、；：""''《》〈〉（）()\[\]【】~—\-_/\\|.!?;:"'`~@#$%^&*+=<>{}·…\n\r\t]+/gu;
+        // 内置词库（语料库）：常见称呼、情感词、动作、时间、常用短语等，作为分词依据。
+        // 分词时按"正向最大匹配"从词库里找词，找不到的连续未知字才归并成一个词，
+        // 不会像滑动窗口那样把同一段文字拆出好几个互相重叠、意思重复的词。
+        const WORD_CLOUD_DICT = [
+            '我们','你们','他们','她们','咱们','自己','大家',
+            '姐姐','妹妹','哥哥','弟弟','老婆','老公','媳妇','相公','爱人','对象',
+            '女朋友','男朋友','女友','男友','宝贝','宝宝','亲爱','亲亲','乖乖','傻瓜','笨蛋',
+            '小可爱','小宝贝','小祖宗','小姐姐','小猪','小笨蛋','小坏蛋','小傻瓜',
+            '想你','爱你','喜欢你','讨厌你','想我','爱我','喜欢','讨厌','生气','开心','难过','伤心',
+            '委屈','心疼','心动','心软','害怕','担心','紧张','期待','兴奋','激动','无聊','孤独',
+            '想念','思念','后悔','抱歉','对不起','原谅','谢谢','感谢','加油','努力','坚持','放弃',
+            '相信','怀疑','信任','安心','放心','舍不得','受不了','忍不住','控制不住',
+            '抱抱','摸摸','亲一下','亲亲你','抱一下','牵手','拥抱','接吻','亲吻',
+            '睡觉','起床','吃饭','喝水','洗澡','刷牙','上班','下班','上学','放学','回家','出门',
+            '休息','加班','熬夜','早睡','晚安','早安','午安','再见','拜拜',
+            '晚点','一会儿','马上','现在','刚才','等等','稍等','今天','明天','昨天','以后','以前',
+            '刚刚','一直','永远','从来','总是','经常','偶尔','从不','已经','还没','快要','即将',
+            '可以','不可以','能不能','可不可以','应该','不应该','必须','一定','肯定','大概','也许',
+            '可能','需要','不需要','想要','不想','不喜欢','知道','不知道','明白','不明白',
+            '记得','忘记','记住','以为','觉得','认为','发现','决定','打算','计划','希望','愿意','不愿意',
+            '为什么','怎么了','怎么样','怎么办','没关系','没事','没什么','不要紧',
+            '别担心','别生气','别难过','别哭','别闹','不要','不行','不好','很好','真的','假的',
+            '当然','确定','不确定','你好','您好','早上好','晚上好','中午好',
+            '生日快乐','新年快乐','节日快乐','辛苦了','注意安全','早点休息','照顾好自己',
+            '第一次','这么','那么','什么时候','这样','那样','怎么回事','没想到','原来如此'
+        ];
+        const WORD_CLOUD_DICT_SET = new Set(WORD_CLOUD_DICT);
+        const WORD_CLOUD_MAX_WORD_LEN = Math.max(...WORD_CLOUD_DICT.map(w => w.length));
+        // 正向最大匹配分词：优先匹配词库里最长的词；匹配不到时，把连续的未登录字
+        // （最多 4 个）合并成一个词，而不是逐字滑动窗口，避免重复交叉的词组。
+        const segmentChinese = (text, dictSet, maxLen) => {
+            const tokens = [];
+            let i = 0;
+            const n = text.length;
+            const hasMatchAt = (pos) => {
+                const lim = Math.min(maxLen, n - pos);
+                for (let len = lim; len >= 2; len--) {
+                    if (dictSet.has(text.substr(pos, len))) return true;
+                }
+                return false;
+            };
+            while (i < n) {
+                let matched = null;
+                const lim = Math.min(maxLen, n - i);
+                for (let len = lim; len >= 2; len--) {
+                    const cand = text.substr(i, len);
+                    if (dictSet.has(cand)) { matched = cand; break; }
+                }
+                if (matched) {
+                    tokens.push(matched);
+                    i += matched.length;
+                } else {
+                    let j = i + 1;
+                    while (j < n && !hasMatchAt(j) && (j - i) < 4) j++;
+                    const run = text.substring(i, j);
+                    if (run.length >= 2) tokens.push(run);
+                    i = j;
+                }
+            }
+            return tokens;
+        };
+        const wordCloudHexToRgb = (hex) => {
+            let h = (hex || '').trim().replace('#', '');
+            if (h.length === 3) h = h.split('').map(c => c + c).join('');
+            const num = parseInt(h, 16);
+            if (isNaN(num) || h.length !== 6) return { r: 226, g: 97, b: 140 };
+            return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+        };
+        // 统计词频：sender 为 'me'|'them'|'all'；返回按频率降序排列的词表（最多 60 个）和参与统计的消息条数
         const buildWordCloud = (sender) => {
+            // 把双方的称呼/昵称也临时加进词库，这样"姐姐""老婆"这类专属称呼能被当成完整的词识别
+            const extraWords = [profiles.me.name, profiles.them.name, settings.coupleName, chatDisplayName.value]
+                .map(s => (s || '').trim()).filter(s => s.length >= 2);
+            const dictSet = extraWords.length ? new Set([...WORD_CLOUD_DICT_SET, ...extraWords]) : WORD_CLOUD_DICT_SET;
+            const maxLen = Math.max(WORD_CLOUD_MAX_WORD_LEN, ...extraWords.map(w => w.length), 2);
             const freq = new Map();
+            let messageCount = 0;
             for (const m of messages.value) {
-                if (m.type !== 'text' || m.sender !== sender) continue;
-                const text = (m.content || '').trim();
+                if (m.type !== 'text' || m.recalled) continue;
+                if (sender !== 'all' && m.sender !== sender) continue;
+                let text = (m.content || '').trim();
                 if (!text) continue;
-                freq.set(text, (freq.get(text) || 0) + 1);
+                messageCount++;
+                text = text.replace(WORD_CLOUD_URL_RE, ' ').replace(WORD_CLOUD_EMOJI_RE, ' ');
+                const segments = text.split(WORD_CLOUD_SPLIT_RE).filter(Boolean);
+                for (const seg of segments) {
+                    if (/^[a-zA-Z0-9]+$/.test(seg)) {
+                        // 英文/数字整段当一个词，太短或纯数字的不统计
+                        if (seg.length >= 2 && !/^[0-9]+$/.test(seg)) {
+                            const key = seg.toLowerCase();
+                            freq.set(key, (freq.get(key) || 0) + 1);
+                        }
+                        continue;
+                    }
+                    // 中文（或中英混合）片段：按词库分词，每个字只会归到唯一一个词里
+                    for (const word of segmentChinese(seg, dictSet, maxLen)) {
+                        if (/^[0-9]+$/.test(word)) continue;
+                        freq.set(word, (freq.get(word) || 0) + 1);
+                    }
+                }
             }
             const arr = [...freq.entries()].map(([text, count]) => ({ text, count }));
             arr.sort((a, b) => b.count - a.count || a.text.localeCompare(b.text));
-            const top = arr.slice(0, 24);
-            if (!top.length) return [];
+            const top = arr.slice(0, 60);
+            if (!top.length) return { list: [], messageCount };
             const max = top[0].count, min = top[top.length - 1].count;
-            return top.map(item => ({
-                ...item,
-                size: max === min ? 17 : 12 + Math.round(((item.count - min) / (max - min)) * 20)
-            }));
+            const list = top.map(item => {
+                const ratio = max === min ? 1 : (item.count - min) / (max - min);
+                // 用平方根映射，避免最高频词把画布撑得过大，视觉上更接近真实词云
+                const size = 13 + Math.round(Math.sqrt(ratio) * 41); // 13px ~ 54px
+                return { ...item, size };
+            });
+            return { list, messageCount };
         };
-        const wordCloudMe = computed(() => buildWordCloud('me'));
-        const wordCloudThem = computed(() => buildWordCloud('them'));
-        const wordCloudTab = ref('me'); // 'me' | 'them'
+        const wordCloudTab = ref('all'); // 'all' | 'me' | 'them'
+        const wordCloudStats = computed(() => buildWordCloud(wordCloudTab.value));
+        const wordCloudList = computed(() => wordCloudStats.value.list);
+        const wordCloudMessageCount = computed(() => wordCloudStats.value.messageCount);
+        const wordCloudWordCount = computed(() => wordCloudList.value.length);
+        const wordCloudTop10 = computed(() => wordCloudList.value.slice(0, 10));
+        const wordCloudTop10Max = computed(() => wordCloudTop10.value.length ? wordCloudTop10.value[0].count : 1);
+        const wordCloudCanvas = ref(null);
+        const drawWordCloudCanvas = () => {
+            const canvas = wordCloudCanvas.value;
+            if (!canvas || typeof WordCloud !== 'function') return;
+            const container = canvas.parentElement;
+            const w = Math.max(container?.clientWidth || 0, 260);
+            const h = Math.max(container?.clientHeight || 0, 260);
+            canvas.width = w; canvas.height = h;
+            canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+            const list = wordCloudList.value;
+            if (!list.length) return;
+            const sizes = list.map(w => w.size);
+            const minS = Math.min(...sizes), maxS = Math.max(...sizes);
+            const accentHex = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim() || '#e2618f';
+            const { r, g, b } = wordCloudHexToRgb(accentHex);
+            try {
+                WordCloud(canvas, {
+                    list: list.map(item => [item.text, item.size]),
+                    weightFactor: 1,
+                    fontFamily: getComputedStyle(document.body).fontFamily || 'sans-serif',
+                    fontWeight: 700,
+                    color: (word, weight) => {
+                        const t = maxS === minS ? 1 : (weight - minS) / (maxS - minS);
+                        const alpha = 0.32 + t * 0.68;
+                        return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
+                    },
+                    rotateRatio: 0,
+                    backgroundColor: 'transparent',
+                    gridSize: Math.max(4, Math.round(w / 90)),
+                    shrinkToFit: true,
+                    drawOutOfBound: false,
+                    minSize: 8
+                });
+            } catch (e) {}
+        };
+        watch(() => modals.wordCloud, (open) => { if (open) nextTick(() => drawWordCloudCanvas()); });
+        watch(wordCloudTab, () => { if (modals.wordCloud) nextTick(() => drawWordCloudCanvas()); });
+        window.addEventListener('resize', () => { if (modals.wordCloud) drawWordCloudCanvas(); });
 
         const coupleTitle = computed(() => settings.coupleName?.trim() || `${profiles.me.name} & ${profiles.them.name}`);
         const chatDisplayName = computed(() => profiles.them.remark?.trim() || profiles.them.name);
@@ -5105,9 +5281,66 @@ createApp({
             }
         }
     };
+        // 连续发送：把输入框里的内容按"换行"拆成几条消息依次快速发出去（每换一行＝单独一条），
+        // 让对方感觉是"一口气发了好几条"。因为每一条还是走 sendMsg -> queueAutoReply，
+        // 而这几条之间的间隔远小于 batchWaitMs 静默期，batchReplyTimer 会被不断重置，
+        // 所以最终只会在这一整批发完之后统一触发一次自动回复，回复条数仍然受
+        // MAX_REPLY_COUNT（5条）限制，不会出现"发几条对方就回几轮"的刷屏问题。
+        const batchInputParts = computed(() => {
+            const raw = inputText.value || '';
+            if (!raw.trim()) return [];
+            return raw.split(/\n/).map(s => s.trim()).filter(s => s.length > 0);
+        });
+        const batchInputPartsCount = computed(() => batchInputParts.value.length);
+        const sendBatchInput = () => {
+            const parts = batchInputParts.value;
+            if (parts.length === 0) return;
+            if (parts.length === 1) {
+                // 只有一行，等同于普通发送，直接复用原有逻辑
+                sendMsg('me', 'text');
+                batchComposeMode.value = false;
+                return;
+            }
+            inputText.value = '';
+            batchComposeMode.value = false; // 发完这一批后自动退出多条模式，回到"回车即发送"的正常状态
+            let i = 0;
+            const sendNextPart = () => {
+                if (i >= parts.length) return;
+                inputText.value = parts[i];
+                sendMsg('me', 'text');
+                i++;
+                if (i < parts.length) safeSetTimeout(sendNextPart, 280 + Math.random() * 220);
+            };
+            sendNextPart();
+        };
+        // 输入框回车键处理：
+        // - 普通模式下：单独按 Enter＝发送（和原来一样），Shift/Ctrl/Alt/Meta+Enter＝换行；
+        // - 多条模式下：单独按 Enter 只换行，不发送，这样才能打出多行内容（每行会分成一条）；
+        //   要发送时点发送按钮（会自动识别多条并依次发出）。
+        const onComposerEnterKeydown = (e) => {
+            if (e.isComposing || e.keyCode === 229) return; // 中文/日文等输入法正在选字时的回车，交给输入法处理
+            if (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return; // 带修饰键，走默认换行行为
+            if (batchComposeMode.value) return; // 多条模式：不拦截，允许默认换行
+            e.preventDefault();
+            sendMsg('me', 'text');
+        };
+        // 发送按钮点击：多条模式下自动按换行拆分依次发送；普通模式下和原来一样直接发送
+        const handleSendClick = () => {
+            if (batchComposeMode.value) {
+                sendBatchInput();
+            } else {
+                sendMsg('me', 'text');
+            }
+        };
         const quoteMsg = (msg) => { quotingMsg.value = msg; };
         const forceBotReply = () => { triggerAutoReply(true); };
-        window.__app_triggerAutoReply = () => triggerAutoReply();
+        // ⚠️ 这里以前是 `() => triggerAutoReply()`，没有检查"主动消息"开关。
+        //   Service Worker 在后台被唤醒时（比如收到推送、或做 keep-alive）会通过
+        //   postMessage 发 { type: 'trigger-reply' } 过来，这条路径完全绕开了
+        //   设置页里"主动消息"那个开关（那个开关只控制主线程里的 activeIntervalTimer），
+        //   导致哪怕关掉"主动消息"，Service Worker 还是会不停地把对方"叫醒"发消息。
+        //   现在这里补上开关检查，SW 唤醒时如果"主动消息"是关的，就什么也不做。
+        window.__app_triggerAutoReply = () => { if (settings.activeMsg) triggerAutoReply(); };
         window.__app_navigateToChat = () => openChat();
 
         // 连续发送批次收集：用户在 BATCH_WAIT_MS 静默期内发送的多条消息会被视为"一个整体"，
@@ -5936,6 +6169,7 @@ createApp({
             refreshStatus, applyFontSettings, applyCSS, testSound,
             shouldShowDate, formatDateSeparator, formatTime, shouldShowAvatar,
             toggleTheme, quotingMsg, quoteMsg, forceBotReply, scrollToMsg,
+            sendBatchInput, batchInputPartsCount, batchComposeMode, toggleBatchComposeMode, onComposerEnterKeydown, handleSendClick,
             renderContent,
             uploadBg, applyBgUrl, globalExport, globalImport,
             uploadHomeWallpaper, applyHomeWallpaperUrl, uploadCoupleCardImage, applyCoupleCardImageUrl,
@@ -5966,7 +6200,7 @@ createApp({
             tarotDrawnCards, tarotSpreadType, tarotHistory, tarotShowHistory, tarotSpreadLabels, tarotQuestion,
             tarotDraw, tarotReveal, tarotAllRevealed, tarotResetDraw, tarotDeleteHistoryItem,
             tarotFindCard, tarotHistoryDateText,
-            wordCloudMe, wordCloudThem, wordCloudTab,
+            wordCloudTab, wordCloudList, wordCloudMessageCount, wordCloudWordCount, wordCloudTop10, wordCloudTop10Max, wordCloudCanvas,
         };
     }
 }).mount('#app');
