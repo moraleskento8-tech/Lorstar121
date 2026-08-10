@@ -1,0 +1,11 @@
+# 如果你的仓库根目录已经有 netlify.toml，把下面这两块内容合并进去就行，
+# 不要直接用这个文件整个覆盖掉已有的配置（比如 [build] 里 publish 目录之类的设置）。
+
+[build]
+  functions = "netlify/functions"
+
+# 给 scheduled-proactive 这个函数配置定时触发规则：每 5 分钟跑一次。
+# 函数内部的 MIN_GAP_MS（5分钟）和 ACTIVE_SKIP_MS（3分钟）已经做了频率控制，
+# 这里的 5 分钟只是"最多多久检查一次"，不代表每次检查都会真的推送。
+[functions."scheduled-proactive"]
+  schedule = "*/5 * * * *"

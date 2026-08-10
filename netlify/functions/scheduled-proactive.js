@@ -20,6 +20,10 @@
 const { connectLambda, getStore } = require('@netlify/blobs');
 
 const MIN_GAP_MS = 5 * 60 * 1000; // 离线主动消息最短间隔：5分钟，可自行调整
+// 客户端每次保存数据都会顺带更新 _lastSeenAt（见 sync-save.js）。如果这个时间离现在很近，
+// 说明 App 大概率还开着、前台自己的"主动消息"定时器已经在负责触发了，这里就跳过，
+// 避免前台/后台两条通道同时触发，造成同一时间收到两条重复的"主动消息"。
+const ACTIVE_SKIP_MS = 3 * 60 * 1000; // 3分钟内同步过，就认为大概率还在前台
 
 const pickRandomLine = (data) => {
     const pool = [
@@ -66,6 +70,10 @@ exports.handler = async (event) => {
             data = await store.get(b.key, { type: 'json' });
         } catch (e) { continue; }
         if (!data || !data.settings || !data.settings.activeMsg || !data.subscriptionId) continue;
+
+        // App 大概率还开着，前台定时器已经在处理"主动消息"了，服务端这轮先不重复推
+        const lastSeen = data._lastSeenAt || 0;
+        if (now - lastSeen < ACTIVE_SKIP_MS) continue;
 
         const intervalMs = Math.max(10, data.settings.activeInterval || 30) * 1000;
         const gapMs = Math.max(intervalMs, MIN_GAP_MS);

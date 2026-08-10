@@ -32,6 +32,10 @@ exports.handler = async (event) => {
             ...payload,
             _pendingMessages: existing?._pendingMessages || [],
             _lastPushAt: existing?._lastPushAt || 0,
+            // 只要客户端还在正常保存数据，就说明 App 大概率是开着的（前台的"主动消息"定时器
+            // 已经在负责这件事了）。记下这个时间，供 scheduled-proactive.js 判断要不要跳过本轮
+            // 服务端推送，避免前台/后台两条通道同时触发、造成重复消息。
+            _lastSeenAt: Date.now(),
             _updatedAt: Date.now()
         };
 
