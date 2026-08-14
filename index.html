@@ -1913,16 +1913,6 @@
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
                                     <div class="min-w-0 pr-2">
-                                        <span class="text-sm block text-slate-600 dark:text-slate-300">连续发送等待</span>
-                                        <span class="text-[10.5px] text-muted">停止发送多久后才回复，避免打断连发</span>
-                                    </div>
-                                    <div class="flex items-center gap-2 shrink-0">
-                                        <input type="range" v-model.number="settings.batchWaitMs" min="1000" max="6000" step="250" class="w-16 accent-accent">
-                                        <span class="text-xs font-bold text-accent w-9 text-right">{{ ((settings.batchWaitMs||2500)/1000).toFixed(1) }}s</span>
-                                    </div>
-                                </div>
-                                <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <div class="min-w-0 pr-2">
                                         <span class="text-sm block text-slate-600 dark:text-slate-300">语料拼接概率</span>                                                                    </div>
                                     <div class="flex items-center gap-2 shrink-0">
                                         <input type="range" v-model.number="settings.fragmentReplyChance" min="0" max="100" step="5" class="w-16 accent-accent">
@@ -3431,8 +3421,28 @@ document.addEventListener('visibilitychange', () => {
         }
     });
 
+    // 之前这里的 WAV 文件采样数据只有 4 字节，相当于约 0.00004 秒的音频，
+    // loop 播放时并不构成系统能识别的"持续音频"，所以锁屏/通知中心不会显示"正在播放"，
+    // 后台保活也就不生效。换成时长 0.3 秒的真正静音 WAV，循环起来才是一段能被
+    // 浏览器和系统正常识别、维持媒体会话的后台音频。
     const SILENT_WAV = 'data:audio/wav;base64,' +
-        'UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQAEAAgAZGF0YQQAAAA=';
+        'UklGRoQJAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YWAJAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
+        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA=';
     const silentAudio = new Audio(SILENT_WAV);
     silentAudio.loop = true;
     silentAudio.volume = 0.01;
@@ -3656,6 +3666,11 @@ localforage.config({ name: 'JingYuStarV6', storeName: 'fusion_v6' });
 createApp({
     setup() {
         const showSplash = ref(true);
+        // 标记本地存档是否已经加载完成：在这之前绝不允许触发任何保存/备份写入，
+        // 否则如果用户在冷启动、数据还没读完时就切到后台（会触发 pagehide/visibilitychange 的强制保存），
+        // 会用还没恢复数据的“几乎空白”状态把本地备份（localStorage + IndexedDB）整个覆盖掉——
+        // 这正是“备份偶尔会自己被清除”的根因，因为强制保存 flushSave 之前没有做这层保护。
+        const dataLoaded = ref(false);
         const chatList = ref(null);
         const imgInput = ref(null);
         const globalImportInput = ref(null);
@@ -3668,6 +3683,12 @@ createApp({
             batchComposeMode.value = !batchComposeMode.value;
         };
         const isTyping = ref(false);
+        // 记录"正在输入"最近一次变为 true 的时间：App 长时间切到后台时，Worker 定时器可能被系统整体挂起，
+        // 导致原本该在 60 秒后把 isTyping 重置为 false 的兜底计时器没能按时触发；一旦这样卡住，
+        // 回到前台后 triggerAutoReply 会一直以为"上一轮还没打完字"而不停重试、真正的回复和"正在输入"动画
+        // 也就一直出不来。切回前台时用这个时间戳做一次兜底检查，超时就强制复位。
+        let typingStartedAt = 0;
+        watch(isTyping, (val) => { if (val) typingStartedAt = Date.now(); });
         const previewImg = ref('');
         const letterHistory = ref([]);
         const letterContent = ref('');
@@ -3680,7 +3701,7 @@ createApp({
             
             const delayMinutes = Math.max(1, Math.floor(delayMs / 60000));
             try {
-                await fetch("/.netlify/functions/push", {
+                await fetch("/api/push", {
                     method: "POST",
                     body: JSON.stringify({ title, body, delayMinutes, subscriptionId: subId })
                 });
@@ -4292,9 +4313,44 @@ createApp({
             '第一次','这么','那么','什么时候','这样','那样','怎么回事','没想到','原来如此'
         ];
         const WORD_CLOUD_DICT_SET = new Set(WORD_CLOUD_DICT);
-        const WORD_CLOUD_MAX_WORD_LEN = Math.max(...WORD_CLOUD_DICT.map(w => w.length));
+        // 语料库分词允许的词长范围：内置词库本身最长只有 4 个字，会导致词云"只统计短词"，
+        // 这里把上限放宽到 6，配合下面的语料库词典，长一点的常用短语也能被识别成一个完整的词。
+        const WORD_CLOUD_NGRAM_MIN = 2;
+        const WORD_CLOUD_NGRAM_MAX = 6;
+        const WORD_CLOUD_MAX_WORD_LEN = Math.max(WORD_CLOUD_NGRAM_MAX, ...WORD_CLOUD_DICT.map(w => w.length));
+        // ===== 语料库词典：不再只依赖内置的几百个固定词，而是从聊天记录本身（语料库）里
+        //       统计所有可能的 2~6 字片段出现频率，出现次数达到阈值的才当作"真正的词"收进词典。
+        //       词越长，巧合重复的概率越低，所以阈值随词长递减；词越短则要求更高频次，
+        //       避免把偶然挨在一起的两个字误判成词，从而让词云真正反映这段对话里实际反复出现的内容。=====
+        const buildCorpusDict = (msgs) => {
+            const freq = new Map();
+            for (const m of msgs) {
+                if (m.type !== 'text' || m.recalled) continue;
+                let text = (m.content || '').trim();
+                if (!text) continue;
+                text = text.replace(WORD_CLOUD_URL_RE, ' ').replace(WORD_CLOUD_EMOJI_RE, ' ');
+                const segments = text.split(WORD_CLOUD_SPLIT_RE).filter(Boolean);
+                for (const seg of segments) {
+                    if (/^[a-zA-Z0-9]+$/.test(seg)) continue; // 英文/数字整段已经按完整词统计，不需要再拆
+                    const n = seg.length;
+                    if (n < WORD_CLOUD_NGRAM_MIN || n > 40) continue; // 超长片段（比如粘贴的大段文字）跳过，避免拖慢统计
+                    for (let len = WORD_CLOUD_NGRAM_MIN; len <= Math.min(WORD_CLOUD_NGRAM_MAX, n); len++) {
+                        for (let i = 0; i + len <= n; i++) {
+                            const gram = seg.substr(i, len);
+                            freq.set(gram, (freq.get(gram) || 0) + 1);
+                        }
+                    }
+                }
+            }
+            const dict = new Set();
+            freq.forEach((count, gram) => {
+                const threshold = gram.length <= 2 ? 4 : (gram.length <= 3 ? 3 : 2);
+                if (count >= threshold) dict.add(gram);
+            });
+            return dict;
+        };
         // 正向最大匹配分词：优先匹配词库里最长的词；匹配不到时，把连续的未登录字
-        // （最多 4 个）合并成一个词，而不是逐字滑动窗口，避免重复交叉的词组。
+        // （最多 WORD_CLOUD_NGRAM_MAX 个）合并成一个词，而不是逐字滑动窗口，避免重复交叉的词组。
         const segmentChinese = (text, dictSet, maxLen) => {
             const tokens = [];
             let i = 0;
@@ -4318,7 +4374,7 @@ createApp({
                     i += matched.length;
                 } else {
                     let j = i + 1;
-                    while (j < n && !hasMatchAt(j) && (j - i) < 4) j++;
+                    while (j < n && !hasMatchAt(j) && (j - i) < WORD_CLOUD_NGRAM_MAX) j++;
                     const run = text.substring(i, j);
                     if (run.length >= 2) tokens.push(run);
                     i = j;
@@ -4333,12 +4389,15 @@ createApp({
             if (isNaN(num) || h.length !== 6) return { r: 226, g: 97, b: 140 };
             return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
         };
-        // 统计词频：sender 为 'me'|'them'|'all'；返回按频率降序排列的词表（最多 60 个）和参与统计的消息条数
+        // 语料库词典只取决于全部聊天记录，跟统计口径（全部/我/对方）无关，用 computed 缓存一份，
+        // 避免切换 tab 时重复扫一遍全部消息。
+        const wordCloudCorpusDict = computed(() => buildCorpusDict(messages.value));
+        // 统计词频：sender 为 'me'|'them'|'all'；返回按频率降序排列的词表（最多 45 个）和参与统计的消息条数
         const buildWordCloud = (sender) => {
             // 把双方的称呼/昵称也临时加进词库，这样"姐姐""老婆"这类专属称呼能被当成完整的词识别
             const extraWords = [profiles.me.name, profiles.them.name, settings.coupleName, chatDisplayName.value]
                 .map(s => (s || '').trim()).filter(s => s.length >= 2);
-            const dictSet = extraWords.length ? new Set([...WORD_CLOUD_DICT_SET, ...extraWords]) : WORD_CLOUD_DICT_SET;
+            const dictSet = new Set([...WORD_CLOUD_DICT_SET, ...wordCloudCorpusDict.value, ...extraWords]);
             const maxLen = Math.max(WORD_CLOUD_MAX_WORD_LEN, ...extraWords.map(w => w.length), 2);
             const freq = new Map();
             let messageCount = 0;
@@ -4368,13 +4427,13 @@ createApp({
             }
             const arr = [...freq.entries()].map(([text, count]) => ({ text, count }));
             arr.sort((a, b) => b.count - a.count || a.text.localeCompare(b.text));
-            const top = arr.slice(0, 60);
+            const top = arr.slice(0, 45); // 同屏词数不宜太多，太多会挤在一起看不清
             if (!top.length) return { list: [], messageCount };
             const max = top[0].count, min = top[top.length - 1].count;
             const list = top.map(item => {
                 const ratio = max === min ? 1 : (item.count - min) / (max - min);
-                // 用平方根映射，避免最高频词把画布撑得过大，视觉上更接近真实词云
-                const size = 13 + Math.round(Math.sqrt(ratio) * 41); // 13px ~ 54px
+                // 用平方根映射，避免最高频词把画布撑得过大，视觉上更接近真实词云；整体字号也比之前小一档，给词与词之间留出间距
+                const size = 12 + Math.round(Math.sqrt(ratio) * 30); // 12px ~ 42px
                 return { ...item, size };
             });
             return { list, messageCount };
@@ -4414,7 +4473,9 @@ createApp({
                     },
                     rotateRatio: 0,
                     backgroundColor: 'transparent',
-                    gridSize: Math.max(4, Math.round(w / 90)),
+                    // gridSize 越大，词与词之间的间距越大；之前 w/90 在手机屏幕上几乎只有 4px，词挤在一起，
+                    // 这里改成随画布宽度自适应、并给出更大的下限/上限，让间距明显一些。
+                    gridSize: Math.max(9, Math.min(22, Math.round(w / 26))),
                     shrinkToFit: true,
                     drawOutOfBound: false,
                     minSize: 8
@@ -4588,7 +4649,7 @@ createApp({
         if (!confirm('这会用那台设备的云端存档覆盖当前手机上的聊天记录/设置，确定要继续吗？建议先在"全量导出"里备份一下当前数据。')) return;
         restoringFromDevice.value = true;
         try {
-            const res = await fetch('/.netlify/functions/sync-load?deviceId=' + encodeURIComponent(targetId));
+            const res = await fetch('/api/sync-load?deviceId=' + encodeURIComponent(targetId));
             if (!res.ok) { alert('没有找到这个设备ID对应的云端备份，请检查ID是否输入正确'); return; }
             const cloud = await res.json();
             if (!cloud || !cloud.messages) { alert('这个设备ID还没有云端备份数据'); return; }
@@ -4650,7 +4711,7 @@ createApp({
                 const payload = buildSavePayload();
                 payload.deviceId = CLOUD_DEVICE_ID;
                 payload.subscriptionId = cloudSubId.value || '';
-                await fetch('/.netlify/functions/sync-save', {
+                await fetch('/api/sync-save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -4666,7 +4727,7 @@ createApp({
             const payload = buildSavePayload();
             payload.deviceId = CLOUD_DEVICE_ID;
             payload.subscriptionId = cloudSubId.value || '';
-            const res = await fetch('/.netlify/functions/sync-save', {
+            const res = await fetch('/api/sync-save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -4757,6 +4818,12 @@ createApp({
     };
 
     const writeLocalSave = async () => {
+        // 和云端同步一样加一道保护：如果本地曾经有过消息、但这一刻 messages 突然是空的，
+        // 大概率是异常瞬间状态而不是真的被清空——跳过这次本地写入，避免把本地备份（localStorage/IndexedDB）冲成空的。
+        if (messages.value.length === 0 && settings.hasEverHadMessages) {
+            console.warn('[本地备份] messages 为空但之前有过记录，跳过本次本地保存以保护备份');
+            return;
+        }
         const data = buildSavePayload();
         try {
             localStorage.setItem(LS_KEY, JSON.stringify(data));
@@ -4773,6 +4840,9 @@ createApp({
 
     let localSaveTimer = null;
     const saveData = async (force = false) => {
+        // 初始数据还没加载完成时，无论是不是强制保存（force），一律不写入——
+        // 避免冷启动期间被系统切到后台触发的强制保存，用空数据覆盖掉已有备份。
+        if (!dataLoaded.value) return;
         if (!force && showSplash.value) return;
         if (force) {
             if (localSaveTimer) { safeClearTimeout(localSaveTimer); localSaveTimer = null; }
@@ -5303,15 +5373,12 @@ createApp({
             }
             inputText.value = '';
             batchComposeMode.value = false; // 发完这一批后自动退出多条模式，回到"回车即发送"的正常状态
-            let i = 0;
-            const sendNextPart = () => {
-                if (i >= parts.length) return;
-                inputText.value = parts[i];
+            // 已经有"多条发送"按钮由用户手动控制发送节奏，不再需要程序里额外的错峰延时定时器，
+            // 点一次按钮就把这几行依次直接发出去。
+            for (const part of parts) {
+                inputText.value = part;
                 sendMsg('me', 'text');
-                i++;
-                if (i < parts.length) safeSetTimeout(sendNextPart, 280 + Math.random() * 220);
-            };
-            sendNextPart();
+            }
         };
         // 输入框回车键处理：
         // - 普通模式下：单独按 Enter＝发送（和原来一样），Shift/Ctrl/Alt/Meta+Enter＝换行；
@@ -5583,6 +5650,12 @@ createApp({
         };
 
         const forceUIRefresh = () => {
+            // 兜底：切后台期间如果 isTyping 卡在 true 超过 65 秒（正常一轮最多 60 秒的安全上限），
+            // 说明那次的 typingSafetyTimer 没能按时触发，这里强制复位，避免"正在输入"从此再也不出现。
+            if (isTyping.value && typingStartedAt && (Date.now() - typingStartedAt > 65000)) {
+                isTyping.value = false;
+                if (typingSafetyTimer) { safeClearTimeout(typingSafetyTimer); typingSafetyTimer = null; }
+            }
             restorePendingLetter();
             restoreNoteReminders();
             scrollToBottom();
@@ -6094,7 +6167,7 @@ createApp({
         }
 
         try {
-            const res = await fetch('/.netlify/functions/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
+            const res = await fetch('/api/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
             if (res.ok) {
                 const cloud = await res.json();
 
@@ -6119,6 +6192,10 @@ createApp({
         } catch (e) {
             console.warn('[云端同步] 拉取失败（不影响本地聊天）', e);
         }
+
+        // 到这里，本地存档（IndexedDB/localStorage）和云端拉取都已经尝试过了，
+        // 才允许后续的保存/备份逻辑写入，防止用空状态覆盖已有数据。
+        dataLoaded.value = true;
 
         applyFontSettings();
         toggleTheme();
