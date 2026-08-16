@@ -12,7 +12,7 @@ binding = "KV"
 id = "8366503c83594585bac278e02c808453"
 
 # ── Cron 触发器：每 5 分钟检查一次要不要主动补一条消息 ──
-[[triggers]]
+[triggers]
 crons = ["*/5 * * * *"]
 
 # ── 下面这些去 Cloudflare 控制台：这个 Worker 项目 → 设置 → 变量和机密 → 添加变量 里填，
