@@ -17,4 +17,4 @@ crons = ["0 * * * *"]   # 每小时触发一次 scheduled()
 # VAPID_PUBLIC   = "Loreille0110"
 # VAPID_PRIVATE  = "Loreille0110"
 # VAPID_SUBJECT  = "mailto:moraleskento8@gmail.com"
-# PUSH_SECRET    = "os_v2_app_vugcqac5gfhppeqzeprbjloxoe4h2oevde3etsfwitiy5epvvdp22y5jeifo4ywa66gxgf4f3u5qgta2pzpdabdtb6ggejiird4h3ii"
+# ONESIGNAL_API_KEY    = "os_v2_app_vugcqac5gfhppeqzeprbjloxoe4h2oevde3etsfwitiy5epvvdp22y5jeifo4ywa66gxgf4f3u5qgta2pzpdabdtb6ggejiird4h3ii"
