@@ -1,20 +1,24 @@
-name        = "lorstar0121"
-main        = "worker.js"
+name = "lorstar0121"
+main = "worker.js"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
-# ── KV 命名空间（存储 Push 订阅信息）──
+# ── KV 命名空间：存聊天云备份 + 待推送队列。
+#    绑定名必须叫 CHAT_BACKUPS，要跟 worker.js 里 env.CHAT_BACKUPS 对上。
+#    去 Cloudflare 控制台创建：Workers 和 Pages → KV → 创建命名空间，
+#    名字随便取（比如就叫 CHAT_BACKUPS），创建后把它的 id 填到下面。
 [[kv_namespaces]]
-binding  = "PUSH_SUBS"
-id       = "REPLACE_WITH_YOUR_KV_ID"        # 运行 `wrangler kv:namespace create PUSH_SUBS` 获取
-preview_id = "REPLACE_WITH_YOUR_KV_PREVIEW_ID"
+binding = "CHAT_BACKUPS"
+id = "REPLACE_WITH_YOUR_KV_ID"
 
-# ── Cron 触发器（可选）──
+# ── Cron 触发器：每 5 分钟检查一次要不要主动补一条消息 ──
 [[triggers]]
-crons = ["0 * * * *"]   # 每小时触发一次 scheduled()
+crons = ["*/5 * * * *"]
 
-# ── Secrets（通过 wrangler secret put 设置，不要写在这里）──
-# VAPID_PUBLIC   = "Loreille0110"
-# VAPID_PRIVATE  = "Loreille0110"
-# VAPID_SUBJECT  = "mailto:moraleskento8@gmail.com"
-# ONESIGNAL_API_KEY    = "os_v2_app_vugcqac5gfhppeqzeprbjloxoe4h2oevde3etsfwitiy5epvvdp22y5jeifo4ywa66gxgf4f3u5qgta2pzpdabdtb6ggejiird4h3ii"
+# ── 下面这些去 Cloudflare 控制台：这个 Worker 项目 → 设置 → 变量和机密 → 添加变量 里填，
+#    不要写在这个文件里（这个文件会被提交进 GitHub，写在这里等于密码公开）：
+#
+#   RELAY_SECRET             类型选"密钥"(Secret)   —— 你自己定的密码，网站那边也要填一样的
+#   ONESIGNAL_APP_ID         类型选"文本"就行
+#   ONESIGNAL_REST_API_KEY   类型选"密钥"(Secret)   —— 去 OneSignal 后台 Settings → Keys & IDs 复制
+#   SITE_URL                 类型选"文本"，填 https://lorstar0121.netlify.app（可选，不填也行）

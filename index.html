@@ -3701,8 +3701,9 @@ createApp({
             
             const delayMinutes = Math.max(1, Math.floor(delayMs / 60000));
             try {
-                await fetch("/api/push", {
+                await cloudFetch("/api/push", {
                     method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title, body, delayMinutes, subscriptionId: subId })
                 });
                 console.log(`[离线推送] 已交由后端，${delayMinutes}分钟后发送`);
@@ -4616,6 +4617,20 @@ createApp({
     const DB_KEY = 'app_fusion_v6';
     const LS_KEY = 'app_fusion_v6_backup';
 
+    // ── Cloudflare 后台配置 ──
+    // CLOUD_API_BASE：你的 Cloudflare Worker 地址，去 Cloudflare 控制台 Workers 项目
+    //   概述页复制那个 xxx.workers.dev 域名，末尾不要带斜杠。
+    // CLOUD_RELAY_SECRET：你自己随便定的一串密码，要跟 Worker 里设置的 RELAY_SECRET
+    //   一模一样，两边对不上会被拒绝，这是防止陌生人乱调用你的后台。
+    const CLOUD_API_BASE = 'https://lorstar0121.moraleskento8.workers.dev';
+    const CLOUD_RELAY_SECRET = 'Loreille0110';
+
+    // 统一的云端请求封装：自动拼接地址、自动带上密码头，五处 /api/ 调用都改用这个
+    const cloudFetch = (path, options = {}) => {
+        const headers = { ...(options.headers || {}), 'X-Relay-Secret': CLOUD_RELAY_SECRET };
+        return fetch(CLOUD_API_BASE + path, { ...options, headers });
+    };
+
     let CLOUD_DEVICE_ID = localStorage.getItem('app_fusion_device_id');
     if (!CLOUD_DEVICE_ID) {
         CLOUD_DEVICE_ID = 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
@@ -4649,7 +4664,7 @@ createApp({
         if (!confirm('这会用那台设备的云端存档覆盖当前手机上的聊天记录/设置，确定要继续吗？建议先在"全量导出"里备份一下当前数据。')) return;
         restoringFromDevice.value = true;
         try {
-            const res = await fetch('/api/sync-load?deviceId=' + encodeURIComponent(targetId));
+            const res = await cloudFetch('/api/sync-load?deviceId=' + encodeURIComponent(targetId));
             if (!res.ok) { alert('没有找到这个设备ID对应的云端备份，请检查ID是否输入正确'); return; }
             const cloud = await res.json();
             if (!cloud || !cloud.messages) { alert('这个设备ID还没有云端备份数据'); return; }
@@ -4711,7 +4726,7 @@ createApp({
                 const payload = buildSavePayload();
                 payload.deviceId = CLOUD_DEVICE_ID;
                 payload.subscriptionId = cloudSubId.value || '';
-                await fetch('/api/sync-save', {
+                await cloudFetch('/api/sync-save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -4727,7 +4742,7 @@ createApp({
             const payload = buildSavePayload();
             payload.deviceId = CLOUD_DEVICE_ID;
             payload.subscriptionId = cloudSubId.value || '';
-            const res = await fetch('/api/sync-save', {
+            const res = await cloudFetch('/api/sync-save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -6167,7 +6182,7 @@ createApp({
         }
 
         try {
-            const res = await fetch('/api/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
+            const res = await cloudFetch('/api/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
             if (res.ok) {
                 const cloud = await res.json();
 
