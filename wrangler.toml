@@ -14,7 +14,7 @@ preview_id = "REPLACE_WITH_YOUR_KV_PREVIEW_ID"
 crons = ["0 * * * *"]   # 每小时触发一次 scheduled()
 
 # ── Secrets（通过 wrangler secret put 设置，不要写在这里）──
-# VAPID_PUBLIC   = "..."
-# VAPID_PRIVATE  = "..."
-# VAPID_SUBJECT  = "mailto:your@email.com"
-# PUSH_SECRET    = "your-random-secret-token"
+# VAPID_PUBLIC   = "Loreille0110"
+# VAPID_PRIVATE  = "Loreille0110"
+# VAPID_SUBJECT  = "mailto:moraleskento8@gmail.com"
+# PUSH_SECRET    = "os_v2_app_vugcqac5gfhppeqzeprbjloxoe4h2oevde3etsfwitiy5epvvdp22y5jeifo4ywa66gxgf4f3u5qgta2pzpdabdtb6ggejiird4h3ii"
