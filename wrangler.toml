@@ -8,8 +8,8 @@ compatibility_flags = ["nodejs_compat"]
 #    去 Cloudflare 控制台创建：Workers 和 Pages → KV → 创建命名空间，
 #    名字随便取（比如就叫 CHAT_BACKUPS），创建后把它的 id 填到下面。
 [[kv_namespaces]]
-binding = "CHAT_BACKUPS"
-id = "REPLACE_WITH_YOUR_KV_ID"
+binding = "Savit"
+id = "8366503c83594585bac278e02c808453"
 
 # ── Cron 触发器：每 5 分钟检查一次要不要主动补一条消息 ──
 [[triggers]]
