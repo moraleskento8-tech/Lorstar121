@@ -1,4 +1,4 @@
-name = "lorstar-push"
+name = "lorstar0121"
 main = "worker.js"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
@@ -22,4 +22,4 @@ crons = ["*/5 * * * *"]
 #
 # ── 普通变量（不是密钥，可以直接写在这里，取消注释即可）──
 # [vars]
-# SITE_URL = "https://你的cloudflare-pages域名"
+# SITE_URL = "https://lorstar0121.moraleskento8.workers.dev/"
