@@ -685,6 +685,97 @@
         .call-leave-to { opacity: 0; transform: scale(0.97); }
 
         
+        
+        /* ===== 陪伴页：极简磨砂浮层 ===== */
+        .companion-float-bubble{
+            z-index:40;
+            display:block;
+            box-sizing:border-box;
+            width:max-content;
+            max-width:min(72vw,260px);
+            min-width:44px;
+            padding:7px 11px;
+            margin:0;
+            white-space:normal;
+            overflow-wrap:anywhere;
+            word-break:break-word;
+            writing-mode:horizontal-tb !important;
+            text-orientation:mixed !important;
+            direction:ltr;
+            text-align:left;
+            line-height:1.45;
+            font-size:12px;
+            font-weight:500;
+            letter-spacing:.01em;
+            color:rgba(255,255,255,.94);
+            background:rgba(20,25,42,.28);
+            border:1px solid rgba(255,255,255,.28);
+            border-radius:0 !important;
+            backdrop-filter:blur(18px) saturate(135%);
+            -webkit-backdrop-filter:blur(18px) saturate(135%);
+            box-shadow:0 8px 26px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.12);
+            transform:none !important;
+        }
+        .companion-float-them{
+            position:absolute;
+            left:50%;
+            bottom:calc(100% + 12px);
+            transform:translateX(-50%) !important;
+        }
+        .companion-float-mine{
+            position:fixed;
+            right:18px;
+            bottom:76px;
+            max-width:min(68vw,250px);
+            transform:none !important;
+        }
+        .companion-float-them:after,.companion-float-mine:after{display:none;}
+        .companion-toast-enter-active,.companion-toast-leave-active{
+            transition:opacity .16s ease,transform .16s ease;
+        }
+        .companion-toast-enter-from,.companion-toast-leave-to{
+            opacity:0;
+        }
+        .companion-toast-enter-from{transform:translateY(4px) !important;}
+        .companion-toast-leave-to{transform:translateY(2px) !important;}
+        .companion-control-dock{
+            min-height:64px;
+            background:rgba(16,21,36,.28) !important;
+            border:1px solid rgba(255,255,255,.22) !important;
+            border-radius:0 !important;
+            box-shadow:0 10px 30px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.10);
+        }
+        .companion-control-item{
+            width:54px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:4px;
+            font-size:9px;
+            line-height:1;
+            opacity:.92;
+            transition:transform .15s,background .15s;
+            border-radius:0;
+            padding:4px 2px;
+        }
+        .companion-control-item:active{transform:scale(.92);background:rgba(255,255,255,.10);}
+        .companion-icon{
+            width:29px;height:29px;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            background:rgba(255,255,255,.11);
+            border:1px solid rgba(255,255,255,.12);
+        }
+        .companion-icon svg{width:15px;height:15px;}
+        .companion-main-icon{
+            width:40px;height:40px;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            background:rgba(255,255,255,.94);
+            color:var(--color-accent);
+            box-shadow:0 4px 14px rgba(0,0,0,.18);
+        }
+        .companion-main-icon svg{width:17px;height:17px;}
+
         .bubble-enter-active { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .bubble-leave-active { transition: all 0.2s ease; }
         .bubble-enter-from { opacity: 0; transform: translateX(60px) scale(0.8); }
@@ -1499,6 +1590,10 @@
                         <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="wand-2" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">占卜</span>
                     </button>
+                    <button @click="openCompanion" class="flex flex-col items-center gap-1.5">
+                        <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="heart-handshake" class="w-6 h-6"></i></div>
+                        <span class="text-[11px] text-slate-600 dark:text-slate-300">陪伴</span>
+                    </button>
                     <button @click="modals.settings = true" class="flex flex-col items-center gap-1.5">
                         <div class="w-14 h-14 rounded-[1.2rem] bg-white/70 dark:bg-slate-700/55 shadow-[0_1px_2px_rgba(124,148,204,0.08),0_6px_16px_-4px_rgba(124,148,204,0.25)] flex items-center justify-center text-accent active:scale-90 transition"><i data-lucide="sliders-horizontal" class="w-6 h-6"></i></div>
                         <span class="text-[11px] text-slate-600 dark:text-slate-300">设置</span>
@@ -1900,8 +1995,8 @@
                                     <input type="checkbox" v-model="settings.activeMsg" class="reply-checkbox">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">主动间隔(秒)</span>
-                                    <input type="number" v-model.number="settings.activeInterval" min="10" class="w-20 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">主动间隔(分钟)</span>
+                                    <input type="number" v-model.number="settings.activeInterval" min="1" class="w-20 bg-white/80 border border-white/70 rounded-lg p-1.5 text-center text-sm outline-none shadow-inner">
                                 </div>
                                 <div class="flex justify-between items-center py-2.5 px-3 rounded-xl hover:bg-white/50 transition">
                                     <span class="text-sm text-slate-600 dark:text-slate-300">回复延迟(秒)</span>
@@ -3055,6 +3150,270 @@
 
         
         <transition name="page-slide">
+            <div v-if="modals.companion" class="fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-hidden select-none">
+                <div class="absolute inset-0 bg-cover bg-center"
+                     :class="!settings.companionBg ? 'bg-gradient-to-br from-accent/60 via-indigo-900/70 to-slate-900' : ''"
+                     :style="settings.companionBg ? { backgroundImage: `url(${settings.companionBg})` } : {}"></div>
+                <div class="absolute inset-0 bg-black/25"></div>
+
+                <div class="relative z-10 flex flex-col h-full" @click="companionBgTap">
+                    
+                    <div class="px-4 pt-4 pb-1 flex items-center gap-2 shrink-0" @click.stop>
+                        <button @click="modals.companion = false" class="text-white/90 p-1.5 -ml-1.5 rounded-full hover:bg-white/10 transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-base text-white leading-tight">陪伴</h3>
+                            <p class="text-white/55 text-[10.5px] tracking-wide" style="font-variant-numeric: tabular-nums;">{{ companionClockText }}</p>
+                        </div>
+                        <button @click="companionShowHistory = !companionShowHistory; companionShowPanel = false" class="p-1.5 rounded-full transition text-white/90 hover:bg-white/10" :class="companionShowHistory ? 'bg-white/15' : ''"><i data-lucide="history" class="w-[18px] h-[18px]"></i></button>
+                        <button @click="companionShowPanel = !companionShowPanel; companionShowHistory = false" class="p-1.5 rounded-full transition text-white/90 hover:bg-white/10" :class="companionShowPanel ? 'bg-white/15' : ''"><i data-lucide="sliders-horizontal" class="w-[18px] h-[18px]"></i></button>
+                    </div>
+
+                    
+                    <div v-if="companionSessionStarted" class="absolute top-14 right-4 z-10 flex flex-col items-center" @click.stop>
+                        <div class="relative w-14 h-14">
+                            <svg v-if="companionMode === 'countdown'" viewBox="0 0 120 120" class="w-14 h-14 -rotate-90">
+                                <circle cx="60" cy="60" r="54" stroke-width="10" class="fill-none stroke-white/20"></circle>
+                                <circle cx="60" cy="60" r="54" stroke-width="10" stroke-linecap="round" class="fill-none stroke-sky-300 transition-[stroke-dashoffset] duration-1000 ease-linear"
+                                        stroke-dasharray="339.3" :stroke-dashoffset="companionRingOffset"></circle>
+                            </svg>
+                            <svg v-else viewBox="0 0 120 120" class="w-14 h-14" :class="companionTimerRunning ? 'animate-spin' : ''" style="animation-duration:3s;">
+                                <circle cx="60" cy="60" r="54" stroke-width="10" stroke-dasharray="16 14" stroke-linecap="round" class="fill-none stroke-sky-300/70"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i :data-lucide="companionMode==='countdown' ? 'timer' : 'infinity'" class="w-4 h-4 text-white/85"></i>
+                            </div>
+                        </div>
+                        <span class="mt-1 text-white/70 text-[9.5px] font-medium px-1.5 py-0.5 rounded-full bg-black/20 truncate max-w-[70px]">{{ companionMode === 'countdown' ? '倒计时' : '自由时间' }}</span>
+                    </div>
+
+                    
+                    <div v-if="!companionSessionStarted" class="flex-1 flex flex-col items-center justify-center gap-4 px-6 min-h-0" @click.stop>
+                        <div class="w-24 h-24 rounded-full overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.35)] border-2 border-white/40">
+                            <img v-if="settings.companionAvatar || profiles.them.avatar" :src="settings.companionAvatar || profiles.them.avatar" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full bg-white/10 backdrop-blur flex items-center justify-center text-white font-bold text-2xl">{{ profiles.them.name.charAt(0) }}</div>
+                        </div>
+
+                        <div class="w-full max-w-[280px] bg-white/12 backdrop-blur-md rounded-[1.5rem] p-4 space-y-3.5 border border-white/10">
+                            <div class="flex bg-white/10 rounded-full p-1">
+                                <button @click="companionMode = 'countdown'" class="flex-1 py-1.5 rounded-full text-xs font-bold transition" :class="companionMode==='countdown' ? 'bg-white text-slate-700' : 'text-white/70'">倒计时</button>
+                                <button @click="companionMode = 'stopwatch'" class="flex-1 py-1.5 rounded-full text-xs font-bold transition" :class="companionMode==='stopwatch' ? 'bg-white text-slate-700' : 'text-white/70'">正计时（自由时间）</button>
+                            </div>
+
+                            <div v-if="companionMode === 'countdown'">
+                                <div class="flex gap-1.5">
+                                    <button v-for="m in [15,25,45,60]" :key="m" @click="companionTargetMinutes = m; companionCustomMinutes=''"
+                                            class="flex-1 py-1.5 rounded-xl text-[11px] font-medium transition"
+                                            :class="companionTargetMinutes === m && !companionCustomMinutes ? 'bg-white text-slate-700' : 'bg-white/15 text-white/80'">{{ m }}分</button>
+                                </div>
+                                <input v-model="companionCustomMinutes" @input="companionApplyCustomMinutes" type="number" min="1" max="999" placeholder="自定义分钟数"
+                                       class="mt-1.5 w-full bg-white/10 focus:bg-white/20 text-white placeholder-white/40 rounded-xl px-3 py-2 text-xs outline-none transition">
+                            </div>
+
+                            <input v-model="companionEventName" placeholder="陪你做什么？如：一起写代码"
+                                   class="w-full bg-white/10 focus:bg-white/20 text-white placeholder-white/40 rounded-xl px-3 py-2.5 text-xs outline-none transition">
+
+                            <button @click="companionStart" class="w-full py-2.5 rounded-xl bg-white text-slate-700 font-bold text-sm active:scale-95 transition">开始陪伴</button>
+                        </div>
+
+                        <div class="text-white/50 text-[10.5px]">累计陪伴 {{ companionFormatDuration(settings.companionTotalSeconds || 0) }}</div>
+                    </div>
+
+                    
+                    <div v-else class="flex-1 flex flex-col min-h-0">
+                        <div class="flex-1 min-h-0"></div>
+                        <div class="shrink-0 flex flex-col items-center gap-2 pt-0 pb-4 -translate-y-4" @click.stop>
+                            <div class="relative w-24 h-24">
+                                <transition name="companion-toast">
+                                    <div v-if="companionPokeToast.show" class="companion-float-bubble companion-float-them">{{ companionPokeToast.text }}</div>
+                                </transition>
+                                <div class="absolute inset-0 rounded-full border-2 border-white/30 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.3)] active:scale-95 transition cursor-pointer" @click="companionPoke">
+                                    <img v-if="settings.companionAvatar || profiles.them.avatar" :src="settings.companionAvatar || profiles.them.avatar" class="w-full h-full object-cover">
+                                    <div v-else class="w-full h-full bg-white/10 backdrop-blur flex items-center justify-center text-white font-bold text-2xl">{{ profiles.them.name.charAt(0) }}</div>
+                                </div>
+                            </div>
+                            <p class="text-white text-2xl font-bold tracking-wide" style="font-variant-numeric: tabular-nums;">{{ companionMainTimerText }}</p>
+                        </div>
+                    </div>
+
+                    
+                    <transition name="fade">
+                        <div v-if="companionSessionStarted && companionControlsVisible" class="companion-control-dock shrink-0 mx-auto mb-2 flex items-center gap-3 bg-white/18 backdrop-blur-xl rounded-2xl px-3 py-2 border border-white/20 shadow-lg" @click.stop>
+                            <button @click="companionPlayNoise_toggle" class="companion-control-item text-white/90">
+                                <span class="companion-icon"><i :data-lucide="!companionNoiseMuted ? 'volume-2' : 'volume-x'"></i></span><span>{{ !companionNoiseMuted ? '静音' : '开声' }}</span>
+                            </button>
+                            <button @click="companionStartPause" class="companion-control-item text-white">
+                                <span class="companion-main-icon"><i :data-lucide="companionTimerRunning ? 'pause' : 'play'"></i></span><span>{{ companionTimerRunning ? '暂停' : '继续' }}</span>
+                            </button>
+                            <button @click="companionEndClick" class="companion-control-item text-white/90">
+                                <span class="companion-icon"><i data-lucide="square"></i></span><span>结束</span>
+                            </button>
+                        </div>
+                    </transition>
+
+                    
+                    <div class="shrink-0 px-4 pb-4 pt-1 flex items-center gap-2 relative" @click.stop>
+                        <transition name="companion-toast">
+                            <div v-if="companionMyFloatToast.show" class="companion-float-bubble companion-float-mine">{{ companionMyFloatToast.text }}</div>
+                        </transition>
+                        <button @click="companionShowCurrentChat = true"
+                                class="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center shrink-0 transition relative"
+                                title="本次陪伴聊天记录">
+                            <i data-lucide="message-square-text" class="w-[17px] h-[17px]"></i>
+                            <span v-if="companionFloatMessages.length" class="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] px-1 rounded-full bg-white text-accent text-[9px] font-bold flex items-center justify-center">{{ companionFloatMessages.length > 99 ? '99+' : companionFloatMessages.length }}</span>
+                        </button>
+                        <input v-model="companionTempInput" @keydown.enter.prevent="companionSendTemp" placeholder="临时聊一会…"
+                               class="flex-1 bg-white/15 focus:bg-white/25 text-white placeholder-white/50 rounded-full px-4 py-2.5 text-sm outline-none backdrop-blur-md transition">
+                        <button @click="companionSendTemp" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center shrink-0 transition"><i data-lucide="send" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                
+                <transition name="fade">
+                <div v-if="companionShowCurrentChat" class="absolute inset-0 z-30 bg-slate-950/55 backdrop-blur-xl flex flex-col" @click.self="companionShowCurrentChat = false">
+                    <div class="mt-auto bg-white/95 dark:bg-slate-800/95 rounded-t-[2rem] max-h-[62%] flex flex-col overflow-hidden">
+                        <div class="px-5 pt-4 pb-2 flex items-center justify-between shrink-0">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-700 dark:text-white">本次陪伴聊天</h4>
+                                
+                            </div>
+                            <button @click="companionShowCurrentChat = false" class="text-slate-400 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="flex-1 overflow-y-auto px-5 pb-5">
+                            <p v-if="!companionFloatMessages.length" class="text-center text-sm text-muted py-8">本次还没有聊天</p>
+                            <div v-else class="space-y-2">
+                                <div v-for="(m,i) in companionFloatMessages" :key="i" class="flex" :class="m.mine ? 'justify-start' : 'justify-end'">
+                                    <span class="max-w-[78%] px-3 py-1.5 rounded-2xl text-[11.5px] leading-snug"
+                                          :class="m.mine ? 'bg-accent/10 text-accent rounded-bl-md' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 rounded-br-md'">{{ m.text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </transition>
+
+                <transition name="fade">
+                <div v-if="companionShowHistory" class="absolute inset-0 z-20 bg-slate-900/70 backdrop-blur-xl flex flex-col" @click.self="companionShowHistory = false">
+                    <div class="mt-auto bg-white/95 dark:bg-slate-800/95 rounded-t-[2rem] max-h-[70%] flex flex-col overflow-hidden">
+                        <div class="px-5 pt-4 pb-2 flex items-center justify-between shrink-0">
+                            <h4 class="font-bold text-sm text-slate-700 dark:text-white">陪伴记录</h4>
+                            <button @click="companionShowHistory = false" class="text-slate-400 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="flex-1 overflow-y-auto px-5 pb-5 space-y-2">
+                            <p v-if="!companionSessions.length" class="text-center text-sm text-muted py-8">还没有陪伴记录</p>
+                            <div v-for="s in companionSessions" :key="s.id" class="bg-slate-50 dark:bg-slate-700/50 rounded-xl px-3.5 py-2.5">
+                                <div class="flex items-center justify-between">
+                                    <div class="min-w-0">
+                                        <p class="text-sm text-slate-600 dark:text-slate-200 font-medium truncate">{{ chatDisplayName }} 陪你{{ s.event ? '「'+s.event+'」' : '' }} {{ companionFormatDuration(s.seconds) }}</p>
+                                        <p class="text-[10px] text-muted mt-0.5">{{ tarotHistoryDateText(s.timestamp) }} · {{ s.mode === 'stopwatch' ? '自由时间' : '倒计时' }}<span v-if="s.chatLog && s.chatLog.length"> · 含聊天记录</span></p>
+                                    </div>
+                                    <div class="flex items-center gap-1 shrink-0">
+                                        <button v-if="s.chatLog && s.chatLog.length" @click="s._open = !s._open" class="text-slate-300 hover:text-accent transition p-1"><i data-lucide="chevron-down" class="w-3.5 h-3.5" :class="s._open ? 'rotate-180' : ''" style="transition:transform .2s"></i></button>
+                                        <button @click="companionDeleteSession(s.id)" class="text-slate-300 hover:text-red-400 transition p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                    </div>
+                                </div>
+                                <div v-if="s._open && s.chatLog && s.chatLog.length" class="mt-2 pt-2 border-t border-slate-200/60 dark:border-slate-600/60 space-y-1">
+                                    <div v-for="(m,i) in s.chatLog" :key="i" class="text-[11px]" :class="m.mine ? 'text-right' : 'text-left'">
+                                        <span class="inline-block px-2 py-1 rounded-lg" :class="m.mine ? 'bg-accent/10 text-accent' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300'">{{ m.text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </transition>
+
+                
+                <transition name="fade">
+                <div v-if="companionShowPanel" class="absolute inset-0 z-20 bg-slate-900/70 backdrop-blur-xl flex flex-col" @click.self="companionShowPanel = false">
+                    <div class="mt-auto bg-white/95 dark:bg-slate-800/95 rounded-t-[2rem] max-h-[80%] flex flex-col overflow-hidden">
+                        <div class="px-5 pt-4 pb-2 flex items-center justify-between shrink-0">
+                            <h4 class="font-bold text-sm text-slate-700 dark:text-white">陪伴设置</h4>
+                            <button @click="companionShowPanel = false" class="text-slate-400 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="flex-1 overflow-y-auto px-5 pb-6 space-y-5">
+
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-2">背景图</p>
+                                <div class="flex gap-2">
+                                    <label class="flex-1 py-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center text-xs text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                                        本地上传<input type="file" accept="image/*" class="hidden" @change="companionUploadBg">
+                                    </label>
+                                    <button v-if="settings.companionBg" @click="settings.companionBg = ''; settings.companionBgUrl=''" class="px-3 rounded-xl text-[11px] text-red-400 hover:text-red-500 bg-slate-50 dark:bg-slate-700/50">清除</button>
+                                </div>
+                                <div class="flex gap-2 mt-1.5">
+                                    <input v-model="settings.companionBgUrl" placeholder="或输入图片 URL..." class="flex-1 bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 rounded-xl px-3 py-2 text-xs outline-none text-slate-600 dark:text-slate-200">
+                                    <button @click="companionApplyBgUrl" class="bg-accent text-white px-4 rounded-xl text-xs font-medium shrink-0">应用</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-2">头像（留空则用对方头像）</p>
+                                <div class="flex gap-2">
+                                    <label class="flex-1 py-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center text-xs text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                                        本地上传<input type="file" accept="image/*" class="hidden" @change="companionUploadAvatar">
+                                    </label>
+                                    <button v-if="settings.companionAvatar" @click="settings.companionAvatar = ''; settings.companionAvatarUrl=''" class="px-3 rounded-xl text-[11px] text-red-400 hover:text-red-500 bg-slate-50 dark:bg-slate-700/50">清除</button>
+                                </div>
+                                <div class="flex gap-2 mt-1.5">
+                                    <input v-model="settings.companionAvatarUrl" placeholder="或输入图片 URL..." class="flex-1 bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 rounded-xl px-3 py-2 text-xs outline-none text-slate-600 dark:text-slate-200">
+                                    <button @click="companionApplyAvatarUrl" class="bg-accent text-white px-4 rounded-xl text-xs font-medium shrink-0">应用</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-2">白噪音 / 雨声</p>
+                                <div class="grid grid-cols-4 gap-1.5">
+                                    <button v-for="n in [{k:'none',l:'关闭'},{k:'white',l:'白噪音'},{k:'pink',l:'粉噪音'},{k:'brown',l:'棕噪音(雨声感)'}]" :key="n.k"
+                                            @click="settings.companionNoiseType = n.k; companionNoiseMuted.value = n.k === 'none'"
+                                            class="py-2 rounded-xl text-[11px] font-medium transition"
+                                            :class="settings.companionNoiseType === n.k ? 'bg-accent text-white' : 'bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300'">{{ n.l }}</button>
+                                </div>
+                                <label class="mt-1.5 flex items-center justify-between py-2.5 px-3 rounded-xl text-xs cursor-pointer transition"
+                                       :class="settings.companionNoiseType === 'custom' ? 'bg-accent/10 text-accent' : 'bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300'">
+                                    <span class="truncate">{{ settings.companionCustomNoiseName || '上传自己的音频文件（可用雨声等）' }}</span>
+                                    <span class="shrink-0 ml-2 text-[10px]">选择文件</span>
+                                    <input type="file" accept="audio/*" class="hidden" @change="companionUploadNoise">
+                                </label>
+                                <div class="flex items-center gap-2 mt-3">
+                                    <i data-lucide="volume-1" class="w-3.5 h-3.5 text-muted shrink-0"></i>
+                                    <input type="range" min="0" max="100" v-model.number="settings.companionNoiseVolume" class="flex-1 accent-accent">
+                                    <i data-lucide="volume-2" class="w-3.5 h-3.5 text-muted shrink-0"></i>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                </transition>
+
+                
+                <transition name="fade">
+                <div v-if="companionEndSummary.show" class="absolute inset-0 z-30 bg-slate-900/75 backdrop-blur-xl flex items-center justify-center px-6" @click.self="companionCancelEndSummary">
+                    <div class="w-full max-w-[300px] bg-white/95 dark:bg-slate-800/95 rounded-[1.75rem] p-5">
+                        <div class="w-14 h-14 rounded-full overflow-hidden mx-auto mb-3 border-2 border-white shadow">
+                            <img v-if="settings.companionAvatar || profiles.them.avatar" :src="settings.companionAvatar || profiles.them.avatar" class="w-full h-full object-cover">
+                            <div v-else class="w-full h-full bg-accent/20 flex items-center justify-center text-accent font-bold">{{ profiles.them.name.charAt(0) }}</div>
+                        </div>
+                        <p class="text-center text-sm text-slate-600 dark:text-slate-200 leading-relaxed">
+                            {{ chatDisplayName }} 陪你<span v-if="companionEndSummary.event">「{{ companionEndSummary.event }}」</span>了
+                            <span class="font-bold text-accent">{{ companionFormatDuration(companionEndSummary.seconds) }}</span>
+                        </p>
+                        <label class="mt-4 flex items-center gap-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl px-3 py-2.5 text-xs text-slate-600 dark:text-slate-300 cursor-pointer">
+                            <input type="checkbox" v-model="companionEndSummary.saveChat" class="accent-accent w-4 h-4">
+                            记录这次的临时聊天（{{ companionFloatMessages.length }} 条）
+                        </label>
+                        <div class="flex gap-2 mt-4">
+                            <button @click="companionCancelEndSummary" class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-sm font-medium">继续陪伴</button>
+                            <button @click="companionConfirmEnd" class="flex-1 py-2.5 rounded-xl bg-accent text-white text-sm font-bold">结束</button>
+                        </div>
+                    </div>
+                </div>
+                </transition>
+            </div>
+        </transition>
+
+        
+        <transition name="page-slide">
             <div v-if="modals.wordCloud" class="fixed inset-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl flex flex-col">
                 <div class="w-full h-full flex flex-col overflow-hidden">
                     <div class="px-4 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2 shrink-0">
@@ -3421,10 +3780,7 @@ document.addEventListener('visibilitychange', () => {
         }
     });
 
-    // 之前这里的 WAV 文件采样数据只有 4 字节，相当于约 0.00004 秒的音频，
-    // loop 播放时并不构成系统能识别的"持续音频"，所以锁屏/通知中心不会显示"正在播放"，
-    // 后台保活也就不生效。换成时长 0.3 秒的真正静音 WAV，循环起来才是一段能被
-    // 浏览器和系统正常识别、维持媒体会话的后台音频。
+    // 0.3秒静音WAV，循环播放用于后台保活
     const SILENT_WAV = 'data:audio/wav;base64,' +
         'UklGRoQJAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YWAJAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
         'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
@@ -3666,11 +4022,7 @@ localforage.config({ name: 'JingYuStarV6', storeName: 'fusion_v6' });
 createApp({
     setup() {
         const showSplash = ref(true);
-        // 标记本地存档是否已经加载完成：在这之前绝不允许触发任何保存/备份写入，
-        // 否则如果用户在冷启动、数据还没读完时就切到后台（会触发 pagehide/visibilitychange 的强制保存），
-        // 会用还没恢复数据的“几乎空白”状态把本地备份（localStorage + IndexedDB）整个覆盖掉——
-        // 这正是“备份偶尔会自己被清除”的根因，因为强制保存 flushSave 之前没有做这层保护。
-        const dataLoaded = ref(false);
+        const dataLoaded = ref(false); // 本地存档加载完成前禁止保存，避免空数据覆盖备份
         const chatList = ref(null);
         const imgInput = ref(null);
         const globalImportInput = ref(null);
@@ -3683,11 +4035,7 @@ createApp({
             batchComposeMode.value = !batchComposeMode.value;
         };
         const isTyping = ref(false);
-        // 记录"正在输入"最近一次变为 true 的时间：App 长时间切到后台时，Worker 定时器可能被系统整体挂起，
-        // 导致原本该在 60 秒后把 isTyping 重置为 false 的兜底计时器没能按时触发；一旦这样卡住，
-        // 回到前台后 triggerAutoReply 会一直以为"上一轮还没打完字"而不停重试、真正的回复和"正在输入"动画
-        // 也就一直出不来。切回前台时用这个时间戳做一次兜底检查，超时就强制复位。
-        let typingStartedAt = 0;
+        let typingStartedAt = 0; // isTyping 卡死兜底检查用
         watch(isTyping, (val) => { if (val) typingStartedAt = Date.now(); });
         const previewImg = ref('');
         const letterHistory = ref([]);
@@ -3734,6 +4082,7 @@ createApp({
         const selectedReplies = ref([]);
         const selectAll = ref(false);
         let activeIntervalTimer = null;
+        let activeMsgLastFireAt = 0; // 主动消息上次实际发送的真实时间戳，用于按真实时间间隔判断，不受计时器漂移影响
         let noteReminderTimer = null;
         const notebookInputExpanded = ref(false);
         const emojiPoolText = ref('✨,🫐,🌿,☁️,🌸,⭐,🌙,🎨,🎵,🍬,🧸,💌,🎀,🔮,🎐');
@@ -4139,6 +4488,374 @@ createApp({
             return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
+        // ===== 陪伴功能：番茄钟式计时（正计时/倒计时）+ 临时聊天 + 戳一下 + 白噪音 =====
+        const companionSessions = ref([]); // [{id, seconds, timestamp, event, mode, chatLog:[{text,mine}]}]
+        const companionShowHistory = ref(false);
+        const companionShowCurrentChat = ref(false);
+        const companionShowPanel = ref(false);
+        const companionTargetMinutes = ref(25);
+        const companionCustomMinutes = ref('');
+        const companionMode = computed({ get: () => settings.companionMode || 'countdown', set: (v) => { settings.companionMode = v; } });
+        const companionEventName = ref('');
+        const companionSessionStarted = ref(false);
+        const companionControlsVisible = ref(false);
+        let companionControlsHideTimer = null;
+        const companionTimerRunning = ref(false);
+        const companionTimerSeconds = ref(0); // 已计时的有效秒数（暂停不计入）
+        let companionTimerInterval = null;
+
+        const companionApplyCustomMinutes = () => {
+            const n = parseInt(companionCustomMinutes.value, 10);
+            if (n > 0 && n <= 999) companionTargetMinutes.value = n;
+        };
+        const companionFormatMMSS = (total) => {
+            total = Math.max(0, total);
+            const m = Math.floor(total / 60), s = total % 60;
+            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        };
+        const companionRemainingSeconds = computed(() => Math.max(0, companionTargetMinutes.value * 60 - companionTimerSeconds.value));
+        const companionMainTimerText = computed(() => companionFormatMMSS(companionMode.value === 'countdown' ? companionRemainingSeconds.value : companionTimerSeconds.value));
+        const companionRingOffset = computed(() => {
+            const total = companionTargetMinutes.value * 60;
+            const progress = total > 0 ? Math.min(1, companionTimerSeconds.value / total) : 0;
+            return 339.3 * (1 - progress);
+        });
+        const companionFormatDuration = (s) => {
+            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+            if (h > 0) return `${h}小时${m}分钟`;
+            if (m > 0) return `${m}分${sec}秒`;
+            return `${sec}秒`;
+        };
+
+        // 顶部实时时钟（跟计时是否运行无关，打开陪伴页就一直走）
+        const companionClockText = ref('');
+        let companionClockInterval = null;
+        const companionUpdateClock = () => {
+            const d = new Date();
+            companionClockText.value = `当前时间 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        };
+
+
+        const companionTimeUpToast = () => {
+            companionPokeToast.text = '时间到啦～';
+            companionPokeToast.show = true;
+            if (companionPokeTimer) clearTimeout(companionPokeTimer);
+            companionPokeTimer = setTimeout(() => { companionPokeToast.show = false; }, 2400);
+            playSound('receive');
+        };
+
+        const companionStart = () => {
+            settings.companionLastEvent = companionEventName.value.trim();
+            companionSessionStarted.value = true;
+            companionTimerSeconds.value = 0;
+            companionFloatMessages.value = [];
+            companionMyFloatToast.show = false;
+            companionShowCurrentChat.value = false;
+            companionControlsVisible.value = true;
+            companionScheduleHideControls();
+            companionTimerRunning.value = true;
+            companionTimerInterval = safeSetInterval(() => {
+                companionTimerSeconds.value++;
+                if (companionMode.value === 'countdown' && companionTimerSeconds.value >= companionTargetMinutes.value * 60) {
+                    companionTimerRunning.value = false;
+                    if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
+                    companionTimeUpToast();
+                }
+            }, 1000);
+        };
+        const companionStartPause = () => {
+            if (!companionSessionStarted.value) return;
+            if (companionTimerRunning.value) {
+                companionTimerRunning.value = false;
+                if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
+            } else {
+                if (companionMode.value === 'countdown' && companionTimerSeconds.value >= companionTargetMinutes.value * 60) return;
+                companionTimerRunning.value = true;
+                companionTimerInterval = safeSetInterval(() => {
+                    companionTimerSeconds.value++;
+                    if (companionMode.value === 'countdown' && companionTimerSeconds.value >= companionTargetMinutes.value * 60) {
+                        companionTimerRunning.value = false;
+                        if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
+                        companionTimeUpToast();
+                    }
+                }, 1000);
+            }
+        };
+
+        const companionEndSummary = reactive({ show: false, event: '', seconds: 0, mode: 'countdown', saveChat: true });
+        const companionEndClick = () => {
+            if (!companionSessionStarted.value) return;
+            if (companionTimerRunning.value) companionStartPause();
+            companionEndSummary.event = companionEventName.value.trim();
+            companionEndSummary.seconds = companionTimerSeconds.value;
+            companionEndSummary.mode = companionMode.value;
+            companionEndSummary.saveChat = true;
+            companionEndSummary.show = true;
+        };
+        const companionCancelEndSummary = () => {
+            companionEndSummary.show = false;
+            // 取消结束就继续陪伴：只要计时还没跑完就恢复计时
+            if (companionSessionStarted.value && !companionTimerRunning.value && (companionMode.value !== 'countdown' || companionRemainingSeconds.value > 0)) {
+                companionStartPause();
+            }
+        };
+        const companionConfirmEnd = () => {
+            const seconds = companionTimerSeconds.value;
+            if (seconds >= 5) { // 少于5秒不计入记录，避免误触
+                companionSessions.value.unshift({
+                    id: Date.now() + Math.random(),
+                    seconds, timestamp: Date.now(),
+                    event: companionEventName.value.trim(),
+                    mode: companionMode.value,
+                    chatLog: companionEndSummary.saveChat ? companionFloatMessages.value.map(m => ({ text: m.text, mine: m.mine })) : [],
+                });
+                if (companionSessions.value.length > 50) companionSessions.value.length = 50;
+                settings.companionTotalSeconds = (settings.companionTotalSeconds || 0) + seconds;
+            }
+            companionEndSummary.show = false;
+            companionSessionStarted.value = false;
+            companionTimerRunning.value = false;
+            if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
+            companionTimerSeconds.value = 0;
+            companionFloatMessages.value = []
+            companionMyFloatToast.show = false;;
+            companionTempInput.value = '';
+            companionShowCurrentChat.value = false;
+            companionControlsVisible.value = false;
+            if (companionControlsHideTimer) { clearTimeout(companionControlsHideTimer); companionControlsHideTimer = null; }
+        };
+        const companionDeleteSession = (id) => {
+            const idx = companionSessions.value.findIndex(s => s.id === id);
+            if (idx > -1) companionSessions.value.splice(idx, 1);
+        };
+
+        // 点击背景空白区，显示/隐藏底部控制条（声音/暂停/结束），几秒后自动隐藏
+        const companionScheduleHideControls = () => {
+            if (companionControlsHideTimer) clearTimeout(companionControlsHideTimer);
+            companionControlsHideTimer = setTimeout(() => { companionControlsVisible.value = false; }, 4000);
+        };
+        const companionBgTap = () => {
+            if (!companionSessionStarted.value) return;
+            companionControlsVisible.value = !companionControlsVisible.value;
+            if (companionControlsVisible.value) companionScheduleHideControls();
+            else if (companionControlsHideTimer) { clearTimeout(companionControlsHideTimer); companionControlsHideTimer = null; }
+        };
+
+        // 临时聊天：消息浮现在陪伴页里，均来自语料库，默认不进入正式聊天记录（结束时可选择保存）
+        const companionFloatMessages = ref([]); // [{id, text, mine}]
+        const companionTempInput = ref('');
+
+        const companionSendTemp = () => {
+            const txt = companionTempInput.value.trim();
+            if (!txt || !companionSessionStarted.value) return;
+            companionFloatMessages.value.push({ id: Date.now() + Math.random(), text: txt, mine: true });
+            if (companionFloatMessages.value.length > 60) companionFloatMessages.value.shift();
+            companionTempInput.value = '';
+            companionMyFloatToast.text = txt;
+            companionMyFloatToast.show = true;
+            if (companionMyFloatTimer) clearTimeout(companionMyFloatTimer);
+            companionMyFloatTimer = setTimeout(() => { companionMyFloatToast.show = false; }, 2400);
+            safeSetTimeout(() => {
+                const pool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g => g.replies)];
+                const r = pool.length ? pool[Math.floor(Math.random() * pool.length)].text : '嗯？';
+                companionFloatMessages.value.push({ id: Date.now() + Math.random(), text: r, mine: false });
+                if (companionFloatMessages.value.length > 60) companionFloatMessages.value.shift();
+                companionPokeToast.text = r;
+                companionPokeToast.show = true;
+                if (companionPokeTimer) clearTimeout(companionPokeTimer);
+                companionPokeTimer = setTimeout(() => { companionPokeToast.show = false; }, 2400);
+            }, 650);
+        };
+        const companionPokeToast = reactive({ show: false, text: '' });
+        const companionMyFloatToast = reactive({ show: false, text: '' });
+        let companionMyFloatTimer = null;
+        let companionPokeTimer = null;
+        const companionPoke = () => {
+            if (!companionSessionStarted.value) return;
+
+            // 戳一戳本身不进入聊天记录，也不显示“你拍了拍……”；
+            // 只让对方稍后在头像上方浮现一句回复。
+            safeSetTimeout(() => {
+                const pool = [...ungroupedReplies.value, ...replyGroups.value.flatMap(g => g.replies)];
+                const reply = pool.length ? pool[Math.floor(Math.random() * pool.length)].text : '嗯？';
+
+                companionPokeToast.text = reply;
+                companionPokeToast.show = true;
+                if (companionPokeTimer) clearTimeout(companionPokeTimer);
+                companionPokeTimer = setTimeout(() => {
+                    companionPokeToast.show = false;
+                }, 2400);
+                playSound('receive');
+            }, 180);
+        };
+
+        // 白噪音：预设（白/粉/棕噪音）用 Web Audio 实时生成，无需联网或打包音频文件；
+        // 也支持上传自己的音频文件（存成本地 dataURL，离线也能播放）。
+        let companionAudioCtx = null;
+        let companionNoiseSource = null;
+        let companionNoiseGain = null;
+        let companionCustomAudioEl = null;
+        const companionMakeNoiseBuffer = (ctx, type) => {
+            const bufferSize = ctx.sampleRate * 2;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            if (type === 'pink') {
+                let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    b0 = 0.99886*b0 + white*0.0555179; b1 = 0.99332*b1 + white*0.0750759;
+                    b2 = 0.96900*b2 + white*0.1538520; b3 = 0.86650*b3 + white*0.3104856;
+                    b4 = 0.55000*b4 + white*0.5329522; b5 = -0.7616*b5 - white*0.0168980;
+                    data[i] = (b0+b1+b2+b3+b4+b5+b6+white*0.5362) * 0.11;
+                    b6 = white * 0.115926;
+                }
+            } else if (type === 'brown') {
+                let last = 0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    last = (last + 0.02 * white) / 1.02;
+                    data[i] = last * 3.5;
+                }
+            } else {
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            }
+            return buffer;
+        };
+        const companionStopNoise = () => {
+            try { companionNoiseSource?.stop(); } catch(e) {}
+            companionNoiseSource = null;
+            companionNoiseGain = null;
+            if (companionCustomAudioEl) { companionCustomAudioEl.pause(); companionCustomAudioEl = null; }
+        };
+        const companionPlayNoise = () => {
+            companionStopNoise();
+            const type = settings.companionNoiseType;
+            if (!type || type === 'none') return;
+            if (type === 'custom') {
+                if (!settings.companionCustomNoiseUrl) return;
+                companionCustomAudioEl = new Audio(settings.companionCustomNoiseUrl);
+                companionCustomAudioEl.preload = 'auto';
+                companionCustomAudioEl.loop = true;
+                companionCustomAudioEl.muted = false;
+                companionCustomAudioEl.volume = (settings.companionNoiseVolume || 50) / 100;
+                companionCustomAudioEl.play().catch((e) => console.warn('[陪伴音频] 自定义音频需要用户手势', e));
+                return;
+            }
+            if (!companionAudioCtx) companionAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (companionAudioCtx.state === 'suspended') companionAudioCtx.resume().catch(() => {});
+            const src = companionAudioCtx.createBufferSource();
+            src.buffer = companionMakeNoiseBuffer(companionAudioCtx, type);
+            src.loop = true;
+            const gain = companionAudioCtx.createGain();
+            gain.gain.value = (settings.companionNoiseVolume || 50) / 100 * 0.5;
+            src.connect(gain); gain.connect(companionAudioCtx.destination);
+            src.start();
+            companionNoiseSource = src;
+            companionNoiseGain = gain;
+        };
+        watch(() => settings.companionNoiseType, () => { if (modals.companion && !companionNoiseMuted.value) companionPlayNoise(); });
+        watch(() => settings.companionNoiseVolume, (v) => {
+            const vol = (v || 50) / 100;
+            if (companionNoiseGain) companionNoiseGain.gain.value = companionNoiseMuted.value ? 0 : vol * 0.5;
+            if (companionCustomAudioEl) companionCustomAudioEl.volume = vol;
+        });
+        // 控制条喇叭：直接在用户点击手势里恢复 AudioContext / HTMLAudio，
+        // 不依赖 watch 的异步时序，避免手机浏览器把“开声”误判成自动播放。
+        let companionNoiseTypeBeforeMute = '';
+        const companionNoiseMuted = ref(true);
+
+        const companionEnsureAudioUnlocked = async () => {
+            try {
+                if (!companionAudioCtx) {
+                    companionAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (companionAudioCtx.state === 'suspended') await companionAudioCtx.resume();
+            } catch (e) {
+                console.warn('[陪伴音频] AudioContext 无法恢复', e);
+            }
+        };
+
+        const companionPlayNoise_toggle = async () => {
+            const current = settings.companionNoiseType;
+            if (current && current !== 'none' && !companionNoiseMuted.value) {
+                companionNoiseTypeBeforeMute = current;
+                companionNoiseMuted.value = true;
+                if (companionNoiseGain) companionNoiseGain.gain.value = 0;
+                if (companionCustomAudioEl) companionCustomAudioEl.muted = true;
+                return;
+            }
+
+            const type = companionNoiseTypeBeforeMute || (current !== 'none' ? current : 'white');
+            settings.companionNoiseType = type;
+            companionNoiseMuted.value = false;
+
+            await companionEnsureAudioUnlocked();
+
+            if (type === 'custom' && companionCustomAudioEl) {
+                companionCustomAudioEl.muted = false;
+                companionCustomAudioEl.volume = (settings.companionNoiseVolume || 50) / 100;
+                try { await companionCustomAudioEl.play(); } catch (e) {
+                    console.warn('[陪伴音频] 自定义音频播放被浏览器拦截', e);
+                }
+            } else {
+                companionPlayNoise();
+            }
+        };
+        watch(() => modals.companion, (open) => {
+            if (open) {
+                companionNoiseMuted.value = settings.companionNoiseType === 'none';
+                if (settings.companionNoiseType !== 'none') companionPlayNoise();
+                companionUpdateClock();
+                if (companionClockInterval) safeClearInterval(companionClockInterval);
+                companionClockInterval = safeSetInterval(companionUpdateClock, 1000);
+            } else {
+                companionStopNoise();
+                companionShowHistory.value = false; companionShowCurrentChat.value = false; companionShowPanel.value = false;
+                companionEndSummary.show = false;
+                if (companionClockInterval) { safeClearInterval(companionClockInterval); companionClockInterval = null; }
+                if (companionControlsHideTimer) { clearTimeout(companionControlsHideTimer); companionControlsHideTimer = null; }
+                // 关闭陪伴页时若会话仍在进行，保留状态（不强制结束），下次打开还能继续
+                if (companionTimerInterval && !companionTimerRunning.value) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
+            }
+        });
+
+        const companionUploadBg = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => { settings.companionBg = ev.target.result; settings.companionBgUrl = ''; };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        };
+        const companionUploadAvatar = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => { settings.companionAvatar = ev.target.result; settings.companionAvatarUrl = ''; };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        };
+        const companionApplyBgUrl = () => {
+            const url = (settings.companionBgUrl || '').trim();
+            if (!url) { alert('请先输入图片链接'); return; }
+            settings.companionBg = url;
+        };
+        const companionApplyAvatarUrl = () => {
+            const url = (settings.companionAvatarUrl || '').trim();
+            if (!url) { alert('请先输入图片链接'); return; }
+            settings.companionAvatar = url;
+        };
+        const companionUploadNoise = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                settings.companionCustomNoiseUrl = ev.target.result;
+                settings.companionCustomNoiseName = file.name;
+                settings.companionNoiseType = 'custom';
+                companionNoiseMuted.value = false;
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        };
+
         const pokeToast = reactive({ show: false, text: '' });
         let pokeToastTimer = null;
         const pokePickerShow = ref(false);
@@ -4227,7 +4944,7 @@ createApp({
 
         const settings = reactive({
             isDark: false, showAvatar: true, showNickname: false, sound: true,
-            delayMin: 1, delayMax: 3, activeMsg: false, activeInterval: 30,
+            delayMin: 1, delayMax: 3, activeMsg: false, activeInterval: 5,
             batchWaitMs: 2500, // 连续发送消息时，停止发送后等待多久才触发对方回复（毫秒）
             fragmentReplyChance: 0, // 随机把1~3条语料拼在一起组合成一句话发出的概率（0~100，0=关闭）
             noReplyChance: 0, // 已读不回的概率（0~100，0=关闭：消息照常已读+回复）
@@ -4254,6 +4971,13 @@ createApp({
             soundUrl: '', sendSoundUrl: '', soundVolume: 100,
             callBgImage: '', callBgUrl: '',
             pokePresets: '{me}拍了拍{them},{me}牵住了{them}的手,{me}揉了揉{them}的脑袋',
+            companionBg: '', companionAvatar: '', // 陪伴页背景图 / 专属头像（留空则用对方头像）
+            companionBgUrl: '', companionAvatarUrl: '', // 对应的 URL 输入框暂存值
+            companionTotalSeconds: 0, // 累计陪伴时长（秒）
+            companionNoiseType: 'none', companionNoiseVolume: 50,
+            companionCustomNoiseName: '', companionCustomNoiseUrl: '',
+            companionMode: 'countdown', // 'countdown'=倒计时 / 'stopwatch'=正计时（自由时间）
+            companionLastEvent: '', // 上次填写的"陪伴的事情"，方便下次预填
             pushNotify: true,
             bgKeepAlive: true,
             autoBackupEnabled: true,
@@ -4272,11 +4996,15 @@ createApp({
             settings: false, replyManager: false, stickerPicker: false,
             letterHistory: false,
             notebook: false, batchInput: false, selectiveExport: false, favorites: false, periodTracker: false,
-            tarot: false, wordCloud: false
+            tarot: false, wordCloud: false, companion: false
         });
         const showLetterCompose = ref(false); // 信笺面板里"写信"展开区是否打开
         const currentScreen = ref('home');
         const goHome = () => { currentScreen.value = 'home'; };
+        const openCompanion = () => {
+            if (!companionSessionStarted.value) companionEventName.value = settings.companionLastEvent || '';
+            modals.companion = true;
+        };
         const openChat = () => {
             currentScreen.value = 'chat';
             settings.unreadChatCount = 0;
@@ -4287,9 +5015,7 @@ createApp({
         const WORD_CLOUD_EMOJI_RE = /(\p{Emoji_Presentation}|\p{Extended_Pictographic}|\uFE0F)/gu;
         const WORD_CLOUD_URL_RE = /https?:\/\/\S+/g;
         const WORD_CLOUD_SPLIT_RE = /[\s,，。！？、；：""''《》〈〉（）()\[\]【】~—\-_/\\|.!?;:"'`~@#$%^&*+=<>{}·…\n\r\t]+/gu;
-        // 内置词库（语料库）：常见称呼、情感词、动作、时间、常用短语等，作为分词依据。
-        // 分词时按"正向最大匹配"从词库里找词，找不到的连续未知字才归并成一个词，
-        // 不会像滑动窗口那样把同一段文字拆出好几个互相重叠、意思重复的词。
+        // 内置分词词库，正向最大匹配
         const WORD_CLOUD_DICT = [
             '我们','你们','他们','她们','咱们','自己','大家',
             '姐姐','妹妹','哥哥','弟弟','老婆','老公','媳妇','相公','爱人','对象',
@@ -4319,10 +5045,7 @@ createApp({
         const WORD_CLOUD_NGRAM_MIN = 2;
         const WORD_CLOUD_NGRAM_MAX = 6;
         const WORD_CLOUD_MAX_WORD_LEN = Math.max(WORD_CLOUD_NGRAM_MAX, ...WORD_CLOUD_DICT.map(w => w.length));
-        // ===== 语料库词典：不再只依赖内置的几百个固定词，而是从聊天记录本身（语料库）里
-        //       统计所有可能的 2~6 字片段出现频率，出现次数达到阈值的才当作"真正的词"收进词典。
-        //       词越长，巧合重复的概率越低，所以阈值随词长递减；词越短则要求更高频次，
-        //       避免把偶然挨在一起的两个字误判成词，从而让词云真正反映这段对话里实际反复出现的内容。=====
+        // 从聊天记录统计高频2~6字片段作为补充词典
         const buildCorpusDict = (msgs) => {
             const freq = new Map();
             for (const m of msgs) {
@@ -4617,11 +5340,7 @@ createApp({
     const DB_KEY = 'app_fusion_v6';
     const LS_KEY = 'app_fusion_v6_backup';
 
-    // ── Cloudflare 后台配置 ──
-    // CLOUD_API_BASE：你的 Cloudflare Worker 地址，去 Cloudflare 控制台 Workers 项目
-    //   概述页复制那个 xxx.workers.dev 域名，末尾不要带斜杠。
-    // CLOUD_RELAY_SECRET：你自己随便定的一串密码，要跟 Worker 里设置的 RELAY_SECRET
-    //   一模一样，两边对不上会被拒绝，这是防止陌生人乱调用你的后台。
+    // Cloudflare Worker 地址与密钥，需与 Worker 端 RELAY_SECRET 一致
     const CLOUD_API_BASE = 'https://lorstar0121.moraleskento8.workers.dev';
     const CLOUD_RELAY_SECRET = 'Loreille0110';
 
@@ -4653,6 +5372,33 @@ createApp({
                     if (cloud.periodRecords) periodRecords.value = cloud.periodRecords;
         if (cloud.emojiPoolText !== undefined) emojiPoolText.value = cloud.emojiPoolText;
         if (cloud.tarotHistory) tarotHistory.value = cloud.tarotHistory;
+        if (cloud.companionSessions) companionSessions.value = cloud.companionSessions;
+    };
+
+    // 拉取云端在离线/后台期间攒下的新消息并合并进本地聊天记录。
+    // 冷启动时用一次，App 从后台切回前台时也要再用一次——否则切后台期间
+    // 收到的消息只能靠 push 唤醒页面才会出现，页面被系统整体挂起时就会漏掉。
+    let lastPendingSyncAt = 0;
+    const syncPendingFromCloud = async () => {
+        if (Date.now() - lastPendingSyncAt < 15000) return; // 15秒内不重复拉取
+        lastPendingSyncAt = Date.now();
+        try {
+            const res = await cloudFetch('/api/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
+            if (!res.ok) return;
+            const cloud = await res.json();
+            if (cloud && Array.isArray(cloud.pendingMessages) && cloud.pendingMessages.length) {
+                for (const m of cloud.pendingMessages) {
+                    messages.value.push({
+                        id: m.id || (Date.now() + Math.random()),
+                        sender: 'them', type: m.type || 'text',
+                        content: m.text || m.content || '',
+                        timestamp: m.timestamp || Date.now(),
+                        status: 'sent', quote: null
+                    });
+                }
+                scrollToBottom(true);
+            }
+        } catch (e) {}
     };
 
     const restoreFromDeviceId = ref(''); // 用户输入的、要恢复的那台旧设备的ID
@@ -4707,7 +5453,8 @@ createApp({
         favorites: cloneData(favorites.value),
         periodRecords: cloneData(periodRecords.value),
         emojiPoolText: emojiPoolText.value,
-        tarotHistory: cloneData(tarotHistory.value)
+        tarotHistory: cloneData(tarotHistory.value),
+        companionSessions: cloneData(companionSessions.value)
 });
 
     let cloudSyncTimer = null;
@@ -4715,9 +5462,7 @@ createApp({
         if (cloudSyncTimer) safeClearTimeout(cloudSyncTimer);
         cloudSyncTimer = safeSetTimeout(async () => {
             try {
-                // 客户端这边也加一道保护：如果本地已经有过不少消息、但这一刻 messages 突然是空的，
-                // 大概率是某种异常瞬间状态，而不是真的清空了——跳过这次同步，避免把云端备份冲成空的。
-                // （服务端 sync-save.js 也有同样的保护，这里是双重保险）
+                // 防止异常空状态覆盖云端备份
                 if (messages.value.length === 0 && (settings.hasEverHadMessages)) {
                     console.warn('[云端同步] messages 为空但之前有过记录，跳过本次同步以保护云端备份');
                     return;
@@ -4883,7 +5628,7 @@ createApp({
         }
 
     watch(
-        [messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, favorites, periodRecords, emojiPoolText, tarotHistory],
+        [messages, profiles, settings, ungroupedReplies, replyGroups, stickerGroups, letterHistory, pendingLetter, notes, favorites, periodRecords, emojiPoolText, tarotHistory, companionSessions],
         () => { saveData(); },
         { deep: true }
     );
@@ -4986,7 +5731,7 @@ createApp({
             dismissInAppBanner();
             modals.settings = false; modals.replyManager = false; modals.letterHistory = false;
             modals.favorites = false; modals.notebook = false; modals.periodTracker = false;
-            modals.selectiveExport = false; modals.batchInput = false; modals.tarot = false;
+            modals.selectiveExport = false; modals.batchInput = false; modals.tarot = false; modals.companion = false;
             openChat();
         };
 
@@ -5366,11 +6111,7 @@ createApp({
             }
         }
     };
-        // 连续发送：把输入框里的内容按"换行"拆成几条消息依次快速发出去（每换一行＝单独一条），
-        // 让对方感觉是"一口气发了好几条"。因为每一条还是走 sendMsg -> queueAutoReply，
-        // 而这几条之间的间隔远小于 batchWaitMs 静默期，batchReplyTimer 会被不断重置，
-        // 所以最终只会在这一整批发完之后统一触发一次自动回复，回复条数仍然受
-        // MAX_REPLY_COUNT（5条）限制，不会出现"发几条对方就回几轮"的刷屏问题。
+        // 按换行拆分为多条依次发送，共用同一次自动回复
         const batchInputParts = computed(() => {
             const raw = inputText.value || '';
             if (!raw.trim()) return [];
@@ -5395,10 +6136,7 @@ createApp({
                 sendMsg('me', 'text');
             }
         };
-        // 输入框回车键处理：
-        // - 普通模式下：单独按 Enter＝发送（和原来一样），Shift/Ctrl/Alt/Meta+Enter＝换行；
-        // - 多条模式下：单独按 Enter 只换行，不发送，这样才能打出多行内容（每行会分成一条）；
-        //   要发送时点发送按钮（会自动识别多条并依次发出）。
+        // 普通模式 Enter 发送；多条模式 Enter 换行，按钮统一发送
         const onComposerEnterKeydown = (e) => {
             if (e.isComposing || e.keyCode === 229) return; // 中文/日文等输入法正在选字时的回车，交给输入法处理
             if (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return; // 带修饰键，走默认换行行为
@@ -5416,12 +6154,7 @@ createApp({
         };
         const quoteMsg = (msg) => { quotingMsg.value = msg; };
         const forceBotReply = () => { triggerAutoReply(true); };
-        // ⚠️ 这里以前是 `() => triggerAutoReply()`，没有检查"主动消息"开关。
-        //   Service Worker 在后台被唤醒时（比如收到推送、或做 keep-alive）会通过
-        //   postMessage 发 { type: 'trigger-reply' } 过来，这条路径完全绕开了
-        //   设置页里"主动消息"那个开关（那个开关只控制主线程里的 activeIntervalTimer），
-        //   导致哪怕关掉"主动消息"，Service Worker 还是会不停地把对方"叫醒"发消息。
-        //   现在这里补上开关检查，SW 唤醒时如果"主动消息"是关的，就什么也不做。
+        // SW 唤醒时也要检查"主动消息"开关，关闭时不触发
         window.__app_triggerAutoReply = () => { if (settings.activeMsg) triggerAutoReply(); };
         window.__app_navigateToChat = () => openChat();
 
@@ -5683,7 +6416,10 @@ createApp({
             });
         };
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') forceUIRefresh();
+            if (document.visibilityState === 'visible') {
+                forceUIRefresh();
+                if (dataLoaded.value) syncPendingFromCloud();
+            }
         });
         window.addEventListener('pageshow', (e) => {
             if (e.persisted) forceUIRefresh();
@@ -6027,6 +6763,7 @@ createApp({
                     if (data.periodRecords) periodRecords.value = data.periodRecords;
                     if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
                     if (data.tarotHistory) tarotHistory.value = data.tarotHistory;
+                    if (data.companionSessions) companionSessions.value = data.companionSessions;
                     applyFontSettings(); toggleTheme(); applyCSS();
                     modals.settings = false;
                     alert('导入成功！数据已恢复。');
@@ -6063,12 +6800,7 @@ createApp({
             const root = document.documentElement;
             const fontSize = settings.fontSize + 'px';
             root.style.setProperty('--font-size-base', fontSize);
-            // ⚠️ 这里之前还有一行 root.style.fontSize = fontSize，
-            //   直接改了 <html> 根元素的字号——但页面里大量用的是 rem 单位
-            //   （图标尺寸、间距、头像大小……几乎所有 Tailwind 的 w-/h-/p- 类都是 rem），
-            //   而 rem 就是相对"根元素字号"计算的，所以调字号设置会把图标、间距全部一起放大缩小。
-            //   字号设置本来只想影响聊天文字大小，下面这个 dynamicStyle 才是真正该用的方式——
-            //   只针对 .msg-bubble / .msg-content 生效，不会牵连其它任何东西。
+            // 只对聊天气泡生效，不改根字号避免影响图标/间距等rem单位
             let dynamicStyle = document.getElementById('dynamic-font-size');
             if (!dynamicStyle) { dynamicStyle = document.createElement('style'); dynamicStyle.id = 'dynamic-font-size'; document.head.appendChild(dynamicStyle); }
             dynamicStyle.textContent = `.msg-bubble, .msg-content { font-size: ${fontSize} !important; }`;
@@ -6099,11 +6831,21 @@ createApp({
             modals.settings = false;
         };
 
+        // 主动消息：不直接用 setInterval(activeInterval) 触发发送，而是每5秒检查一次
+        // "距离上次发送的真实时间"是否已达到设置的分钟数。这样即使后台被系统挂起导致
+        // 定时器漂移、错过若干次tick，恢复后也只会补发一次，而不会按错过的次数连续爆发。
+        const ACTIVE_MSG_CHECK_MS = 5000;
         const restartActiveMsgTimer = () => {
-            if(activeIntervalTimer) safeClearInterval(activeIntervalTimer);
-            if(settings.activeMsg) {
-                activeIntervalTimer = safeSetInterval(()=>{ triggerAutoReply(); }, (settings.activeInterval||30)*1000);
-            }
+            if (activeIntervalTimer) safeClearInterval(activeIntervalTimer);
+            if (!settings.activeMsg) return;
+            activeMsgLastFireAt = Date.now(); // 从此刻开始计时，勾选瞬间不会立即发送
+            activeIntervalTimer = safeSetInterval(() => {
+                const intervalMs = Math.max(1, Number(settings.activeInterval) || 5) * 60000;
+                if (Date.now() - activeMsgLastFireAt >= intervalMs) {
+                    activeMsgLastFireAt = Date.now();
+                    triggerAutoReply();
+                }
+            }, ACTIVE_MSG_CHECK_MS);
         };
         watch(() => [settings.activeMsg, settings.activeInterval], restartActiveMsgTimer);
         watch(() => [settings.autoBackupEnabled, settings.autoBackupIntervalHours], restartAutoBackupTimer);
@@ -6173,6 +6915,7 @@ createApp({
             if (data.periodRecords) periodRecords.value = data.periodRecords;
             if (data.emojiPoolText !== undefined) emojiPoolText.value = data.emojiPoolText;
             if (data.tarotHistory) tarotHistory.value = data.tarotHistory;
+            if (data.companionSessions) companionSessions.value = data.companionSessions;
 
             const oldUngroup = replyGroups.value.find(g => g.id === '__ungroup__');
             if (oldUngroup) {
@@ -6185,12 +6928,7 @@ createApp({
             const res = await cloudFetch('/api/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
             if (res.ok) {
                 const cloud = await res.json();
-
-                if (!data && cloud && cloud.messages) {
-                    applyCloudBackup(cloud);
-                    console.log('[云端同步] 本地无数据，已从云端恢复备份');
-                }
-
+                if (!data && cloud && cloud.messages) applyCloudBackup(cloud);
                 if (cloud && Array.isArray(cloud.pendingMessages) && cloud.pendingMessages.length) {
                     for (const m of cloud.pendingMessages) {
                         messages.value.push({
@@ -6201,12 +6939,10 @@ createApp({
                             status: 'sent', quote: null
                         });
                     }
-                    console.log('[云端同步] 已合并', cloud.pendingMessages.length, '条离线期间的消息');
                 }
+                lastPendingSyncAt = Date.now();
             }
-        } catch (e) {
-            console.warn('[云端同步] 拉取失败（不影响本地聊天）', e);
-        }
+        } catch (e) {}
 
         // 到这里，本地存档（IndexedDB/localStorage）和云端拉取都已经尝试过了，
         // 才允许后续的保存/备份逻辑写入，防止用空状态覆盖已有数据。
@@ -6293,6 +7029,15 @@ createApp({
             tarotDraw, tarotReveal, tarotAllRevealed, tarotResetDraw, tarotDeleteHistoryItem,
             tarotFindCard, tarotHistoryDateText,
             wordCloudTab, wordCloudList, wordCloudMessageCount, wordCloudWordCount, wordCloudTop10, wordCloudTop10Max, wordCloudCanvas,
+            openCompanion, companionSessions, companionShowHistory, companionShowCurrentChat, companionShowPanel, companionTargetMinutes,
+            companionCustomMinutes, companionApplyCustomMinutes, companionMode, companionEventName,
+            companionSessionStarted, companionControlsVisible, companionBgTap,
+            companionTimerRunning, companionMainTimerText, companionRingOffset, companionFormatDuration,
+            companionClockText, companionFloatMessages, companionMyFloatToast, companionTempInput, companionSendTemp,
+            companionStart, companionStartPause, companionEndClick, companionEndSummary, companionCancelEndSummary, companionConfirmEnd,
+            companionDeleteSession, companionPokeToast, companionPoke,
+            companionPlayNoise, companionPlayNoise_toggle, companionNoiseMuted, companionUploadBg, companionUploadAvatar, companionUploadNoise,
+            companionApplyBgUrl, companionApplyAvatarUrl,
         };
     }
 }).mount('#app');
