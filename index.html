@@ -4071,7 +4071,10 @@ createApp({
         const selectedReplies = ref([]);
         const selectAll = ref(false);
         let activeIntervalTimer = null;
-        let activeMsgLastFireAt = 0; // 主动消息上次实际发送的真实时间戳，用于按真实时间间隔判断，不受计时器漂移影响
+        // 主动消息只认这个“下一次允许发送”的时间点。时间戳会随设置一起保存，
+        // 因此切后台/锁屏/刷新后不会把倒计时重新归零。
+        let activeMsgNextFireAt = 0;
+        let activeMsgSchedulerReady = false;
         let noteReminderTimer = null;
         const notebookInputExpanded = ref(false);
         const emojiPoolText = ref('✨,🫐,🌿,☁️,🌸,⭐,🌙,🎨,🎵,🍬,🧸,💌,🎀,🔮,🎐');
@@ -4955,7 +4958,7 @@ createApp({
 
         const settings = reactive({
             isDark: false, showAvatar: true, showNickname: false, sound: true,
-            delayMin: 1, delayMax: 3, activeMsg: false, activeInterval: 5,
+            delayMin: 1, delayMax: 3, activeMsg: false, activeInterval: 5, activeMsgNextFireAt: 0,
             batchWaitMs: 2500, // 连续发送消息时，停止发送后等待多久才触发对方回复（毫秒）
             fragmentReplyChance: 0, // 随机把1~3条语料拼在一起组合成一句话发出的概率（0~100，0=关闭）
             noReplyChance: 0, // 已读不回的概率（0~100，0=关闭：消息照常已读+回复）
@@ -6166,8 +6169,9 @@ createApp({
         };
         const quoteMsg = (msg) => { quotingMsg.value = msg; };
         const forceBotReply = () => { triggerAutoReply(true); };
-        // SW 唤醒时也要检查"主动消息"开关，关闭时不触发
-        window.__app_triggerAutoReply = () => { if (settings.activeMsg) triggerAutoReply(); };
+        // Service Worker 只能“唤醒并检查”，绝不能绕过主动消息间隔直接发消息。
+        // 真正是否到点，由 checkActiveMsgDue() 根据绝对时间戳判断。
+        window.__app_triggerAutoReply = () => { checkActiveMsgDue(); };
         window.__app_navigateToChat = () => openChat();
 
         // 连续发送批次收集：用户在 BATCH_WAIT_MS 静默期内发送的多条消息会被视为"一个整体"，
@@ -6765,6 +6769,8 @@ createApp({
                     if (data.messages) messages.value = data.messages;
                     if (data.profiles) Object.assign(profiles, data.profiles);
                     if (data.settings) Object.assign(settings, data.settings);
+                // 兼容旧版本：旧数据没有主动消息下一次时间点。
+                if (!Number(settings.activeMsgNextFireAt)) settings.activeMsgNextFireAt = 0;
                     if (data.ungroupedReplies) ungroupedReplies.value = data.ungroupedReplies;
                     if (data.replyGroups) replyGroups.value = data.replyGroups;
                     if (data.stickerGroups) stickerGroups.value = data.stickerGroups;
@@ -6843,23 +6849,85 @@ createApp({
             modals.settings = false;
         };
 
-        // 主动消息：不直接用 setInterval(activeInterval) 触发发送，而是每5秒检查一次
-        // "距离上次发送的真实时间"是否已达到设置的分钟数。这样即使后台被系统挂起导致
-        // 定时器漂移、错过若干次tick，恢复后也只会补发一次，而不会按错过的次数连续爆发。
+        // ===== 主动消息调度器 =====
+        // 规则：主动消息严格按照 settings.activeInterval 运行。
+        // Service Worker / 定时器都只能调用 checkActiveMsgDue()，不能直接发送。
+        // 下一次发送时间使用绝对时间戳保存，所以切后台后不会重新从 0 开始计时。
         const ACTIVE_MSG_CHECK_MS = 5000;
-        const restartActiveMsgTimer = () => {
-            if (activeIntervalTimer) safeClearInterval(activeIntervalTimer);
-            if (!settings.activeMsg) return;
-            activeMsgLastFireAt = Date.now(); // 从此刻开始计时，勾选瞬间不会立即发送
-            activeIntervalTimer = safeSetInterval(() => {
-                const intervalMs = Math.max(1, Number(settings.activeInterval) || 5) * 60000;
-                if (Date.now() - activeMsgLastFireAt >= intervalMs) {
-                    activeMsgLastFireAt = Date.now();
-                    triggerAutoReply();
-                }
-            }, ACTIVE_MSG_CHECK_MS);
+
+        const getActiveIntervalMs = () =>
+            Math.max(1, Number(settings.activeInterval) || 5) * 60000;
+
+        const persistActiveMsgSchedule = () => {
+            try {
+                // 不强制整份数据立即备份，避免每次检查都产生写入；设置变化时 watch 会保存。
+                settings.activeMsgNextFireAt = activeMsgNextFireAt || 0;
+            } catch (e) {}
         };
-        watch(() => [settings.activeMsg, settings.activeInterval], restartActiveMsgTimer);
+
+        const checkActiveMsgDue = () => {
+            if (!settings.activeMsg) return false;
+            const now = Date.now();
+            const intervalMs = getActiveIntervalMs();
+
+            if (!activeMsgNextFireAt) {
+                activeMsgNextFireAt = now + intervalMs;
+                persistActiveMsgSchedule();
+                return false;
+            }
+
+            // 对方正在回复时不要抢着再开一轮；下一次检查仍会继续判断。
+            if (now < activeMsgNextFireAt || isTyping.value) return false;
+
+            // 先推进下一次时间，再发送，防止 Worker、定时器、回到前台同时触发造成重复消息。
+            activeMsgNextFireAt = now + intervalMs;
+            persistActiveMsgSchedule();
+            triggerAutoReply();
+            return true;
+        };
+
+        const restartActiveMsgTimer = (initialLoad = false) => {
+            if (activeIntervalTimer) {
+                safeClearInterval(activeIntervalTimer);
+                activeIntervalTimer = null;
+            }
+
+            if (!settings.activeMsg) {
+                activeMsgNextFireAt = 0;
+                persistActiveMsgSchedule();
+                activeMsgSchedulerReady = true;
+                return;
+            }
+
+            const now = Date.now();
+            const intervalMs = getActiveIntervalMs();
+
+            // 首次加载时保留已保存的时间点；只有没有旧时间点时才从现在开始计时。
+            if (initialLoad || !activeMsgSchedulerReady) {
+                const savedNext = Number(settings.activeMsgNextFireAt) || 0;
+                activeMsgNextFireAt = savedNext > 0 ? savedNext : now + intervalMs;
+            } else {
+                // 用户主动修改“主动间隔”或重新勾选开关：从这一刻重新计算，避免旧间隔残留。
+                activeMsgNextFireAt = now + intervalMs;
+            }
+            persistActiveMsgSchedule();
+            activeMsgSchedulerReady = true;
+
+            // 不用“每次 tick 直接发送”，只负责定期检查绝对时间。
+            activeIntervalTimer = safeSetInterval(() => {
+                checkActiveMsgDue();
+            }, ACTIVE_MSG_CHECK_MS);
+
+            // 如果后台期间已经到点，回到页面/启动后只补发一次。
+            checkActiveMsgDue();
+        };
+
+        watch(() => [settings.activeMsg, settings.activeInterval], () => restartActiveMsgTimer(false));
+
+        // 从后台回到前台时立即检查一次，但仍然必须满足绝对时间间隔。
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') checkActiveMsgDue();
+        });
         watch(() => [settings.autoBackupEnabled, settings.autoBackupIntervalHours], restartAutoBackupTimer);
 
         onMounted(async () => {
@@ -6974,7 +7042,7 @@ createApp({
                 restoreNoteReminders();
                 checkPeriodReminder();
                 checkDailyQuotePopup();
-                restartActiveMsgTimer();
+                restartActiveMsgTimer(true);
                 restartAutoBackupTimer();
                 homeClockTimer = safeSetInterval(() => { homeClockNow.value = Date.now(); }, 15000);
                 scheduleStatusRefresh();
