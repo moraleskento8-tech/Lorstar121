@@ -40,8 +40,16 @@
           safari_web_id: "web.onesignal.auto.5d035d80-811e-4f05-a17d-f7e13950e2b6",
           serviceWorkerPath: "/OneSignalSDK.sw.js",
           serviceWorkerParam: { scope: "/" },
+          notificationClickHandlerMatch: "origin",
+          notificationClickHandlerAction: "focus",
           notifyButton: { enable: false },
         });
+        // 通知点击只聚焦现有 App，不让 OneSignal 重新导航/刷新页面
+        try {
+          OneSignal.Notifications.addEventListener("click", () => {
+            try { window.__app_navigateToChat?.(); } catch (e) {}
+          });
+        } catch (e) {}
         window.__oneSignalReady = true;
         window.dispatchEvent(new Event('onesignal-ready'));
       });
@@ -3733,7 +3741,8 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('message', e => {
         if (!e.data) return;
         if (e.data.type === 'pong') window.__lastPong = Date.now();
-        if (e.data.type === 'trigger-reply') window.__app_triggerAutoReply?.();
+        // 后台唤醒只检查主动消息时间，不允许 SW 绕过 activeInterval 直接发消息
+        if (e.data.type === 'trigger-reply') window.__app_checkActiveMsg?.();
         if (e.data.type === 'navigate-to-chat') window.__app_navigateToChat?.();
     });
 }
@@ -3790,7 +3799,9 @@ document.addEventListener('visibilitychange', () => {
         'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA=';
     const silentAudio = new Audio(SILENT_WAV);
     silentAudio.loop = true;
-    silentAudio.volume = 0.01;
+    silentAudio.preload = 'auto';
+    silentAudio.playsInline = true;
+    silentAudio.volume = 0.001;
     window.__silentAudio = silentAudio;
 
     const setupMediaSession = () => {
@@ -3822,6 +3833,17 @@ document.addEventListener('visibilitychange', () => {
             navigator.mediaSession.metadata = null;
         } catch (e) {}
     };
+
+    // 浏览器通常禁止页面加载时自动播放。第一次真实用户操作后再启动，
+    // 这样后台保活音频才有机会进入“已授权播放”状态。
+    const primeKeepAliveFromGesture = () => {
+        if (!__keepAliveEnabled) return;
+        silentAudio.play().then(setupMediaSession).catch(() => {});
+        startAudioCtx();
+    };
+    ['pointerdown','touchstart','keydown'].forEach(type => {
+        document.addEventListener(type, primeKeepAliveFromGesture, { passive: true });
+    });
 
     if (__keepAliveEnabled) { silentAudio.play().then(setupMediaSession).catch(() => {}); }
 
@@ -6173,6 +6195,7 @@ createApp({
         // 真正是否到点，由 checkActiveMsgDue() 根据绝对时间戳判断。
         window.__app_triggerAutoReply = () => { checkActiveMsgDue(); };
         window.__app_navigateToChat = () => openChat();
+        window.__app_checkActiveMsg = () => checkActiveMsgDue?.();
 
         // 连续发送批次收集：用户在 BATCH_WAIT_MS 静默期内发送的多条消息会被视为"一个整体"，
         // 静默期结束后才统一触发一次自动回复，避免每条消息各自触发一轮回复导致对方一下子回复太多。
