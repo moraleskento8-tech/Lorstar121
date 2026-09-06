@@ -3330,6 +3330,13 @@
                         <div class="flex-1 overflow-y-auto px-5 pb-6 space-y-5">
 
                             <div>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-2">对方名字</p>
+                                <input v-model="profiles.them.name" placeholder="例如：沈星回" autocomplete="off"
+                                       class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 rounded-xl px-3 py-2.5 text-xs outline-none text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-accent">
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">修改后立即同步到陪伴页、聊天称呼和头像首字</p>
+                            </div>
+
+                            <div>
                                 <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-2">背景图</p>
                                 <div class="flex gap-2">
                                     <label class="flex-1 py-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center text-xs text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
@@ -3751,10 +3758,17 @@ document.addEventListener('visibilitychange', () => {
     const ctrl = navigator.serviceWorker?.controller;
     if (document.visibilityState === 'hidden') {
         ctrl?.postMessage({ type: 'page-hidden', ts: Date.now() });
+        // Background Sync 只能作为机会性的唤醒，不把它当精确定时器。
+        try { window.__swReg?.sync?.register('keep-alive').catch(() => {}); } catch (e) {}
     } else {
+        // 回前台时立刻用绝对时间校正所有依赖页面计时器的功能。
+        try { window.__app_checkActiveMsg?.(); } catch (e) {}
+        try { updateCallDuration?.(); } catch (e) {}
+        try { companionSyncTimer?.(); } catch (e) {}
         if (__keepAliveEnabled && window.__silentAudioCtx?.state === 'suspended') {
             window.__silentAudioCtx.resume().catch(() => {});
         }
+        if (__keepAliveEnabled) window.__silentAudio?.play().catch(() => {});
     }
 });
 (function() {
@@ -4117,6 +4131,8 @@ createApp({
         });
         const callDurationSeconds = ref(0);
         let callDurationTimer = null;
+        // 不依赖 setInterval 次数，避免切后台/系统通话时 JS 被暂停造成时长停止。
+        let callStartedAt = 0;
         let callRingTimer = null;
         let callRingInterval = null;
         let randomCallTimer = null;
@@ -4517,6 +4533,9 @@ createApp({
         const companionTimerRunning = ref(false);
         const companionTimerSeconds = ref(0); // 已计时的有效秒数（暂停不计入）
         let companionTimerInterval = null;
+        // 使用绝对时间计算，切后台/锁屏后即使 JS 定时器被暂停，也不会少计。
+        let companionTimerStartedAt = 0;
+        let companionTimerBaseSeconds = 0;
 
         const companionApplyCustomMinutes = () => {
             const n = parseInt(companionCustomMinutes.value, 10);
@@ -4581,10 +4600,32 @@ createApp({
             companionNotify();
         };
 
+        const companionSyncTimer = () => {
+            if (!companionSessionStarted.value || !companionTimerRunning.value || !companionTimerStartedAt) return;
+            const elapsed = Math.max(0, Math.floor((Date.now() - companionTimerStartedAt) / 1000));
+            companionTimerSeconds.value = companionTimerBaseSeconds + elapsed;
+            if (companionMode.value === 'countdown' && companionTimerSeconds.value >= companionTargetMinutes.value * 60) {
+                companionTimerSeconds.value = companionTargetMinutes.value * 60;
+                companionTimerRunning.value = false;
+                companionTimerStartedAt = 0;
+                companionTimerBaseSeconds = companionTimerSeconds.value;
+                if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
+                companionTimeUpToast();
+            }
+        };
+
+        const companionStartTimerInterval = () => {
+            if (companionTimerInterval) safeClearInterval(companionTimerInterval);
+            companionTimerInterval = safeSetInterval(companionSyncTimer, 1000);
+            companionSyncTimer();
+        };
+
         const companionStart = () => {
             settings.companionLastEvent = companionEventName.value.trim();
             companionSessionStarted.value = true;
             companionTimerSeconds.value = 0;
+            companionTimerBaseSeconds = 0;
+            companionTimerStartedAt = Date.now();
             companionFloatMessages.value = [];
             companionMyFloatToast.show = false;
             companionShowCurrentChat.value = false;
@@ -4593,33 +4634,24 @@ createApp({
             companionNoiseMuted.value = false;
             if (settings.companionNoiseType && settings.companionNoiseType !== 'none') companionPlayNoise();
             companionTimerRunning.value = true;
-            companionTimerInterval = safeSetInterval(() => {
-                companionTimerSeconds.value++;
-                if (companionMode.value === 'countdown' && companionTimerSeconds.value >= companionTargetMinutes.value * 60) {
-                    companionTimerRunning.value = false;
-                    if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
-                    companionTimeUpToast();
-                }
-            }, 1000);
+            companionStartTimerInterval();
         };
         const companionStartPause = () => {
             if (!companionSessionStarted.value) return;
             if (companionTimerRunning.value) {
+                companionSyncTimer();
                 companionTimerRunning.value = false;
+                companionTimerBaseSeconds = companionTimerSeconds.value;
+                companionTimerStartedAt = 0;
                 if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
                 companionStopNoise();
             } else {
                 if (companionMode.value === 'countdown' && companionTimerSeconds.value >= companionTargetMinutes.value * 60) return;
                 companionTimerRunning.value = true;
+                companionTimerStartedAt = Date.now();
+                companionTimerBaseSeconds = companionTimerSeconds.value;
                 if (!companionNoiseMuted.value && settings.companionNoiseType && settings.companionNoiseType !== 'none') companionPlayNoise();
-                companionTimerInterval = safeSetInterval(() => {
-                    companionTimerSeconds.value++;
-                    if (companionMode.value === 'countdown' && companionTimerSeconds.value >= companionTargetMinutes.value * 60) {
-                        companionTimerRunning.value = false;
-                        if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
-                        companionTimeUpToast();
-                    }
-                }, 1000);
+                companionStartTimerInterval();
             }
         };
 
@@ -4660,6 +4692,8 @@ createApp({
             try { if (companionAudioCtx && companionAudioCtx.state !== 'closed') companionAudioCtx.suspend(); } catch(e) {}
             companionSessionStarted.value = false;
             companionTimerRunning.value = false;
+            companionTimerStartedAt = 0;
+            companionTimerBaseSeconds = 0;
             if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
             companionTimerSeconds.value = 0;
             companionFloatMessages.value = [];
@@ -5927,14 +5961,20 @@ createApp({
             nextTick(() => lucide.createIcons());
         };
 
+        const updateCallDuration = () => {
+            if (!callStartedAt || !['active','minimized'].includes(callState.status)) return;
+            callDurationSeconds.value = Math.max(0, Math.floor((Date.now() - callStartedAt) / 1000));
+        };
+
         const startActiveCall = () => {
             stopCallRinging();
             if (callRingTimer) { safeClearTimeout(callRingTimer); callRingTimer = null; }
             callState.status = 'active';
+            callStartedAt = Date.now();
             callDurationSeconds.value = 0;
-            callDurationTimer = safeSetInterval(() => {
-                callDurationSeconds.value++;
-            }, 1000);
+            if (callDurationTimer) safeClearInterval(callDurationTimer);
+            callDurationTimer = safeSetInterval(updateCallDuration, 1000);
+            updateCallDuration();
             nextTick(() => lucide.createIcons());
         };
 
@@ -5970,7 +6010,11 @@ createApp({
             if (callDurationTimer) { safeClearInterval(callDurationTimer); callDurationTimer = null; }
 
             const wasActive = callState.status === 'active' || callState.status === 'minimized';
-            const duration = callDurationSeconds.value;
+            if (wasActive) updateCallDuration();
+            const duration = wasActive && callStartedAt
+                ? Math.max(0, Math.floor((Date.now() - callStartedAt) / 1000))
+                : callDurationSeconds.value;
+            callStartedAt = 0;
             callState.status = 'idle';
             callDurationSeconds.value = 0;
             callWindowSize.value = 'fullscreen';
