@@ -3,7 +3,7 @@
  */
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const SW_VERSION = 'lorstar-v5';
+const SW_VERSION = 'lorstar-v6';
 
 self.addEventListener('install', event => {
   event.waitUntil(self.skipWaiting());
@@ -73,12 +73,18 @@ self.addEventListener('notificationclick', event => {
 
   event.notification.close();
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      const existing = list.find(c => 'focus' in c);
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async list => {
+      const sameOrigin = list.filter(c => {
+        try { return new URL(c.url).origin === self.location.origin; } catch (e) { return false; }
+      });
+      // 优先复用当前已有窗口；不要因为通知点击而重新导航页面。
+      const existing = sameOrigin.find(c => c.focused) || sameOrigin.find(c => 'focus' in c);
       if (existing) {
-        existing.postMessage({ type: 'navigate-to-chat' });
-        return existing.focus();
+        try { await existing.focus(); } catch (e) {}
+        try { existing.postMessage({ type: 'navigate-to-chat', source: 'notification-click' }); } catch (e) {}
+        return;
       }
+      // 只有系统已经把网页进程彻底回收、没有任何窗口时，才新建页面。
       return self.clients.openWindow ? self.clients.openWindow('/') : undefined;
     })
   );

@@ -3330,13 +3330,6 @@
                         <div class="flex-1 overflow-y-auto px-5 pb-6 space-y-5">
 
                             <div>
-                                <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-2">对方名字</p>
-                                <input v-model="profiles.them.name" placeholder="例如：沈星回" autocomplete="off"
-                                       class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 rounded-xl px-3 py-2.5 text-xs outline-none text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-accent">
-                                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">修改后立即同步到陪伴页、聊天称呼和头像首字</p>
-                            </div>
-
-                            <div>
                                 <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-2">背景图</p>
                                 <div class="flex gap-2">
                                     <label class="flex-1 py-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center text-xs text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
@@ -3698,56 +3691,56 @@
 const __readKeepAliveSetting = () => {
     try {
         const raw = localStorage.getItem('app_fusion_v6_backup');
-        if (!raw) return true;
+        if (!raw) return true; // 默认开启
         const d = JSON.parse(raw);
         return d?.settings?.bgKeepAlive !== false;
     } catch (e) { return true; }
 };
-
-// 后台稳定性现在交给 Cloudflare Cron + OneSignal。
-// 这里不再播放“静音音频”、不再占用 MediaSession，也不再申请 Wake Lock，
-// 避免 App 回到前台时抢占/压低 YouTube、Spotify 等其它媒体的音量。
 let __keepAliveEnabled = __readKeepAliveSetting();
 
 if ('serviceWorker' in navigator) {
     const startPing = () => {
-        if (!__keepAliveEnabled || window.__swPingStarted) return;
+        if (!__keepAliveEnabled) return;
+        if (window.__swPingStarted) return;
         window.__swPingStarted = true;
         window.__swPingId = safeSetInterval(() => {
             const ctrl = navigator.serviceWorker.controller;
-            if (ctrl) ctrl.postMessage({ type: 'ping', ts: Date.now() });
-            else {
+            if (ctrl) {
+                ctrl.postMessage({ type: 'ping', ts: Date.now() });
+            } else {
                 window.__swPingStarted = false;
                 safeClearInterval(window.__swPingId);
             }
-        }, 30000);
+        }, 60000);
     };
     const stopPing = () => {
         window.__swPingStarted = false;
         if (window.__swPingId) safeClearInterval(window.__swPingId);
-        window.__swPingId = null;
     };
     window.__swStartPing = startPing;
     window.__swStopPing = stopPing;
 
     const onSWReady = (reg) => {
         window.__swReg = reg;
-        startPing();
-        // Background Sync 仅作机会性唤醒，不承担定时主动消息。
-        try { reg.sync?.register('keep-alive').catch(() => {}); } catch (e) {}
+        if (document.visibilityState === 'visible') startPing();
     };
 
     navigator.serviceWorker.ready.then(onSWReady).catch(() => {});
-    if (navigator.serviceWorker.controller) setTimeout(() => startPing(), 0);
+
+    if (navigator.serviceWorker.controller) {
+        setTimeout(() => startPing(), 0);
+    }
 
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-        stopPing();
+        window.__swPingStarted = false;
+        if (window.__swPingId) safeClearInterval(window.__swPingId);
         navigator.serviceWorker.ready.then(onSWReady).catch(() => {});
     });
 
     navigator.serviceWorker.addEventListener('message', e => {
         if (!e.data) return;
         if (e.data.type === 'pong') window.__lastPong = Date.now();
+        // 后台唤醒只检查主动消息时间，不允许 SW 绕过 activeInterval 直接发消息
         if (e.data.type === 'trigger-reply') window.__app_checkActiveMsg?.();
         if (e.data.type === 'navigate-to-chat') window.__app_navigateToChat?.();
     });
@@ -3757,21 +3750,36 @@ document.addEventListener('visibilitychange', () => {
     const ctrl = navigator.serviceWorker?.controller;
     if (document.visibilityState === 'hidden') {
         ctrl?.postMessage({ type: 'page-hidden', ts: Date.now() });
-        try { window.__swReg?.sync?.register('keep-alive').catch(() => {}); } catch (e) {}
+        window.__swStopPing?.();
     } else {
+        if (__keepAliveEnabled) window.__swStartPing?.();
+        try { window.__resumeCompanionAudio?.(); } catch (e) {}
         try { window.__app_checkActiveMsg?.(); } catch (e) {}
-        try { updateCallDuration?.(); } catch (e) {}
-        try { companionSyncTimer?.(); } catch (e) {}
     }
 });
-
-// 保留原有设置项的兼容性，但它现在只控制 SW 轻量连接监测，
-// 不会创建任何音频播放、MediaSession 或 Wake Lock。
-window.__setKeepAlive = (enabled) => {
-    __keepAliveEnabled = !!enabled;
-    if (__keepAliveEnabled) window.__swStartPing?.();
-    else window.__swStopPing?.();
-};
+window.addEventListener('pageshow', () => {
+    if (document.visibilityState === 'visible') {
+        if (__keepAliveEnabled) window.__swStartPing?.();
+        try { window.__resumeCompanionAudio?.(); } catch (e) {}
+    }
+});
+(function() {
+    // 不再使用静音音频、MediaSession、Wake Lock 或隐藏 AudioContext 伪造后台保活。
+    // 这些机制会与手机正在播放的其它媒体争夺音频焦点，也无法可靠阻止 Android 挂起网页。
+    // 真正的后台主动消息由 Cloudflare Cron + OneSignal 负责。
+    const setKeepAlive = (enabled) => {
+        __keepAliveEnabled = !!enabled;
+        if (__keepAliveEnabled) {
+            if (document.visibilityState === 'visible') window.__swStartPing?.();
+        } else {
+            window.__swStopPing?.();
+        }
+    };
+    window.__setKeepAlive = setKeepAlive;
+    window.__silentAudio = null;
+    window.__silentAudioCtx = null;
+    window.__wl = null;
+})();
 
 const workerCode = `
     let timers = {};
@@ -3986,8 +3994,6 @@ createApp({
         });
         const callDurationSeconds = ref(0);
         let callDurationTimer = null;
-        // 不依赖 setInterval 次数，避免切后台/系统通话时 JS 被暂停造成时长停止。
-        let callStartedAt = 0;
         let callRingTimer = null;
         let callRingInterval = null;
         let randomCallTimer = null;
@@ -4388,7 +4394,6 @@ createApp({
         const companionTimerRunning = ref(false);
         const companionTimerSeconds = ref(0); // 已计时的有效秒数（暂停不计入）
         let companionTimerInterval = null;
-        // 使用绝对时间计算，切后台/锁屏后即使 JS 定时器被暂停，也不会少计。
         let companionTimerStartedAt = 0;
         let companionTimerBaseSeconds = 0;
 
@@ -4465,16 +4470,15 @@ createApp({
                 companionTimerStartedAt = 0;
                 companionTimerBaseSeconds = companionTimerSeconds.value;
                 if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
+                companionStopNoise();
                 companionTimeUpToast();
             }
         };
-
         const companionStartTimerInterval = () => {
             if (companionTimerInterval) safeClearInterval(companionTimerInterval);
             companionTimerInterval = safeSetInterval(companionSyncTimer, 1000);
             companionSyncTimer();
         };
-
         const companionStart = () => {
             settings.companionLastEvent = companionEventName.value.trim();
             companionSessionStarted.value = true;
@@ -4547,10 +4551,10 @@ createApp({
             try { if (companionAudioCtx && companionAudioCtx.state !== 'closed') companionAudioCtx.suspend(); } catch(e) {}
             companionSessionStarted.value = false;
             companionTimerRunning.value = false;
-            companionTimerStartedAt = 0;
-            companionTimerBaseSeconds = 0;
             if (companionTimerInterval) { safeClearInterval(companionTimerInterval); companionTimerInterval = null; }
             companionTimerSeconds.value = 0;
+            companionTimerStartedAt = 0;
+            companionTimerBaseSeconds = 0;
             companionFloatMessages.value = [];
             companionMyFloatToast.show = false;
             companionTempInput.value = '';
@@ -4712,6 +4716,24 @@ createApp({
         watch(() => settings.companionNoiseType, () => {
             if (modals.companion && companionSessionStarted.value && !companionNoiseMuted.value) companionPlayNoise();
         });
+        // 锁屏/切后台后系统可能挂起 Web Audio；回到前台时只恢复陪伴自己的音频。
+        // 不创建隐藏音频、不触碰 MediaSession，因此不会压低其它 App 的音乐。
+        window.__resumeCompanionAudio = () => {
+            if (!modals.companion || !companionSessionStarted.value || companionNoiseMuted.value) return;
+            try {
+                if (companionCustomAudioEl) {
+                    companionCustomAudioEl.play().catch(() => {});
+                    return;
+                }
+                if (companionAudioCtx?.state === 'suspended') {
+                    companionAudioCtx.resume().then(() => {
+                        if (!companionNoiseSource) companionPlayNoise();
+                    }).catch(() => {});
+                } else if (!companionNoiseSource && settings.companionNoiseType && settings.companionNoiseType !== 'none') {
+                    companionPlayNoise();
+                }
+            } catch (e) {}
+        };
         watch(() => settings.companionNoiseVolume, (v) => {
             const vol = Math.max(0, Math.min(1, (v || 50) / 100));
             if (companionNoiseGain) companionNoiseGain.gain.value = vol * 0.5;
@@ -5311,12 +5333,6 @@ createApp({
             const res = await cloudFetch('/api/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
             if (!res.ok) return;
             const cloud = await res.json();
-            // Worker 在后台发消息后会把下一次绝对触发时间写回云端。
-            // 回前台先同步这个时间点，避免“后台已推送一次 + 前端又立即补发一次”。
-            if (cloud?.settings && Number(cloud.settings.activeMsgNextFireAt)) {
-                settings.activeMsgNextFireAt = Number(cloud.settings.activeMsgNextFireAt);
-                activeMsgNextFireAt = Number(cloud.settings.activeMsgNextFireAt);
-            }
             if (cloud && Array.isArray(cloud.pendingMessages) && cloud.pendingMessages.length) {
                 for (const m of cloud.pendingMessages) {
                     messages.value.push({
@@ -5822,20 +5838,14 @@ createApp({
             nextTick(() => lucide.createIcons());
         };
 
-        const updateCallDuration = () => {
-            if (!callStartedAt || !['active','minimized'].includes(callState.status)) return;
-            callDurationSeconds.value = Math.max(0, Math.floor((Date.now() - callStartedAt) / 1000));
-        };
-
         const startActiveCall = () => {
             stopCallRinging();
             if (callRingTimer) { safeClearTimeout(callRingTimer); callRingTimer = null; }
             callState.status = 'active';
-            callStartedAt = Date.now();
             callDurationSeconds.value = 0;
-            if (callDurationTimer) safeClearInterval(callDurationTimer);
-            callDurationTimer = safeSetInterval(updateCallDuration, 1000);
-            updateCallDuration();
+            callDurationTimer = safeSetInterval(() => {
+                callDurationSeconds.value++;
+            }, 1000);
             nextTick(() => lucide.createIcons());
         };
 
@@ -5871,11 +5881,7 @@ createApp({
             if (callDurationTimer) { safeClearInterval(callDurationTimer); callDurationTimer = null; }
 
             const wasActive = callState.status === 'active' || callState.status === 'minimized';
-            if (wasActive) updateCallDuration();
-            const duration = wasActive && callStartedAt
-                ? Math.max(0, Math.floor((Date.now() - callStartedAt) / 1000))
-                : callDurationSeconds.value;
-            callStartedAt = 0;
+            const duration = callDurationSeconds.value;
             callState.status = 'idle';
             callDurationSeconds.value = 0;
             callWindowSize.value = 'fullscreen';
