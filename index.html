@@ -3698,31 +3698,34 @@
 const __readKeepAliveSetting = () => {
     try {
         const raw = localStorage.getItem('app_fusion_v6_backup');
-        if (!raw) return true; // 默认开启
+        if (!raw) return true;
         const d = JSON.parse(raw);
         return d?.settings?.bgKeepAlive !== false;
     } catch (e) { return true; }
 };
+
+// 后台稳定性现在交给 Cloudflare Cron + OneSignal。
+// 这里不再播放“静音音频”、不再占用 MediaSession，也不再申请 Wake Lock，
+// 避免 App 回到前台时抢占/压低 YouTube、Spotify 等其它媒体的音量。
 let __keepAliveEnabled = __readKeepAliveSetting();
 
 if ('serviceWorker' in navigator) {
     const startPing = () => {
-        if (!__keepAliveEnabled) return;
-        if (window.__swPingStarted) return;
+        if (!__keepAliveEnabled || window.__swPingStarted) return;
         window.__swPingStarted = true;
         window.__swPingId = safeSetInterval(() => {
             const ctrl = navigator.serviceWorker.controller;
-            if (ctrl) {
-                ctrl.postMessage({ type: 'ping', ts: Date.now() });
-            } else {
+            if (ctrl) ctrl.postMessage({ type: 'ping', ts: Date.now() });
+            else {
                 window.__swPingStarted = false;
                 safeClearInterval(window.__swPingId);
             }
-        }, 15000);
+        }, 30000);
     };
     const stopPing = () => {
         window.__swPingStarted = false;
         if (window.__swPingId) safeClearInterval(window.__swPingId);
+        window.__swPingId = null;
     };
     window.__swStartPing = startPing;
     window.__swStopPing = stopPing;
@@ -3730,25 +3733,21 @@ if ('serviceWorker' in navigator) {
     const onSWReady = (reg) => {
         window.__swReg = reg;
         startPing();
-        reg.sync?.register('keep-alive').catch(() => {});
+        // Background Sync 仅作机会性唤醒，不承担定时主动消息。
+        try { reg.sync?.register('keep-alive').catch(() => {}); } catch (e) {}
     };
 
     navigator.serviceWorker.ready.then(onSWReady).catch(() => {});
-
-    if (navigator.serviceWorker.controller) {
-        setTimeout(() => startPing(), 0);
-    }
+    if (navigator.serviceWorker.controller) setTimeout(() => startPing(), 0);
 
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.__swPingStarted = false;
-        if (window.__swPingId) safeClearInterval(window.__swPingId);
+        stopPing();
         navigator.serviceWorker.ready.then(onSWReady).catch(() => {});
     });
 
     navigator.serviceWorker.addEventListener('message', e => {
         if (!e.data) return;
         if (e.data.type === 'pong') window.__lastPong = Date.now();
-        // 后台唤醒只检查主动消息时间，不允许 SW 绕过 activeInterval 直接发消息
         if (e.data.type === 'trigger-reply') window.__app_checkActiveMsg?.();
         if (e.data.type === 'navigate-to-chat') window.__app_navigateToChat?.();
     });
@@ -3758,165 +3757,21 @@ document.addEventListener('visibilitychange', () => {
     const ctrl = navigator.serviceWorker?.controller;
     if (document.visibilityState === 'hidden') {
         ctrl?.postMessage({ type: 'page-hidden', ts: Date.now() });
-        // Background Sync 只能作为机会性的唤醒，不把它当精确定时器。
         try { window.__swReg?.sync?.register('keep-alive').catch(() => {}); } catch (e) {}
     } else {
-        // 回前台时立刻用绝对时间校正所有依赖页面计时器的功能。
         try { window.__app_checkActiveMsg?.(); } catch (e) {}
         try { updateCallDuration?.(); } catch (e) {}
         try { companionSyncTimer?.(); } catch (e) {}
-        if (__keepAliveEnabled && window.__silentAudioCtx?.state === 'suspended') {
-            window.__silentAudioCtx.resume().catch(() => {});
-        }
-        if (__keepAliveEnabled) window.__silentAudio?.play().catch(() => {});
     }
 });
-(function() {
-    const lock = async () => {
-        if (!__keepAliveEnabled) return;
-        if (!('wakeLock' in navigator) || window.__wl?.released === false) return;
-        try { window.__wl = await navigator.wakeLock.request('screen'); } catch(e) {}
-    };
-    const unlock = () => {
-        try { window.__wl?.release(); } catch(e) {}
-        window.__wl = null;
-    };
-    if (__keepAliveEnabled) lock();
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && __keepAliveEnabled) {
-            lock();
-            window.__silentAudio?.play().catch(() => {});
-            window.__silentAudioCtx?.state === 'suspended' &&
-                window.__silentAudioCtx.resume().catch(() => {});
-            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-        }
-    });
 
-    // 0.3秒静音WAV，循环播放用于后台保活
-    const SILENT_WAV = 'data:audio/wav;base64,' +
-        'UklGRoQJAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YWAJAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA' +
-        'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA=';
-    const silentAudio = new Audio(SILENT_WAV);
-    silentAudio.loop = true;
-    silentAudio.preload = 'auto';
-    silentAudio.playsInline = true;
-    silentAudio.volume = 0.001;
-    window.__silentAudio = silentAudio;
-
-    const setupMediaSession = () => {
-        if (!('mediaSession' in navigator)) return;
-        try {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: '静语·星降',
-                artist: '正在后台保持连接，确保消息不错过',
-                artwork: [
-                    { src: location.origin + '/icon-192.png', sizes: '192x192', type: 'image/png' },
-                    { src: location.origin + '/icon-512.png', sizes: '512x512', type: 'image/png' }
-                ]
-            });
-            navigator.mediaSession.playbackState = 'playing';
-            navigator.mediaSession.setActionHandler('play', () => {
-                silentAudio.play().catch(() => {});
-                navigator.mediaSession.playbackState = 'playing';
-            });
-            navigator.mediaSession.setActionHandler('pause', () => {
-                silentAudio.play().catch(() => {});
-                navigator.mediaSession.playbackState = 'playing';
-            });
-        } catch (e) {}
-    };
-    const clearMediaSession = () => {
-        if (!('mediaSession' in navigator)) return;
-        try {
-            navigator.mediaSession.playbackState = 'none';
-            navigator.mediaSession.metadata = null;
-        } catch (e) {}
-    };
-
-    // 浏览器通常禁止页面加载时自动播放。第一次真实用户操作后再启动，
-    // 这样后台保活音频才有机会进入“已授权播放”状态。
-    const primeKeepAliveFromGesture = () => {
-        if (!__keepAliveEnabled) return;
-        silentAudio.play().then(setupMediaSession).catch(() => {});
-        startAudioCtx();
-    };
-    ['pointerdown','touchstart','keydown'].forEach(type => {
-        document.addEventListener(type, primeKeepAliveFromGesture, { passive: true });
-    });
-
-    if (__keepAliveEnabled) { silentAudio.play().then(setupMediaSession).catch(() => {}); }
-
-    let audioCtxOk = false;
-    const startAudioCtx = () => {
-        if (!__keepAliveEnabled || audioCtxOk) return;
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            window.__silentAudioCtx = ctx;
-            const src = ctx.createBufferSource();
-            src.buffer = ctx.createBuffer(1, 1, 22050);
-            src.loop = true;
-            const g = ctx.createGain(); g.gain.value = 0.001;
-            src.connect(g); g.connect(ctx.destination); src.start();
-            audioCtxOk = true;
-        } catch(e) {}
-    };
-    const stopAudioCtx = () => {
-        try { window.__silentAudioCtx?.close(); } catch(e) {}
-        window.__silentAudioCtx = null;
-        audioCtxOk = false;
-    };
-
-    const startAll = () => {
-        if (!__keepAliveEnabled) return;
-    // 不管播放是否成功，都立即设置媒体会话
-        setupMediaSession(); 
-        silentAudio.play().catch(() => {});
-        startAudioCtx();
-    };
-    setInterval(() => {
-        if (!__keepAliveEnabled) return;
-        if (silentAudio.paused) {
-            silentAudio.play().then(setupMediaSession).catch(() => {});
-        }
-        if (window.__silentAudioCtx?.state === 'suspended') {
-            window.__silentAudioCtx.resume().catch(() => {});
-        }
-        if ('mediaSession' in navigator && navigator.mediaSession.playbackState !== 'playing') {
-            navigator.mediaSession.playbackState = 'playing';
-        }
-    }, 30000);
-
-    window.__setKeepAlive = (enabled) => {
-        __keepAliveEnabled = !!enabled;
-        if (__keepAliveEnabled) {
-            window.__swStartPing?.();
-            lock();
-            silentAudio.play().then(setupMediaSession).catch(() => {});
-            startAudioCtx();
-        } else {
-            window.__swStopPing?.();
-            unlock();
-            silentAudio.pause();
-            stopAudioCtx();
-            clearMediaSession();
-        }
-    };
-})();
+// 保留原有设置项的兼容性，但它现在只控制 SW 轻量连接监测，
+// 不会创建任何音频播放、MediaSession 或 Wake Lock。
+window.__setKeepAlive = (enabled) => {
+    __keepAliveEnabled = !!enabled;
+    if (__keepAliveEnabled) window.__swStartPing?.();
+    else window.__swStopPing?.();
+};
 
 const workerCode = `
     let timers = {};
@@ -5456,6 +5311,12 @@ createApp({
             const res = await cloudFetch('/api/sync-load?deviceId=' + encodeURIComponent(CLOUD_DEVICE_ID), { signal: AbortSignal.timeout(6000) });
             if (!res.ok) return;
             const cloud = await res.json();
+            // Worker 在后台发消息后会把下一次绝对触发时间写回云端。
+            // 回前台先同步这个时间点，避免“后台已推送一次 + 前端又立即补发一次”。
+            if (cloud?.settings && Number(cloud.settings.activeMsgNextFireAt)) {
+                settings.activeMsgNextFireAt = Number(cloud.settings.activeMsgNextFireAt);
+                activeMsgNextFireAt = Number(cloud.settings.activeMsgNextFireAt);
+            }
             if (cloud && Array.isArray(cloud.pendingMessages) && cloud.pendingMessages.length) {
                 for (const m of cloud.pendingMessages) {
                     messages.value.push({
